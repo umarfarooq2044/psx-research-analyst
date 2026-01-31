@@ -80,16 +80,23 @@ def generate_hourly_update_html(
     for i, item in enumerate(market_moving[:8]):
         impact_color = '#ff4757' if item.get('market_impact') == 'high' else '#ffa502'
         sent_arrow = '↑' if item['sentiment'] > 0 else '↓' if item['sentiment'] < 0 else '→'
+        
+        # Show impacted tickers if any
+        tickers_html = ""
+        if item.get('tickers'):
+            tickers_html = f"<div style='margin-top:4px;'><span style='background:#1f6feb; color:white; padding:2px 6px; border-radius:4px; font-size:10px;'>{' '.join(item['tickers'])}</span></div>"
+            
         market_news_html += f"""
         <tr>
             <td style="padding: 12px; border-bottom: 1px solid #30363d;">
                 <span style="color: {impact_color}; font-weight: bold;">{item.get('market_impact', 'medium').upper()}</span>
             </td>
             <td style="padding: 12px; border-bottom: 1px solid #30363d;">
-                <a href="{item.get('url', '#')}" style="color: #58a6ff; text-decoration: none;">
-                    {item['headline'][:80]}...
+                <a href="{item.get('url', '#')}" style="color: #c9d1d9; text-decoration: none; font-weight: 500;">
+                    {item['headline']}
                 </a>
-                <br><span style="color: #8b949e; font-size: 12px;">{item['source']}</span>
+                {tickers_html}
+                <div style="color: #8b949e; font-size: 11px; margin-top: 2px;">{item['source']}</div>
             </td>
             <td style="padding: 12px; border-bottom: 1px solid #30363d; text-align: center;">
                 <span style="color: {'#00d26a' if item['sentiment'] > 0 else '#ff4757' if item['sentiment'] < 0 else '#8b949e'};">
@@ -336,12 +343,34 @@ def run_hourly_update() -> Dict:
     print("\n[4/5] Generating Intelligence Reports...")
     csv_path = generate_hourly_news_csv(news_data)
     
-    # Prepare High Risk List (News Negative + Technical Breakdown)
-    high_risk_stocks = []
+    # Prepare High Risk / Opportunity List (News + Technical Correlation)
+    smart_signals = []
+    
+    # Create lookup for market moving news by ticker
+    news_map = {}
     for item in market_moving:
-        if item.get('sentiment', 0) < -0.3:
-            # Extract symbol if mentioned? For now, just news items
-            pass
+        for t in item.get('tickers', []):
+            if t not in news_map: news_map[t] = []
+            news_map[t].append(item)
+            
+    # Check for correlation
+    for spike in volume_spikes:
+        sym = spike['symbol']
+        if sym in news_map:
+            # We have a Match! Volume Spike + News
+            news_items = news_map[sym]
+            avg_sent = sum(n['sentiment'] for n in news_items) / len(news_items)
+            
+            if avg_sent > 0.1 and spike['change'] > 0:
+                smart_signals.append(f"🚀 **{sym} (Strong Buy)**: Volume Breakout confirmed by Positive News")
+            elif avg_sent < -0.1 and spike['change'] < 0:
+                smart_signals.append(f"🔻 **{sym} (Strong Sell)**: Panic Selling confirmed by Negative News")
+            else:
+                smart_signals.append(f"⚠️ **{sym} (Watch)**: High Volume on Mixed News")
+
+    # Add these smart signals to alerts
+    if smart_signals:
+        alerts = smart_signals + alerts
             
     # 5. Send Email
     print("\n[5/5] Sending Executive Summary...")

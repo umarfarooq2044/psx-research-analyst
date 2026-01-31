@@ -43,12 +43,12 @@ class ComprehensiveNewsScraper:
         self.session = requests.Session()
         self.session.headers.update(self.headers)
     
-    def _parse_feed(self, url: str, source: str, category: str = 'national', limit: int = 10) -> List[Dict]:
+    def _parse_feed(self, url: str, source: str, category: str = 'national', limit: int = 100) -> List[Dict]:
         """Helper to parse RSS feeds"""
         news = []
         try:
             feed = feedparser.parse(url)
-            for entry in feed.entries[:limit]:
+            for entry in feed.entries: # Iterate all, limit applied by logic if needed, but we want ALL
                 title = entry.title
                 link = entry.link
                 
@@ -61,11 +61,12 @@ class ComprehensiveNewsScraper:
                     'url': link,
                     'sentiment': sentiment['compound'],
                     'category': category,
-                    'timestamp': datetime.now().isoformat()
+                    'timestamp': datetime.now().isoformat(),
+                    'tickers': [] # Will be populated later
                 })
         except Exception as e:
             print(f"RSS Error ({source}): {e}")
-        return news
+        return news[:limit]
 
     # =========================================================================
     # PAKISTANI NEWS SOURCES (RSS)
@@ -108,7 +109,7 @@ class ComprehensiveNewsScraper:
                 # Try generic selectors for Reuters structure
                 articles = soup.select('h3[data-testid="Heading"], h3 a') 
                 
-                for article in articles[:10]:
+                for article in articles[:50]: # Increased from 10 to 50
                     title = article.get_text(strip=True)
                     if not title: continue
                     
@@ -173,6 +174,140 @@ class ComprehensiveNewsScraper:
             print(f"PSX Notices error: {e}")
         return news
 
+    # Method collect_all_news is now defined above to include mapping logic.
+    # This block is just to ensure clean file state if needed.
+    pass
+    
+    def get_market_moving_news(self) -> List[Dict]:
+        """
+        Filter news that's likely to move the market.
+        Now performs DEEP ANALYSIS by reading the full article text.
+        """
+        from news.article_fetcher import fetch_articles_sync
+        
+        all_news = self.collect_all_news()
+        
+        market_moving = []
+        # Initial broad keyword filter
+        keywords = [
+            'interest rate', 'sbp', 'imf', 'budget', 'tax', 'energy', 'oil',
+            'gas', 'electricity', 'rupee', 'dollar', 'inflation', 'gdp',
+            'export', 'import', 'trade deficit', 'remittances', 'privatization',
+            'ipo', 'dividend', 'profit', 'loss', 'result', 'quarterly',
+            'merger', 'acquisition', 'investment', 'foreign', 'fdi',
+            'political', 'election', 'court', 'circular debt', 'capacity payment'
+        ]
+        
+        candidates = []
+        for category in ['national', 'international', 'announcements']:
+            for item in all_news.get(category, []):
+                headline = item.get('headline', '').lower()
+                # If high sentiment or keyword match, it's a candidate for deep reading
+                if any(kw in headline for kw in keywords) or abs(item.get('sentiment', 0)) > 0.2:
+                    candidates.append(item)
+        
+        print(f"\n🧠 Deep Learning: Reading full text of {len(candidates)} potential market movers...")
+        
+        # Batch fetch content
+        urls = [c['url'] for c in candidates if c.get('url')]
+        contents = fetch_articles_sync(urls)
+        
+        for item in candidates:
+            url = item.get('url')
+            full_text = contents.get(url, "")
+            
+            if full_text:
+                item['body'] = full_text
+                # Re-analyze sentiment on full TEXT (more accurate)
+                # We limit text to 1000 chars for VADER to stay relevant
+                deep_sent = sentiment_analyzer.polarity_scores(full_text[:2000])
+                item['sentiment'] = deep_sent['compound']
+                
+                # Check tickers in BODY
+                self._map_tickers_in_text(item, full_text)
+                
+            # Determine Market Impact based on Deep Analysis
+            is_high_impact = False
+            
+            # Rule 1: High sentiment polarity
+            if abs(item.get('sentiment', 0)) > 0.4:
+                is_high_impact = True
+                
+            # Rule 2: Specific Ticker Mentioned + Significant Sentiment
+            if item.get('tickers') and abs(item.get('sentiment', 0)) > 0.2:
+                is_high_impact = True
+                
+            if is_high_impact:
+                item['market_impact'] = 'high' if abs(item.get('sentiment', 0)) > 0.5 else 'medium'
+                market_moving.append(item)
+        
+        # Sort by sentiment magnitude
+        return sorted(market_moving, key=lambda x: abs(x.get('sentiment', 0)), reverse=True)
+
+    def _map_tickers_in_text(self, item: Dict, text: str):
+        """Helper to find tickers in full text"""
+        try:
+            from database.db_manager import db
+            # This is expensive if run many times, optimization: cache tickers in init?
+            # For now, we trust the DB response is fast or cached by OS
+            all_tickers = db.get_all_tickers()
+            symbol_map = {t['symbol']: t['symbol'] for t in all_tickers}
+            
+            found_tickers = set(item.get('tickers', [])) # Start with headline matches
+            
+            text_upper = text.upper()
+            
+            # Optimization: Only check for tickers if their first letter appears?
+            # Or just check top 100 volume stocks? 
+            # Checking 500 tickers against 2000 chars is 1M comparisons.. fast enough in Python?
+            # It's okay for 20-30 articles.
+            
+            import re
+            for symbol in symbol_map:
+                if re.search(r'\b' + re.escape(symbol) + r'\b', text_upper):
+                    found_tickers.add(symbol)
+                    
+            item['tickers'] = list(found_tickers)
+            
+        except Exception:
+            pass
+
+
+    def map_tickers_to_news(self, news_items: List[Dict]) -> List[Dict]:
+        """
+        Map news headlines to company tickers.
+        E.g. "OGDC discovers oil" -> tickers=['OGDC']
+        """
+        try:
+            # Import here to avoid circular dependencies at module level
+            from database.db_manager import db
+            all_tickers = db.get_all_tickers() # [{'symbol': 'OGDC', 'name': 'Oil & Gas...'}]
+            
+            # create lookup dicts
+            symbol_map = {t['symbol']: t['symbol'] for t in all_tickers}
+            # Simple name mapping: first word of name if unique? Too risky.
+            # Best is to match Symbol directly or full company name
+            
+            for item in news_items:
+                headline = item['headline'].upper()
+                found_tickers = []
+                
+                # Check for direct symbol match (e.g. "OGDC")
+                # Use word boundaries to avoid matching "AND" inside "SAND"
+                import re
+                
+                for symbol in symbol_map:
+                    # Look for symbol as a whole word
+                    if re.search(r'\b' + re.escape(symbol) + r'\b', headline):
+                        found_tickers.append(symbol)
+                
+                item['tickers'] = list(set(found_tickers))
+                
+        except Exception as e:
+            print(f"Ticker mapping error: {e}")
+            
+        return news_items
+
     def collect_all_news(self) -> Dict:
         """Collect news from all sources"""
         print("📰 Collecting news from RSS & Scrapers...")
@@ -217,6 +352,12 @@ class ComprehensiveNewsScraper:
         print("  → PSX Official Notices...")
         all_news['announcements'].extend(self.scrape_psx_notices())
         
+        # MAP TICKERS
+        print("  🔗 Mapping news to tickers...")
+        all_news['national'] = self.map_tickers_to_news(all_news['national'])
+        all_news['announcements'] = self.map_tickers_to_news(all_news['announcements'])
+        # International usually doesn't match PSX tickers directly unless cross-listed
+        
         # Calculate sentiment summary
         all_headlines = all_news['national'] + all_news['international']
         if all_headlines:
@@ -230,30 +371,6 @@ class ComprehensiveNewsScraper:
         
         print(f"✓ Collected {len(all_news['national'])} national + {len(all_news['international'])} international news")
         return all_news
-    
-    def get_market_moving_news(self) -> List[Dict]:
-        """Filter news that's likely to move the market"""
-        all_news = self.collect_all_news()
-        
-        market_moving = []
-        keywords = [
-            'interest rate', 'sbp', 'imf', 'budget', 'tax', 'energy', 'oil',
-            'gas', 'electricity', 'rupee', 'dollar', 'inflation', 'gdp',
-            'export', 'import', 'trade deficit', 'remittances', 'privatization',
-            'ipo', 'dividend', 'profit', 'loss', 'result', 'quarterly',
-            'merger', 'acquisition', 'investment', 'foreign', 'fdi',
-            'political', 'election', 'court'
-        ]
-        
-        for category in ['national', 'international', 'announcements']:
-            for item in all_news.get(category, []):
-                headline = item.get('headline', '').lower()
-                if any(kw in headline for kw in keywords) or abs(item.get('sentiment', 0)) > 0.3:
-                    item['market_impact'] = 'high' if abs(item.get('sentiment', 0)) > 0.5 else 'medium'
-                    market_moving.append(item)
-        
-        return sorted(market_moving, key=lambda x: abs(x.get('sentiment', 0)), reverse=True)
-
 
 # Singleton instance
 news_scraper = ComprehensiveNewsScraper()
