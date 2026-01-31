@@ -1,9 +1,10 @@
-# PSX Research Analyst - Automated Daily Reports
-# This workflow runs automatically on schedule to send market analysis emails
+# PSX Research Analyst - Automated Daily Reports with Hourly Updates
+# =================================================================
 # 
-# Schedule (Pakistan Time):
-#   - Pre-Market: 8:30 AM PKT (Mon-Fri)
-#   - Post-Market: 4:30 PM PKT (Mon-Fri)
+# Schedule (Pakistan Time - Mon-Fri):
+#   - Pre-Market: 8:30 AM PKT
+#   - Hourly Updates: 10:00 AM, 11:00 AM, 12:00 PM, 1:00 PM, 2:00 PM, 3:00 PM PKT
+#   - Post-Market: 4:00 PM PKT
 
 name: PSX Daily Market Reports
 
@@ -11,8 +12,17 @@ on:
   schedule:
     # Pre-market: 8:30 AM PKT = 3:30 AM UTC (Mon-Fri)
     - cron: '30 3 * * 1-5'
-    # Post-market: 4:30 PM PKT = 11:30 AM UTC (Mon-Fri)
-    - cron: '30 11 * * 1-5'
+    
+    # Hourly updates during market hours (10 AM - 3 PM PKT = 5 AM - 10 AM UTC)
+    - cron: '0 5 * * 1-5'   # 10:00 AM PKT
+    - cron: '0 6 * * 1-5'   # 11:00 AM PKT
+    - cron: '0 7 * * 1-5'   # 12:00 PM PKT
+    - cron: '0 8 * * 1-5'   # 1:00 PM PKT
+    - cron: '0 9 * * 1-5'   # 2:00 PM PKT
+    - cron: '0 10 * * 1-5'  # 3:00 PM PKT
+    
+    # Post-market: 4:00 PM PKT = 11:00 AM UTC (Mon-Fri)
+    - cron: '0 11 * * 1-5'
   
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
@@ -20,12 +30,12 @@ on:
       report_type:
         description: 'Report type to run'
         required: true
-        default: 'post_market'
+        default: 'hourly'
         type: choice
         options:
           - pre_market
+          - hourly
           - post_market
-          - mid_day
 
 jobs:
   run-analysis:
@@ -53,14 +63,19 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "type=${{ github.event.inputs.report_type }}" >> $GITHUB_OUTPUT
           else
-            # Determine based on schedule time
+            # Determine based on schedule time (UTC)
             HOUR=$(date -u +%H)
-            if [ "$HOUR" -lt "6" ]; then
+            MINUTE=$(date -u +%M)
+            
+            if [ "$HOUR" -eq "3" ] && [ "$MINUTE" -eq "30" ]; then
               echo "type=pre_market" >> $GITHUB_OUTPUT
+            elif [ "$HOUR" -ge "5" ] && [ "$HOUR" -le "10" ]; then
+              echo "type=hourly" >> $GITHUB_OUTPUT
             else
               echo "type=post_market" >> $GITHUB_OUTPUT
             fi
           fi
+          echo "Determined report type: $(cat $GITHUB_OUTPUT)"
       
       - name: Run Market Analysis
         env:
@@ -68,6 +83,7 @@ jobs:
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
         run: |
+          echo "Running ${{ steps.report.outputs.type }} analysis..."
           python scheduler/orchestrator.py --run ${{ steps.report.outputs.type }}
       
       - name: Upload reports as artifacts

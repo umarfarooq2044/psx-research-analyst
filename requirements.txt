@@ -13,6 +13,7 @@ numpy>=1.23.0
 
 # Sentiment Analysis
 nltk>=3.8.0
+vaderSentiment>=3.3.2
 
 # Scheduling
 schedule>=1.1.0

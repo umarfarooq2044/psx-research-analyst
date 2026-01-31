@@ -498,6 +498,9 @@ def run_now(report_type: str = 'post_market'):
         return orchestrator.run_postmarket_analysis()
     elif report_type == 'weekly':
         return orchestrator.run_weekly_analysis()
+    elif report_type == 'hourly':
+        from report.hourly_update import run_hourly_update
+        return run_hourly_update()
     else:
         print(f"Unknown report type: {report_type}")
         return None
@@ -507,7 +510,7 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description='PSX Research Analyst Scheduler')
-    parser.add_argument('--run', choices=['pre_market', 'mid_day', 'post_market', 'weekly', 'all'],
+    parser.add_argument('--run', choices=['pre_market', 'mid_day', 'post_market', 'weekly', 'hourly', 'all'],
                         help='Run a specific report immediately')
     parser.add_argument('--schedule', action='store_true',
                         help='Start the scheduler')
