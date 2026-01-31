@@ -386,19 +386,27 @@ class ScheduleOrchestrator:
                 action_items=action_items
             )
             
-            # Send email
+            # Generate comprehensive CSV reports
+            print("[8.5/8] Generating comprehensive CSV reports...")
+            from report.csv_generator import generate_all_daily_reports
+            csv_reports = generate_all_daily_reports()
+            attachments = list(csv_reports.values())
+            print(f"  → Generated {len(attachments)} CSV reports for attachment")
+            
+            # Send email with attachments
             from report.email_sender import send_email
             send_email(
                 subject=f"📊 PSX Post-Market Analysis - {datetime.now().strftime('%B %d, %Y')} | KSE-100: {market_summary['close_value']:,.0f}",
-                html_content=html
+                html_content=html,
+                attachments=attachments
             )
             
             db.save_report_history('post_market')
             self.last_run['post_market'] = datetime.now()
             
-            print("\n✅ Post-market analysis complete!")
+            print("\n✅ Post-market analysis complete with CSV attachments!")
             
-            return {'status': 'success', 'report_type': 'post_market'}
+            return {'status': 'success', 'report_type': 'post_market', 'csv_reports': csv_reports}
             
         except Exception as e:
             print(f"\n❌ Post-market analysis failed: {e}")

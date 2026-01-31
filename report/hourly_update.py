@@ -190,30 +190,39 @@ def generate_hourly_update_html(
 
 
 def run_hourly_update() -> Dict:
-    """Run hourly quick update and send email"""
+    """Run hourly quick update and send email with CSV attachment"""
     from report.email_sender import send_email
+    from report.csv_generator import generate_hourly_news_csv
     
     print("=" * 60)
     print(f"⏰ HOURLY QUICK UPDATE - {datetime.now().strftime('%I:%M %p')}")
     print("=" * 60)
     
     # Collect news (lightweight - no price fetching)
-    print("\n[1/3] Collecting news from all sources...")
+    print("\n[1/4] Collecting news from all sources...")
     news_data = get_all_news()
     
-    print("\n[2/3] Identifying market-moving news...")
+    print("\n[2/4] Identifying market-moving news...")
     market_moving = get_market_moving_news()
     
-    print(f"\n[3/3] Generating hourly report...")
+    print("\n[3/4] Generating CSV report...")
+    csv_path = generate_hourly_news_csv(news_data)
+    print(f"  → Created: {os.path.basename(csv_path)}")
+    
+    print(f"\n[4/4] Generating hourly report and sending email...")
     html = generate_hourly_update_html(news_data, market_moving)
     
-    # Send email
+    # Send email with CSV attachment
     current_time = datetime.now()
     subject = f"⏰ PSX Hourly Update - {current_time.strftime('%I:%M %p')} | {news_data.get('sentiment_label', 'Neutral')} Sentiment"
     
     try:
-        send_email(subject=subject, html_content=html)
-        print(f"\n✅ Hourly update sent successfully!")
+        send_email(
+            subject=subject, 
+            html_content=html,
+            attachments=[csv_path]
+        )
+        print(f"\n✅ Hourly update sent with CSV attachment!")
     except Exception as e:
         print(f"\n❌ Email error: {e}")
     
@@ -221,7 +230,8 @@ def run_hourly_update() -> Dict:
         'timestamp': current_time.isoformat(),
         'news_count': len(news_data.get('national', [])) + len(news_data.get('international', [])),
         'market_moving_count': len(market_moving),
-        'sentiment': news_data.get('sentiment_label', 'Neutral')
+        'sentiment': news_data.get('sentiment_label', 'Neutral'),
+        'csv_report': csv_path
     }
 
 
