@@ -7,6 +7,7 @@ from typing import List, Dict, Optional, Tuple
 import os
 import sys
 import math
+import pandas as pd # Optimized math
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import (
@@ -20,134 +21,96 @@ from database.db_manager import db
 
 
 # ============================================================================
-# MOVING AVERAGES
+# MOVING AVERAGES (VECTORIZED)
 # ============================================================================
-
-def calculate_sma(prices: List[float], period: int) -> Optional[float]:
-    """Calculate Simple Moving Average"""
-    if len(prices) < period:
-        return None
-    return sum(prices[:period]) / period
-
-
-def calculate_ema(prices: List[float], period: int) -> Optional[float]:
-    """
-    Calculate Exponential Moving Average
-    Prices should be in reverse chronological order (most recent first)
-    """
-    if len(prices) < period:
-        return None
-    
-    # Reverse to chronological order
-    prices = prices[:period * 2][::-1] if len(prices) >= period * 2 else prices[::-1]
-    
-    multiplier = 2 / (period + 1)
-    ema = prices[0]  # Start with first price
-    
-    for price in prices[1:]:
-        ema = (price * multiplier) + (ema * (1 - multiplier))
-    
-    return round(ema, 2)
-
 
 def calculate_moving_averages(prices: List[float]) -> Dict:
-    """Calculate all moving averages (10, 50, 200 DMA)"""
+    """Calculate all moving averages using pandas (Vectorized)"""
+    if not prices or len(prices) < MA_SHORT:
+        return {'ma_10': None, 'ma_50': None, 'ma_200': None, 'ema_10': None, 'ema_50': None}
+    
+    # Create Series (reverse to chronological for pandas calculation)
+    # Input prices are [newest, ..., oldest]
+    # Pandas needs [oldest, ..., newest]
+    series = pd.Series(prices[::-1])
+    
+    ma_10 = series.rolling(window=MA_SHORT).mean().iloc[-1]
+    ma_50 = series.rolling(window=MA_MEDIUM).mean().iloc[-1]
+    ma_200 = series.rolling(window=MA_LONG).mean().iloc[-1]
+    
+    ema_10 = series.ewm(span=MA_SHORT, adjust=False).mean().iloc[-1]
+    ema_50 = series.ewm(span=MA_MEDIUM, adjust=False).mean().iloc[-1]
+    
     return {
-        'ma_10': calculate_sma(prices, MA_SHORT),
-        'ma_50': calculate_sma(prices, MA_MEDIUM),
-        'ma_200': calculate_sma(prices, MA_LONG) if len(prices) >= MA_LONG else None,
-        'ema_10': calculate_ema(prices, MA_SHORT),
-        'ema_50': calculate_ema(prices, MA_MEDIUM)
+        'ma_10': round(ma_10, 2) if not pd.isna(ma_10) else None,
+        'ma_50': round(ma_50, 2) if not pd.isna(ma_50) else None,
+        'ma_200': round(ma_200, 2) if not pd.isna(ma_200) else None,
+        'ema_10': round(ema_10, 2) if not pd.isna(ema_10) else None,
+        'ema_50': round(ema_50, 2) if not pd.isna(ema_50) else None
     }
 
-
 # ============================================================================
-# RSI
+# RSI (VECTORIZED)
 # ============================================================================
 
 def calculate_rsi(prices: List[float], period: int = RSI_PERIOD) -> Optional[float]:
-    """
-    Calculate Relative Strength Index (RSI)
-    
-    Args:
-        prices: List of closing prices (most recent first)
-        period: RSI period (default 14)
-    
-    Returns:
-        RSI value (0-100) or None if not enough data
-    """
-    if len(prices) < period + 1:
+    """Calculate RSI using pandas (Vectorized)"""
+    if not prices or len(prices) < period + 1:
         return None
     
-    # Reverse to chronological order (oldest first)
-    prices = prices[:period + 1][::-1]
+    # Chronological order
+    series = pd.Series(prices[::-1])
+    delta = series.diff()
     
-    # Calculate price changes
-    changes = [prices[i] - prices[i-1] for i in range(1, len(prices))]
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
     
-    # Separate gains and losses
-    gains = [max(0, change) for change in changes]
-    losses = [abs(min(0, change)) for change in changes]
-    
-    # Calculate average gains and losses
-    avg_gain = sum(gains) / period
-    avg_loss = sum(losses) / period
-    
-    if avg_loss == 0:
-        return 100.0
-    
-    rs = avg_gain / avg_loss
+    rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
     
-    return round(rsi, 2)
+    val = rsi.iloc[-1]
+    return round(val, 2) if not pd.isna(val) else 50.0
 
 
 # ============================================================================
 # MACD
 # ============================================================================
 
+# ============================================================================
+# MACD (VECTORIZED)
+# ============================================================================
+
 def calculate_macd(prices: List[float]) -> Dict:
-    """
-    Calculate MACD (Moving Average Convergence Divergence)
-    
-    Returns:
-        macd: MACD line (12 EMA - 26 EMA)
-        signal: Signal line (9 EMA of MACD)
-        histogram: MACD - Signal
-    """
-    if len(prices) < MACD_SLOW + MACD_SIGNAL:
+    """Calculate MACD using pandas (Vectorized)"""
+    if not prices or len(prices) < MACD_SLOW + MACD_SIGNAL:
         return {'macd': None, 'signal': None, 'histogram': None, 'trend': None}
+        
+    series = pd.Series(prices[::-1])
     
-    # Calculate EMAs
-    ema_fast = calculate_ema(prices, MACD_FAST)
-    ema_slow = calculate_ema(prices, MACD_SLOW)
+    exp1 = series.ewm(span=MACD_FAST, adjust=False).mean()
+    exp2 = series.ewm(span=MACD_SLOW, adjust=False).mean()
+    macd = exp1 - exp2
+    signal = macd.ewm(span=MACD_SIGNAL, adjust=False).mean()
+    histogram = macd - signal
     
-    if ema_fast is None or ema_slow is None:
-        return {'macd': None, 'signal': None, 'histogram': None, 'trend': None}
-    
-    macd_line = round(ema_fast - ema_slow, 2)
-    
-    # For signal line, we need historical MACD values
-    # Simplified: use current MACD as approximation
-    # In production, maintain MACD history
-    signal_line = round(macd_line * 0.9, 2)  # Approximation
-    
-    histogram = round(macd_line - signal_line, 2)
+    macd_val = macd.iloc[-1]
+    signal_val = signal.iloc[-1]
+    hist_val = histogram.iloc[-1]
     
     # Determine trend
-    if macd_line > signal_line and macd_line > 0:
+    if macd_val > signal_val and macd_val > 0:
         trend = 'bullish'
-    elif macd_line < signal_line and macd_line < 0:
+    elif macd_val < signal_val and macd_val < 0:
         trend = 'bearish'
-    elif macd_line > signal_line:
+    elif macd_val > signal_val:
         trend = 'turning_bullish'
     else:
         trend = 'turning_bearish'
-    
+        
     return {
-        'macd': macd_line,
-        'signal': signal_line,
-        'histogram': histogram,
+        'macd': round(macd_val, 2),
+        'signal': round(signal_val, 2),
+        'histogram': round(hist_val, 2),
         'trend': trend
     }
 
@@ -156,45 +119,43 @@ def calculate_macd(prices: List[float]) -> Dict:
 # BOLLINGER BANDS
 # ============================================================================
 
+# ============================================================================
+# BOLLINGER BANDS (VECTORIZED)
+# ============================================================================
+
 def calculate_bollinger_bands(prices: List[float], period: int = BOLLINGER_PERIOD, 
                               std_dev: int = BOLLINGER_STD) -> Dict:
-    """
-    Calculate Bollinger Bands
-    
-    Returns:
-        upper: Upper band (SMA + 2*std)
-        middle: Middle band (SMA)
-        lower: Lower band (SMA - 2*std)
-        bandwidth: (Upper - Lower) / Middle
-        position: Current price position within bands (0-100)
-    """
-    if len(prices) < period:
+    """Calculate Bollinger Bands using pandas (Vectorized)"""
+    if not prices or len(prices) < period:
         return {
             'upper': None, 'middle': None, 'lower': None,
             'bandwidth': None, 'position': None, 'signal': None
         }
+        
+    series = pd.Series(prices[::-1])
     
-    # Calculate SMA (middle band)
-    sma = calculate_sma(prices, period)
+    middle = series.rolling(window=period).mean()
+    std = series.rolling(window=period).std()
     
-    # Calculate standard deviation
-    variance = sum((p - sma) ** 2 for p in prices[:period]) / period
-    std = math.sqrt(variance)
+    upper = middle + (std * std_dev)
+    lower = middle - (std * std_dev)
     
-    upper = round(sma + (std_dev * std), 2)
-    lower = round(sma - (std_dev * std), 2)
-    middle = round(sma, 2)
+    upper_val = upper.iloc[-1]
+    lower_val = lower.iloc[-1]
+    middle_val = middle.iloc[-1]
     
-    # Calculate bandwidth
-    bandwidth = round((upper - lower) / middle * 100, 2) if middle else None
-    
-    # Calculate price position (0 = at lower band, 100 = at upper band)
+    # Calculate additional metrics
+    if not pd.isna(middle_val) and middle_val != 0:
+        bandwidth = round((upper_val - lower_val) / middle_val * 100, 2)
+    else:
+        bandwidth = None
+        
     current_price = prices[0]
-    if upper != lower:
-        position = round((current_price - lower) / (upper - lower) * 100, 2)
+    if upper_val != lower_val:
+        position = round((current_price - lower_val) / (upper_val - lower_val) * 100, 2)
     else:
         position = 50
-    
+        
     # Determine signal
     if position < 5:
         signal = 'oversold'
@@ -206,11 +167,11 @@ def calculate_bollinger_bands(prices: List[float], period: int = BOLLINGER_PERIO
         signal = 'near_upper'
     else:
         signal = 'neutral'
-    
+        
     return {
-        'upper': upper,
-        'middle': middle,
-        'lower': lower,
+        'upper': round(upper_val, 2) if not pd.isna(upper_val) else None,
+        'middle': round(middle_val, 2) if not pd.isna(middle_val) else None,
+        'lower': round(lower_val, 2) if not pd.isna(lower_val) else None,
         'bandwidth': bandwidth,
         'position': position,
         'signal': signal
