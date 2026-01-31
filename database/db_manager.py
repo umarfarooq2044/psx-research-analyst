@@ -14,7 +14,7 @@ from database.models import (
     get_db_session, init_database,
     Ticker, PriceHistory, Announcement, AnalysisResult, GlobalMarket,
     KSE100Index, SectorIndex, NewsHeadline, StockScore, TechnicalIndicator,
-    ReportHistory, AlertHistory
+    ReportHistory, AlertHistory, Fundamentals
 )
 
 class DBManager:
@@ -246,6 +246,64 @@ class DBManager:
                     'details': json.loads(score.score_details) if score.score_details else {}
                 }
             return None
+
+    # ==================== FUNDAMENTALS OPERATIONS ====================
+    
+    def save_fundamentals(self, symbol: str, data: Dict):
+        """Save fundamental data"""
+        with get_db_session() as session:
+            # Import Fundamentals model inside method to avoid circular import issues if any
+            # (Though top-level import is better, adhering to file structure)
+            from database.models import Fundamentals # Assuming model name is Fundamentals
+            
+            # Check for today's entry (or update latest)
+            # Actually fundamentals don't change daily, but we can store snapshots
+            # Or just update a single record per symbol?
+            # Model definition had 'date', so typically snapshot.
+            
+            today = datetime.now().date()
+            fund = session.query(Fundamentals).filter_by(symbol=symbol, date=today).first()
+            
+            if fund:
+                fund.eps = data.get('eps')
+                fund.pe_ratio = data.get('pe_ratio')
+                fund.pb_ratio = data.get('pb_ratio')
+                fund.roe = data.get('roe')
+                fund.net_margin = data.get('net_margin')
+                fund.market_cap = data.get('market_cap')
+                fund.dividend_yield = data.get('dividend_yield')
+            else:
+                fund = Fundamentals(
+                    symbol=symbol,
+                    date=today,
+                    eps=data.get('eps'),
+                    pe_ratio=data.get('pe_ratio'),
+                    pb_ratio=data.get('pb_ratio'),
+                    roe=data.get('roe'),
+                    net_margin=data.get('net_margin'),
+                    market_cap=data.get('market_cap'),
+                    dividend_yield=data.get('dividend_yield')
+                )
+                session.add(fund)
+
+    def get_latest_fundamentals(self, symbol: str) -> Optional[Dict]:
+        """Get latest fundamentals"""
+        with get_db_session() as session:
+            from database.models import Fundamentals
+            fund = session.query(Fundamentals).filter_by(symbol=symbol)\
+                .order_by(desc(Fundamentals.date)).first()
+            
+            if fund:
+                return {
+                    'eps': fund.eps,
+                    'pe_ratio': fund.pe_ratio,
+                    'pb_ratio': fund.pb_ratio,
+                    'roe': fund.roe,
+                    'net_margin': fund.net_margin,
+                    'market_cap': fund.market_cap,
+                    'dividend_yield': fund.dividend_yield
+                }
+            return {}
 
     # ==================== TECHNICAL INDICATORS ====================
 

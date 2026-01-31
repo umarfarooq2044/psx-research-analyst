@@ -23,6 +23,7 @@ from database.db_manager import db
 from scraper.ticker_discovery import discover_and_save_tickers
 from scraper.price_scraper import fetch_all_prices
 from scraper.announcements_scraper import scrape_all_announcements
+from scraper.fundamentals_scraper import run_fundamentals_scraper
 from scraper.kse100_scraper import get_kse100_summary, get_kse100_support_resistance
 
 # Import global data
@@ -198,7 +199,7 @@ class ScheduleOrchestrator:
             # 1. Fetch current prices
             print("\n[1/4] Fetching current prices...")
             tickers = db.get_all_tickers()
-            fetch_all_prices([t['symbol'] for t in tickers[:50]])  # Top 50
+            fetch_all_prices([t['symbol'] for t in tickers])  # Analyze ALL
             
             # 2. Get KSE-100 status
             print("[2/4] Getting market status...")
@@ -210,7 +211,7 @@ class ScheduleOrchestrator:
             
             # 4. Check for alerts
             print("[4/4] Checking alert conditions...")
-            for ticker in tickers[:30]:
+            for ticker in tickers: # Analyze ALL
                 analysis = analyze_ticker_technical(ticker['symbol'])
                 if analysis:
                     check_and_send_alerts({
@@ -273,9 +274,15 @@ class ScheduleOrchestrator:
             print("[2/8] Fetching final prices...")
             fetch_all_prices([t['symbol'] for t in tickers])
             
+            # 2.5. Fetch fundamentals (P/E, EPS, Margins)
+            print("[2.5/8] Fetching fundamental data...")
+            # Run for all tickers (handled internally by scraper unlimited logic if we pass None or big limit)
+            # Actually run_fundamentals_scraper() with no args uses db.get_all_tickers()
+            run_fundamentals_scraper()
+
             # 3. Scrape announcements
             print("[3/8] Scraping announcements...")
-            symbols = [t['symbol'] for t in tickers[:50]]  # Top 50
+            symbols = [t['symbol'] for t in tickers]  # Analyze ALL
             scrape_all_announcements(symbols, show_progress=True)
             analyze_all_announcements()
             
@@ -292,7 +299,7 @@ class ScheduleOrchestrator:
             
             # 5. Score all stocks
             print("[5/8] Running 100-point stock analysis...")
-            symbols = [t['symbol'] for t in tickers[:100]]  # Top 100
+            symbols = [t['symbol'] for t in tickers]  # Analyze ALL
             scores = score_all_stocks(symbols, show_progress=True)
             
             # Top stocks for report
@@ -374,6 +381,31 @@ class ScheduleOrchestrator:
             if not action_items:
                 action_items = ['Monitor market for direction', 'Maintain existing positions']
             
+            # Identify Undervalued Gems
+            undervalued_gems = []
+            for s in scores:
+                comp = s.get('components', {})
+                val_score = comp.get('valuation', {}).get('score', 0)
+                fin_score = comp.get('financial', {}).get('score', 0)
+                
+                # Logic: Good Valuation (>15/25) + Good Financials (>20/35) + Total > 65
+                if val_score >= 15 and fin_score >= 20 and s['total_score'] >= 65:
+                    # Extract details for display
+                    try:
+                        pe_str = comp['valuation']['details'].get('pe_valuation', 'N/A').split('P/E: ')[-1].replace(')', '')
+                        growth_str = comp['financial']['details'].get('earnings_quality', 'N/A').split('growth: ')[-1].replace('%)', '')
+                    except:
+                        pe_str = "N/A"
+                        growth_str = "N/A"
+                        
+                    undervalued_gems.append({
+                        'symbol': s['symbol'],
+                        'score': s['total_score'],
+                        'pe_ratio': pe_str,
+                        'growth': growth_str,
+                        'reason': 'Undervalued High Growth'
+                    })
+
             # Generate report
             html = generate_postmarket_report(
                 market_summary=market_summary,
@@ -383,7 +415,8 @@ class ScheduleOrchestrator:
                 news_summary=news_summary,
                 risk_assessment=risk_assessment,
                 tomorrow_outlook=tomorrow_outlook,
-                action_items=action_items
+                action_items=action_items,
+                undervalued_gems=undervalued_gems[:4]
             )
             
             # Generate comprehensive CSV reports

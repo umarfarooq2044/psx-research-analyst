@@ -55,18 +55,21 @@ def get_postmarket_css() -> str:
 def generate_postmarket_report(
     market_summary: Dict,
     top_stocks: List[Dict],
+    top_stocks: List[Dict],
     sector_performance: List[Dict],
     technical_analysis: Dict,
     news_summary: Dict,
     risk_assessment: Dict,
     tomorrow_outlook: Dict,
-    action_items: List[str]
+    action_items: List[str],
+    undervalued_gems: List[Dict] = None
 ) -> str:
     """
     Generate comprehensive post-market analysis HTML email
     """
     
     now = datetime.now()
+    if undervalued_gems is None: undervalued_gems = []
     
     def get_rating_badge(rating: str) -> str:
         rating_map = {
@@ -162,6 +165,32 @@ def generate_postmarket_report(
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Undervalued Gems -->
+            {'' if not undervalued_gems else f'''
+            <div class="section">
+                <div class="section-title">💎 UNDERVALUED GEMS (Deep Value + Growth)</div>
+                <div class="indicator-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    {''.join([f'''
+                    <div class="indicator" style="border: 1px solid #3fb950;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="stock-symbol" style="font-size: 16px;">{gem['symbol']}</span>
+                            <span class="badge badge-strong-buy" style="font-size: 10px;">SCORE: {gem['score']}</span>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 12px; color: #8b949e;">
+                            Relative P/E: <strong style="color: #c9d1d9;">{gem.get('pe_ratio', 'N/A')}</strong> vs Sector
+                        </div>
+                        <div style="margin-top: 4px; font-size: 12px; color: #8b949e;">
+                            Growth: <strong style="color: #3fb950;">{gem.get('growth', 'N/A')}%</strong>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 11px;">
+                            {gem.get('reason', 'Strong Fundamentals')}
+                        </div>
+                    </div>
+                    ''' for gem in undervalued_gems[:4]])}
+                </div>
+            </div>
+            '''}
             
             <!-- Sector Performance -->
             <div class="section">

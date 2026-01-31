@@ -79,6 +79,28 @@ class AnalysisResult(Base):
     
     __table_args__ = (UniqueConstraint('symbol', 'date', name='uq_analysis_symbol_date'),)
 
+class Fundamentals(Base):
+    __tablename__ = 'fundamentals'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    symbol = Column(String, ForeignKey('tickers.symbol'), nullable=False)
+    date = Column(Date, nullable=False)
+    eps = Column(Float)
+    eps_growth = Column(Float)
+    pe_ratio = Column(Float)
+    pb_ratio = Column(Float)
+    dividend_yield = Column(Float)
+    payout_ratio = Column(Float)
+    debt_equity = Column(Float)
+    roe = Column(Float)
+    gross_margin = Column(Float)
+    operating_margin = Column(Float)
+    net_margin = Column(Float)
+    market_cap = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (UniqueConstraint('symbol', 'date', name='uq_fundamentals_symbol_date'),)
+
 class GlobalMarket(Base):
     __tablename__ = 'global_markets'
     

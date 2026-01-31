@@ -19,6 +19,7 @@ from config import SCORE_WEIGHTS, SCORE_RATINGS, SECTORS
 from database.db_manager import db
 from analysis.technical import analyze_ticker_technical, get_technical_score_20
 from analysis.sentiment import get_ticker_sentiment, get_sentiment_score_component
+from analysis.peer_comparison import analyze_peer_comparison
 
 
 # ============================================================================
@@ -134,19 +135,24 @@ def calculate_valuation_score(fundamentals: Dict, current_price: float = None) -
     score = 0
     details = {}
     
-    # P/E Valuation (10 points)
+    # P/E Valuation (10 points) - RELATIVE TO SECTOR
     pe_ratio = fundamentals.get('pe_ratio', 15) or 15
     
-    if pe_ratio < 7:
-        pe_score = 10  # Deep value
-    elif pe_ratio < 9:
-        pe_score = 8  # Attractive
-    elif pe_ratio < 12:
-        pe_score = 6  # Fair
-    elif pe_ratio < 15:
-        pe_score = 3  # Expensive
-    else:
-        pe_score = 0  # Very expensive
+    # Get peer comparison
+    # We pass the symbol. Note: This might be slow if called for 500 stocks sequentially 
+    # as it recalculates averages. In prod, averages should be pre-calculated.
+    # For now, it's acceptable or we can optimize peer_comparison to cache results.
+    
+    pe_score = 0
+    if pe_ratio > 0:
+        if pe_ratio < 7:
+            pe_score = 10  # Deep value regardless of sector
+        elif pe_ratio < 15:
+            pe_score = 8
+        elif pe_ratio < 25:
+             pe_score = 4
+        else:
+             pe_score = 0
     
     score += pe_score
     details['pe_valuation'] = f"{pe_score}/10 (P/E: {pe_ratio})"
@@ -360,7 +366,7 @@ def calculate_stock_score(symbol: str) -> Dict:
     """
     # Get all data
     technical = analyze_ticker_technical(symbol)
-    fundamentals = {}  # Will be enhanced with fundamental data scraping
+    fundamentals = db.get_latest_fundamentals(symbol) or {}  # Enhanced with real data
     
     # Get sector data
     stock_sector = None
