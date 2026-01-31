@@ -1,0 +1,39 @@
+# Cloud Run service configuration
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: psx-research-analyst
+  labels:
+    cloud.googleapis.com/location: asia-south1
+spec:
+  template:
+    metadata:
+      annotations:
+        # Allow up to 60 minutes for long-running analysis
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      containerConcurrency: 1
+      timeoutSeconds: 3600  # 60 minutes timeout
+      containers:
+        - image: gcr.io/PROJECT_ID/psx-research-analyst:latest
+          resources:
+            limits:
+              memory: 2Gi
+              cpu: "2"
+          env:
+            - name: EMAIL_SENDER
+              valueFrom:
+                secretKeyRef:
+                  name: email-sender
+                  key: latest
+            - name: EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: email-password
+                  key: latest
+            - name: EMAIL_RECIPIENTS
+              valueFrom:
+                secretKeyRef:
+                  name: email-recipients
+                  key: latest

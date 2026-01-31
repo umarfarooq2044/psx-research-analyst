@@ -1,0 +1,501 @@
+﻿id,symbol,announcement_date,headline,content,pdf_url,announcement_type,sentiment_score,processed,created_at
+3105,GGGL,2031-12-24,"Mar 3, 2025 Transmission of Quarterly Report for the Period Ended 2024-12-31",,https://dps.psx.com.pk/download/document/248972.pdf,financial_results,0.0,1,2026-01-22 20:34:08
+3533,HIRAT,2031-12-24,"Aug 5, 2025 Financial Results for the Quarter Ended 2024-12-31",,https://dps.psx.com.pk/download/document/257395.pdf,financial_results,0.0,1,2026-01-22 20:35:49
+4667,LPGL,2031-12-24,"Feb 28, 2025 Transmission of Half Yearly Accounts 2024-12-31",,https://dps.psx.com.pk/download/document/248621.pdf,financial_results,0.0,1,2026-01-22 20:39:40
+6569,SHCI,2031-12-24,"Feb 28, 2025 Additional Financial Statement 2024-12-31",,https://dps.psx.com.pk/download/document/248780.pdf,financial_results,0.0,1,2026-01-22 20:46:56
+4328,KEL,2031-12-23,"Sep 23, 2025 Financial Results for the Quarter Ended 2023-12-31",,https://dps.psx.com.pk/download/document/259862.pdf,financial_results,0.0,1,2026-01-22 20:38:44
+609,ALIFE,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253075.pdf,financial_results,0.0,1,2026-01-22 20:24:49
+661,AMBL,2031-03-25,"Apr 28, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252432.pdf,financial_results,0.0,1,2026-01-22 20:24:59
+1431,BWHL,2031-03-25,"Apr 17, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/251290.pdf,financial_results,0.0,1,2026-01-22 20:28:05
+1672,CRTM,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252736.pdf,financial_results,0.0,1,2026-01-22 20:28:56
+1748,DAAG,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Accounts for the period ended 2025-03-31",,https://dps.psx.com.pk/download/document/252640.pdf,financial_results,0.0,1,2026-01-22 20:29:15
+1898,DIIL,2031-03-25,"Apr 28, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252425.pdf,financial_results,0.0,1,2026-01-22 20:29:52
+2060,DSL,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252528.pdf,financial_results,0.0,1,2026-01-22 20:30:24
+2217,ELSM,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/253130.pdf,financial_results,0.0,1,2026-01-22 20:30:55
+2371,FANM,2031-03-25,"Apr 29, 2025 Transmision of Quarterly report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252530.pdf,financial_results,0.0,1,2026-01-22 20:31:32
+2437,FCEL,2031-03-25,"Apr 25, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/252243.pdf,financial_results,0.0,1,2026-01-22 20:31:44
+2506,FCSC,2031-03-25,"Apr 28, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/252359.pdf,financial_results,0.0,1,2026-01-22 20:31:59
+2539,FECM,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252562.pdf,financial_results,0.0,1,2026-01-22 20:32:07
+2589,FEROZ,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253036.pdf,financial_results,0.0,1,2026-01-22 20:32:15
+2703,FLYNG,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252792.pdf,financial_results,0.0,1,2026-01-22 20:32:42
+2750,FNEL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253094.pdf,financial_results,0.0,1,2026-01-22 20:32:52
+2855,FTSM,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/252929.pdf,financial_results,0.0,1,2026-01-22 20:33:19
+2906,GAL,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252710.pdf,financial_results,0.0,1,2026-01-22 20:33:27
+3054,GEMPAPL,2031-03-25,"Jul 23, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/256810.pdf,financial_results,0.0,1,2026-01-22 20:33:58
+3086,GFIL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252997.pdf,financial_results,0.0,1,2026-01-22 20:34:04
+3532,HIRAT,2031-03-25,"Aug 5, 2025 FINANCIAL RESULTS FOR THE QUARTER ENDED 2025-03-31 (3.0)",,https://dps.psx.com.pk/download/document/257411.pdf,financial_results,0.0,1,2026-01-22 20:35:49
+3803,IDSM,2031-03-25,"Apr 30, 2025 TRANSMISSION OF QUARTERLY ACCOUNTS FOR THE PERIOD ENDED 2025-03-31",,https://dps.psx.com.pk/download/document/253010.pdf,financial_results,0.0,1,2026-01-22 20:36:47
+3886,IMAGE,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252897.pdf,financial_results,0.0,1,2026-01-22 20:37:05
+4022,ISL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253190.pdf,financial_results,0.0,1,2026-01-22 20:37:34
+4134,JKSM,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252862.pdf,financial_results,0.0,1,2026-01-22 20:37:54
+4367,KHYT,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252660.pdf,financial_results,0.0,1,2026-01-22 20:38:50
+4530,KSBP,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252810.pdf,financial_results,0.0,1,2026-01-22 20:39:17
+4658,LPGL,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252576.pdf,financial_results,0.0,1,2026-01-22 20:39:40
+4784,MDTL,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/252626.pdf,financial_results,0.0,1,2026-01-22 20:40:13
+4970,MSOT,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252760.pdf,financial_results,0.0,1,2026-01-22 20:40:54
+5067,NAGC,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/253137.pdf,financial_results,0.0,1,2026-01-22 20:41:25
+5181,NETSOL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253199.pdf,financial_results,0.0,1,2026-01-22 20:41:52
+5332,NSRM,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253045.pdf,financial_results,0.0,1,2026-01-22 20:42:25
+5471,PACE,2031-03-25,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/252631.pdf,financial_results,0.0,1,2026-01-22 20:42:58
+5574,PAKT,2031-03-25,"Apr 30, 2025 ransmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252800.pdf,financial_results,0.0,1,2026-01-22 20:43:18
+5717,PICT,2031-03-25,"May 29, 2025 Financial Results for the Quarter Ended 2025-03-31",,https://dps.psx.com.pk/download/document/254542.pdf,financial_results,0.0,1,2026-01-22 20:43:49
+6217,RPL,2031-03-25,"Apr 28, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252459.pdf,financial_results,0.0,1,2026-01-22 20:45:46
+6250,RUPL,2031-03-25,"Apr 30, 2025 Transmission of Quaterly Report forthe Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253021.pdf,general,0.0,1,2026-01-22 20:45:53
+6268,SAIF,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253043.pdf,financial_results,0.0,1,2026-01-22 20:45:56
+6315,SAPT,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252859.pdf,financial_results,0.0,1,2026-01-22 20:46:04
+6356,SASML,2031-03-25,"May 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/254566.pdf,financial_results,0.0,1,2026-01-22 20:46:10
+6422,SEARL,2031-03-25,"May 2, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253264.pdf,financial_results,0.0,1,2026-01-22 20:46:30
+6509,SGABL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253069.pdf,financial_results,0.0,1,2026-01-22 20:46:48
+6543,SGPL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253073.pdf,financial_results,0.0,1,2026-01-22 20:46:53
+6561,SHCI,2031-03-25,"Apr 28, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252394.pdf,financial_results,0.0,1,2026-01-22 20:46:56
+6886,SNBL,2031-03-25,"Apr 30, 2025 Transmission of 1st Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252845.pdf,financial_results,0.0,1,2026-01-22 20:47:59
+6963,SPWL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253052.pdf,financial_results,0.0,1,2026-01-22 20:48:13
+7045,SSOM,2031-03-25,"Apr 25, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252147.pdf,financial_results,0.0,1,2026-01-22 20:48:29
+7062,STCL,2031-03-25,"May 2, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253253.pdf,financial_results,0.0,1,2026-01-22 20:48:32
+7451,TPLL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253128.pdf,financial_results,0.0,1,2026-01-22 20:49:56
+7482,TPLRF1,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/253104.pdf,financial_results,0.0,1,2026-01-22 20:50:02
+7606,TSMF,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/252952.pdf,financial_results,0.0,1,2026-01-22 20:50:28
+7626,TSML,2031-03-25,"May 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/254589.pdf,financial_results,0.0,1,2026-01-22 20:50:31
+7643,TSPL,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended  2025-03-31",,https://dps.psx.com.pk/download/document/252940.pdf,financial_results,0.0,1,2026-01-22 20:50:35
+7721,UNIC,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252849.pdf,financial_results,0.0,1,2026-01-22 20:50:59
+7741,UNITY,2031-03-25,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-03-31",,https://dps.psx.com.pk/download/document/252969.pdf,financial_results,0.0,1,2026-01-22 20:51:02
+4327,KEL,2031-03-24,"Sep 23, 2025 Financial Results for the Quarter Ended 2024-03-31",,https://dps.psx.com.pk/download/document/259865.pdf,financial_results,0.0,1,2026-01-22 20:38:44
+180,SAZEW,2030-09-25,"Oct 15, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/262326.pdf,financial_results,0.0,1,2026-01-22 19:39:45
+266,AATM,2030-09-25,"Oct 31, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264698.pdf,financial_results,0.0,1,2026-01-22 20:23:23
+267,AATM,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264425.pdf,financial_results,0.0,1,2026-01-22 20:23:23
+543,AKDHL,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264480.pdf,financial_results,0.0,1,2026-01-22 20:24:36
+729,ANTM,2030-09-25,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264329.pdf,financial_results,0.0,1,2026-01-22 20:25:23
+730,ANTM,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264313.pdf,financial_results,0.0,1,2026-01-22 20:25:23
+799,ARPL,2030-09-25,"Dec 2, 2025 Transmission of Annual Financial Statements for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/266685.pdf,financial_results,0.0,1,2026-01-22 20:25:38
+841,ASC,2030-09-25,"Oct 29, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264013.pdf,financial_results,0.0,1,2026-01-22 20:25:44
+871,ASIC,2030-09-25,"Oct 27, 2025 Financial Results for the period ended 2025-09-30",,https://dps.psx.com.pk/download/document/263481.pdf,financial_results,0.0,1,2026-01-22 20:25:51
+1037,BAFS,2030-09-25,"Dec 24, 2025 Financial Results for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/267769.pdf,financial_results,0.0,1,2026-01-22 20:26:37
+1160,BFAGRO,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264488.pdf,financial_results,0.0,1,2026-01-22 20:27:06
+1177,BFBIO,2030-09-25,"Oct 27, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263361.pdf,financial_results,0.0,1,2026-01-22 20:27:09
+1894,DIIL,2030-09-25,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264322.pdf,financial_results,0.0,1,2026-01-22 20:29:52
+1895,DIIL,2030-09-25,"Oct 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263841.pdf,financial_results,0.0,1,2026-01-22 20:29:52
+2136,ECOP,2030-09-25,"Oct 27, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263359.pdf,financial_results,0.0,1,2026-01-22 20:30:40
+2321,EXIDE,2030-09-25,"Dec 1, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/266589.pdf,financial_results,0.0,1,2026-01-22 20:31:23
+2322,EXIDE,2030-09-25,"Nov 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/266572.pdf,financial_results,0.0,1,2026-01-22 20:31:23
+2368,FANM,2030-09-25,"Oct 27, 2025 Financial Results for Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263468.pdf,financial_results,0.0,1,2026-01-22 20:31:32
+2434,FCEL,2030-09-25,"Oct 23, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263108.pdf,financial_results,0.0,1,2026-01-22 20:31:44
+2466,FCIBL,2030-09-25,"Oct 27, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263375.pdf,financial_results,0.0,1,2026-01-22 20:31:50
+2503,FCSC,2030-09-25,"Oct 24, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263296.pdf,financial_results,0.0,1,2026-01-22 20:31:59
+2586,FEROZ,2030-09-25,"Oct 27, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263368.pdf,financial_results,0.0,1,2026-01-22 20:32:15
+2700,FLYNG,2030-09-25,"Oct 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264101.pdf,financial_results,0.0,1,2026-01-22 20:32:42
+2701,FLYNG,2030-09-25,"Oct 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263698.pdf,financial_results,0.0,1,2026-01-22 20:32:42
+2851,FTSM,2030-09-25,"Oct 31, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264666.pdf,financial_results,0.0,1,2026-01-22 20:33:19
+2852,FTSM,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264432.pdf,financial_results,0.0,1,2026-01-22 20:33:19
+3082,GFIL,2030-09-25,"Oct 31, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264681.pdf,financial_results,0.0,1,2026-01-22 20:34:04
+3083,GFIL,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264441.pdf,financial_results,0.0,1,2026-01-22 20:34:04
+3160,GIL,2030-09-25,"Oct 16, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/262409.pdf,financial_results,0.0,1,2026-01-22 20:34:19
+3161,GIL,2030-09-25,"Oct 15, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/262320.pdf,financial_results,0.0,1,2026-01-22 20:34:19
+3210,GOC,2030-09-25,"Oct 29, 2025 Financial Results for the Quarter ended 2025-09-30",,https://dps.psx.com.pk/download/document/264016.pdf,financial_results,0.0,1,2026-01-22 20:34:31
+3799,IDSM,2030-09-25,"Oct 30, 2025 TRANSMISSION OF QUARTERLY ACCOUNTS FOR THE PERIOD ENDED 2025-09-30",,https://dps.psx.com.pk/download/document/264384.pdf,financial_results,0.0,1,2026-01-22 20:36:47
+3800,IDSM,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter ended 2025-09-30",,https://dps.psx.com.pk/download/document/264254.pdf,financial_results,0.0,1,2026-01-22 20:36:47
+3882,IMAGE,2030-09-25,"Oct 31, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264658.pdf,financial_results,0.0,1,2026-01-22 20:37:05
+3883,IMAGE,2030-09-25,"Oct 29, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264003.pdf,financial_results,0.0,1,2026-01-22 20:37:05
+4035,ITANZ,2030-09-25,"Nov 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/266561.pdf,financial_results,0.0,1,2026-01-22 20:37:37
+4131,JKSM,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264325.pdf,financial_results,0.0,1,2026-01-22 20:37:54
+4363,KHYT,2030-09-25,"Oct 28, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263609.pdf,financial_results,0.0,1,2026-01-22 20:38:50
+4364,KHYT,2030-09-25,"Oct 23, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263140.pdf,financial_results,0.0,1,2026-01-22 20:38:50
+4527,KSBP,2030-09-25,"Oct 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263731.pdf,financial_results,0.0,1,2026-01-22 20:39:17
+4638,LOTCHEM,2030-09-25,"Oct 30, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264265.pdf,financial_results,0.0,1,2026-01-22 20:39:37
+4654,LPGL,2030-09-25,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264283.pdf,financial_results,0.0,1,2026-01-22 20:39:39
+4655,LPGL,2030-09-25,"Oct 30, 2025 Financial Results for the 1st Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264247.pdf,financial_results,0.0,1,2026-01-22 20:39:40
+4781,MDTL,2030-09-25,"Oct 23, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263136.pdf,financial_results,0.0,1,2026-01-22 20:40:13
+4967,MSOT,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264369.pdf,financial_results,0.0,1,2026-01-22 20:40:54
+5178,NETSOL,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264522.pdf,financial_results,0.0,1,2026-01-22 20:41:52
+5265,NONS,2030-09-25,"Dec 24, 2025 Financial Results for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/267761.pdf,financial_results,0.0,1,2026-01-22 20:42:13
+5328,NSRM,2030-09-25,"Oct 31, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264696.pdf,financial_results,0.0,1,2026-01-22 20:42:25
+5329,NSRM,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264234.pdf,financial_results,0.0,1,2026-01-22 20:42:25
+5468,PACE,2030-09-25,"Oct 23, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263135.pdf,financial_results,0.0,1,2026-01-22 20:42:58
+5571,PAKT,2030-09-25,"Oct 24, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263263.pdf,financial_results,0.0,1,2026-01-22 20:43:18
+5758,PINL,2030-09-25,"Oct 23, 2025 Financial Results for the Quarter ended 2025-09-30",,https://dps.psx.com.pk/download/document/263139.pdf,financial_results,0.0,1,2026-01-22 20:43:58
+5789,PKGI,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264344.pdf,financial_results,0.0,1,2026-01-22 20:44:05
+6097,QUET,2030-09-25,"Oct 31, 2025 Financial Result for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264670.pdf,financial_results,0.0,1,2026-01-22 20:45:23
+6129,RCML,2030-09-25,"Oct 29, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264123.pdf,financial_results,0.0,1,2026-01-22 20:45:29
+6247,RUPL,2030-09-25,"Oct 29, 2025 Financial Results for the 1st Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264066.pdf,financial_results,0.0,1,2026-01-22 20:45:53
+6312,SAPT,2030-09-25,"Oct 29, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264059.pdf,financial_results,0.0,1,2026-01-22 20:46:04
+6331,SARC,2030-09-25,"Oct 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264075.pdf,financial_results,0.0,1,2026-01-22 20:46:07
+6332,SARC,2030-09-25,"Oct 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263569.pdf,financial_results,0.0,1,2026-01-22 20:46:07
+6352,SASML,2030-09-25,"Jan 8, 2026 Transmission of Annual Report for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/268438.pdf,financial_results,0.0,1,2026-01-22 20:46:10
+6489,SFL,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264149.pdf,financial_results,0.0,1,2026-01-22 20:46:45
+6557,SHCI,2030-09-25,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264316.pdf,financial_results,0.0,1,2026-01-22 20:46:56
+6558,SHCI,2030-09-25,"Oct 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263814.pdf,financial_results,0.0,1,2026-01-22 20:46:56
+6641,SHJS,2030-09-25,"Jan 9, 2026 Financial Results for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/268498.pdf,financial_results,0.0,1,2026-01-22 20:47:11
+6960,SPWL,2030-09-25,"Oct 28, 2025 Financial Results for the 3rd Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263739.pdf,financial_results,0.0,1,2026-01-22 20:48:13
+7159,SUHJ,2030-09-25,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264340.pdf,financial_results,0.0,1,2026-01-22 20:48:49
+7291,TCORP,2030-09-25,"Jan 7, 2026 Transmission of Annual Financial Statements for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/268426.pdf,financial_results,0.0,1,2026-01-22 20:49:23
+7368,TICL,2030-09-25,"Dec 24, 2025 Financial Results for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/267777.pdf,financial_results,0.0,1,2026-01-22 20:49:41
+7385,TOMCL,2030-09-25,"Oct 28, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263567.pdf,financial_results,0.0,1,2026-01-22 20:49:44
+7602,TSMF,2030-09-25,"Oct 31, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264778.pdf,financial_results,0.0,1,2026-01-22 20:50:28
+7603,TSMF,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264499.pdf,financial_results,0.0,1,2026-01-22 20:50:28
+7622,TSML,2030-09-25,"Jan 8, 2026 Transmission of Annual Financial Statement for the Year Ended 2025-09-30",,https://dps.psx.com.pk/download/document/268431.pdf,financial_results,0.0,1,2026-01-22 20:50:31
+7639,TSPL,2030-09-25,"Oct 31, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264786.pdf,financial_results,0.0,1,2026-01-22 20:50:35
+7640,TSPL,2030-09-25,"Oct 31, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264650.pdf,financial_results,0.0,1,2026-01-22 20:50:35
+7717,UNIC,2030-09-25,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264458.pdf,financial_results,0.0,1,2026-01-22 20:50:59
+7718,UNIC,2030-09-25,"Oct 27, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/263465.pdf,financial_results,0.0,1,2026-01-22 20:50:59
+7907,ZAL,2030-09-25,"Oct 30, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264475.pdf,financial_results,0.0,1,2026-01-22 20:51:41
+7930,ZIL,2030-09-25,"Oct 29, 2025 Financial Results for the Quarter Ended 2025-09-30",,https://dps.psx.com.pk/download/document/264052.pdf,financial_results,0.0,1,2026-01-22 20:51:48
+4329,KEL,2030-09-23,"Sep 23, 2025 Financial Results for the Quarter Ended 2023-09-30",,https://dps.psx.com.pk/download/document/259856.pdf,financial_results,0.0,1,2026-01-22 20:38:44
+7922,ZELP,2030-09-16,"Apr 9, 2019 Financial Results for the Quarter ended 2016-09-30",,https://dps.psx.com.pk/download/document/128513.pdf,financial_results,0.0,1,2026-01-22 20:51:45
+575,AKGL,2030-06-25,"Oct 10, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/262023.pdf,financial_results,0.0,1,2026-01-22 20:24:44
+731,ANTM,2030-06-25,"Oct 10, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261986.pdf,financial_results,0.0,1,2026-01-22 20:25:23
+732,ANTM,2030-06-25,"Sep 29, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260312.pdf,financial_results,0.0,1,2026-01-22 20:25:23
+1038,BAFS,2030-06-25,"Jul 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/257065.pdf,financial_results,0.0,1,2026-01-22 20:26:37
+1039,BAFS,2030-06-25,"Jul 23, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/256841.pdf,financial_results,0.0,1,2026-01-22 20:26:37
+1145,BERG,2030-06-25,"Oct 7, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261477.pdf,financial_results,0.0,1,2026-01-22 20:27:03
+1337,BOP,2030-06-25,"Aug 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258595.pdf,financial_results,0.0,1,2026-01-22 20:27:45
+1338,BOP,2030-06-25,"Aug 29, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258588.pdf,financial_results,0.0,1,2026-01-22 20:27:46
+1398,BUXL,2030-06-25,"Oct 6, 2025 Transmission of Annual Financial Statements for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261194.pdf,financial_results,0.0,1,2026-01-22 20:27:58
+1670,CRTM,2030-06-25,"Oct 6, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261384.pdf,financial_results,0.0,1,2026-01-22 20:28:56
+1671,CRTM,2030-06-25,"Sep 30, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260537.pdf,financial_results,0.0,1,2026-01-22 20:28:56
+1896,DIIL,2030-06-25,"Oct 6, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261214.pdf,financial_results,0.0,1,2026-01-22 20:29:52
+1897,DIIL,2030-06-25,"Oct 2, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260862.pdf,financial_results,0.0,1,2026-01-22 20:29:52
+1917,DINT,2030-06-25,"Sep 24, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259964.pdf,financial_results,0.0,1,2026-01-22 20:29:55
+2137,ECOP,2030-06-25,"Oct 7, 2025 Transmission of Annual Financial Statements for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261467.pdf,financial_results,0.0,1,2026-01-22 20:30:40
+2323,EXIDE,2030-06-25,"Jul 30, 2025 Transmission of Quarterly Repert for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/257191.pdf,financial_results,0.0,1,2026-01-22 20:31:23
+2324,EXIDE,2030-06-25,"Jul 30, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/257188.pdf,financial_results,0.0,1,2026-01-22 20:31:23
+2370,FANM,2030-06-25,"Sep 11, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259156.pdf,financial_results,0.0,1,2026-01-22 20:31:32
+2404,FATIMA,2030-06-25,"Aug 27, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258353.pdf,financial_results,0.0,1,2026-01-22 20:31:38
+2419,FCCL,2030-06-25,"Sep 9, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259049.pdf,financial_results,0.0,1,2026-01-22 20:31:41
+2420,FCCL,2030-06-25,"Sep 9, 2025 Transmission of Annual Report for the Year Ended 2025-06-30 REVOKED",,https://dps.psx.com.pk/download/document/259046.pdf,financial_results,0.0,1,2026-01-22 20:31:41
+2436,FCEL,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261673.pdf,financial_results,0.0,1,2026-01-22 20:31:44
+2467,FCIBL,2030-06-25,"Sep 12, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259240.pdf,financial_results,0.0,1,2026-01-22 20:31:50
+2468,FCIBL,2030-06-25,"Sep 5, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258892.pdf,financial_results,0.0,1,2026-01-22 20:31:50
+2505,FCSC,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261710.pdf,financial_results,0.0,1,2026-01-22 20:31:59
+2638,FHAM,2030-06-25,"Sep 15, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259313.pdf,financial_results,0.0,1,2026-01-22 20:32:27
+2853,FTSM,2030-06-25,"Oct 7, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261677.pdf,financial_results,0.0,1,2026-01-22 20:33:19
+2854,FTSM,2030-06-25,"Oct 6, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261406.pdf,financial_results,0.0,1,2026-01-22 20:33:19
+2905,GAL,2030-06-25,"Sep 29, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260295.pdf,financial_results,0.0,1,2026-01-22 20:33:27
+3053,GEMPAPL,2030-06-25,"Oct 2, 2025 Financial Results for the year ended 2025-06-30",,https://dps.psx.com.pk/download/document/260829.pdf,financial_results,0.0,1,2026-01-22 20:33:58
+3133,GHGL,2030-06-25,"Sep 30, 2025 FINANCIAL RESULTS FOR THE YEAR ENDED 2025-06-30",,https://dps.psx.com.pk/download/document/260511.pdf,financial_results,0.0,1,2026-01-22 20:34:13
+3162,GIL,2030-06-25,"Sep 22, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259652.pdf,financial_results,0.0,1,2026-01-22 20:34:19
+3163,GIL,2030-06-25,"Sep 19, 2025 Transmission of Annual Report for the Year Ended 2025-06-30 REVOKED",,https://dps.psx.com.pk/download/document/259613.pdf,financial_results,0.0,1,2026-01-22 20:34:19
+3164,GIL,2030-06-25,"Sep 11, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259172.pdf,financial_results,0.0,1,2026-01-22 20:34:19
+3211,GOC,2030-06-25,"Oct 1, 2025 Transmission of Annual Report for teh year ended 2025-06-30",,https://dps.psx.com.pk/download/document/260730.pdf,financial_results,0.0,1,2026-01-22 20:34:31
+3406,HAFL,2030-06-25,"Oct 1, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260700.pdf,financial_results,0.0,1,2026-01-22 20:35:07
+3473,HCAR,2030-06-25,"Jul 24, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/256896.pdf,financial_results,0.0,1,2026-01-22 20:35:30
+3520,HINOON,2030-06-25,"Aug 29, 2025 Transmission of Quarterly Report for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258489.pdf,financial_results,0.0,1,2026-01-22 20:35:46
+3567,HMIM,2030-06-25,"Oct 2, 2025 FINANCIAL RESULTS FOR THE YEAR ENDED 2025-06-30",,https://dps.psx.com.pk/download/document/260830.pdf,financial_results,0.0,1,2026-01-22 20:35:59
+3801,IDSM,2030-06-25,"Oct 7, 2025 Transmission of Annual Report for the year ended 2025-06-30",,https://dps.psx.com.pk/download/document/261550.pdf,financial_results,0.0,1,2026-01-22 20:36:47
+3802,IDSM,2030-06-25,"Sep 30, 2025 Financial Results for the Year ended 2025-06-30",,https://dps.psx.com.pk/download/document/260462.pdf,financial_results,0.0,1,2026-01-22 20:36:47
+3823,IDYM,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261488.pdf,financial_results,0.0,1,2026-01-22 20:36:50
+3884,IMAGE,2030-06-25,"Oct 8, 2025 Transmission of Annual Financial Statements for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261741.pdf,financial_results,0.0,1,2026-01-22 20:37:05
+3885,IMAGE,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261479.pdf,financial_results,0.0,1,2026-01-22 20:37:05
+3971,INKL,2030-06-25,"Sep 30, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260430.pdf,financial_results,0.0,1,2026-01-22 20:37:20
+4020,ISL,2030-06-25,"Sep 3, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258751.pdf,financial_results,0.0,1,2026-01-22 20:37:34
+4133,JKSM,2030-06-25,"Sep 17, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259437.pdf,financial_results,0.0,1,2026-01-22 20:37:54
+4365,KHYT,2030-06-25,"Oct 1, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260699.pdf,financial_results,0.0,1,2026-01-22 20:38:50
+4366,KHYT,2030-06-25,"Sep 25, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260042.pdf,financial_results,0.0,1,2026-01-22 20:38:50
+4528,KSBP,2030-06-25,"Aug 28, 2025 Transmission of Quarterly Report for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258424.pdf,financial_results,0.0,1,2026-01-22 20:39:17
+4529,KSBP,2030-06-25,"Aug 19, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/257948.pdf,financial_results,0.0,1,2026-01-22 20:39:17
+4640,LOTCHEM,2030-06-25,"Aug 29, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258500.pdf,financial_results,0.0,1,2026-01-22 20:39:37
+4656,LPGL,2030-06-25,"Oct 7, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261612.pdf,financial_results,0.0,1,2026-01-22 20:39:40
+4657,LPGL,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261593.pdf,financial_results,0.0,1,2026-01-22 20:39:40
+4783,MDTL,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261650.pdf,financial_results,0.0,1,2026-01-22 20:40:13
+4969,MSOT,2030-06-25,"Oct 6, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261108.pdf,financial_results,0.0,1,2026-01-22 20:40:54
+4987,MUBT,2030-06-25,"Sep 24, 2025 Financial Results for the Year Ended 2025-06-30 REVOKED",,https://dps.psx.com.pk/download/document/259946.pdf,financial_results,0.0,1,2026-01-22 20:41:02
+5041,MWMP,2030-06-25,"Sep 30, 2025 Approval of Extension in Time for Holding the Annual General Meeting/Annual Review Meeting for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260495.pdf,financial_results,0.777,1,2026-01-22 20:41:15
+5180,NETSOL,2030-06-25,"Sep 23, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259765.pdf,financial_results,0.0,1,2026-01-22 20:41:52
+5330,NSRM,2030-06-25,"Oct 7, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261493.pdf,financial_results,0.0,1,2026-01-22 20:42:25
+5331,NSRM,2030-06-25,"Oct 6, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261189.pdf,financial_results,0.0,1,2026-01-22 20:42:25
+5424,ORM,2030-06-25,"Sep 23, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/259755.pdf,financial_results,0.0,1,2026-01-22 20:42:47
+5470,PACE,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261642.pdf,financial_results,0.0,1,2026-01-22 20:42:58
+5759,PINL,2030-06-25,"Aug 29, 2025 Transmission of Quarterly Report for the period ended 2025-06-30",,https://dps.psx.com.pk/download/document/258566.pdf,financial_results,0.0,1,2026-01-22 20:43:58
+5776,PIOC,2030-06-25,"Sep 26, 2025 Financial Results for the Year ended 2025-06-30",,https://dps.psx.com.pk/download/document/260166.pdf,financial_results,0.0,1,2026-01-22 20:44:01
+5791,PKGI,2030-06-25,"Sep 3, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258755.pdf,financial_results,0.0,1,2026-01-22 20:44:05
+5792,PKGI,2030-06-25,"Sep 1, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258659.pdf,financial_results,0.0,1,2026-01-22 20:44:05
+6063,PTC,2030-06-25,"Aug 28, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258437.pdf,financial_results,0.0,1,2026-01-22 20:45:11
+6131,RCML,2030-06-25,"Sep 26, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260081.pdf,financial_results,0.0,1,2026-01-22 20:45:29
+6249,RUPL,2030-06-25,"Sep 29, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260376.pdf,financial_results,0.0,1,2026-01-22 20:45:53
+6314,SAPT,2030-06-25,"Sep 25, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260049.pdf,financial_results,0.0,1,2026-01-22 20:46:04
+6354,SASML,2030-06-25,"Jul 29, 2025 Transmission of Quarterly Financial Statements for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/257050.pdf,financial_results,0.0,1,2026-01-22 20:46:10
+6355,SASML,2030-06-25,"Jul 23, 2025 Financial Results for the Quarter ended 2025-06-30",,https://dps.psx.com.pk/download/document/256819.pdf,financial_results,0.0,1,2026-01-22 20:46:10
+6389,SCBPL,2030-06-25,"Aug 26, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258244.pdf,financial_results,0.0,1,2026-01-22 20:46:19
+6491,SFL,2030-06-25,"Sep 26, 2025 Financial REsults for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260082.pdf,financial_results,0.0,1,2026-01-22 20:46:45
+6508,SGABL,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261656.pdf,financial_results,0.0,1,2026-01-22 20:46:48
+6542,SGPL,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261665.pdf,financial_results,0.0,1,2026-01-22 20:46:53
+6559,SHCI,2030-06-25,"Oct 6, 2025 Transmission of Annual Financial Statements for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261254.pdf,financial_results,0.0,1,2026-01-22 20:46:56
+6560,SHCI,2030-06-25,"Oct 2, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260855.pdf,financial_results,0.0,1,2026-01-22 20:46:56
+6711,SIEM,2030-06-25,"Jul 25, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/256919.pdf,financial_results,0.0,1,2026-01-22 20:47:23
+7061,STCL,2030-06-25,"Sep 1, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258613.pdf,financial_results,0.0,1,2026-01-22 20:48:32
+7161,SUHJ,2030-06-25,"Oct 7, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261664.pdf,financial_results,0.0,1,2026-01-22 20:48:49
+7192,SUTM,2030-06-25,"Oct 10, 2025 Transmission of Annual Report for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261989.pdf,financial_results,0.0,1,2026-01-22 20:48:58
+7193,SUTM,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261492.pdf,financial_results,0.0,1,2026-01-22 20:48:58
+7354,THCCL,2030-06-25,"Sep 8, 2025 Financial Results For the year ended 2025-06-30",,https://dps.psx.com.pk/download/document/259023.pdf,financial_results,0.0,1,2026-01-22 20:49:38
+7370,TICL,2030-06-25,"Jul 23, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/256835.pdf,financial_results,0.0,1,2026-01-22 20:49:41
+7387,TOMCL,2030-06-25,"Sep 29, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/260224.pdf,financial_results,0.0,1,2026-01-22 20:49:44
+7450,TPLL,2030-06-25,"Aug 28, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258417.pdf,financial_results,0.0,1,2026-01-22 20:49:56
+7604,TSMF,2030-06-25,"Oct 8, 2025 ransmission of Annual Financial Statements for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261750.pdf,financial_results,0.0,1,2026-01-22 20:50:28
+7605,TSMF,2030-06-25,"Oct 6, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261416.pdf,financial_results,0.0,1,2026-01-22 20:50:28
+7641,TSPL,2030-06-25,"Oct 9, 2025 Transmission of Annual Financial Statements for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261909.pdf,financial_results,0.0,1,2026-01-22 20:50:35
+7642,TSPL,2030-06-25,"Oct 7, 2025 Financial Results for the Year Ended 2025-06-30",,https://dps.psx.com.pk/download/document/261481.pdf,financial_results,0.0,1,2026-01-22 20:50:35
+7788,WAFI,2030-06-25,"Nov 19, 2025 Transmission of Quarterly Report for the Period Ended 2025-06-30",,https://dps.psx.com.pk/download/document/265987.pdf,financial_results,0.0,1,2026-01-22 20:51:15
+7932,ZIL,2030-06-25,"Aug 28, 2025 Financial Results for the Quarter Ended 2025-06-30",,https://dps.psx.com.pk/download/document/258440.pdf,financial_results,0.0,1,2026-01-22 20:51:48
+4326,KEL,2030-06-24,"Sep 23, 2025 Financial Results for the Year Ended 2024-06-30",,https://dps.psx.com.pk/download/document/259867.pdf,financial_results,0.0,1,2026-01-22 20:38:44
+2354,FAEL,2030-06-17,"Nov 8, 2017 FINANCIAL RESULTS FOR THE YEAR ENDED  2017-06-30",,https://dps.psx.com.pk/download/document/106460.pdf,financial_results,0.0,1,2026-01-22 20:31:29
+6481,SFAT,2030-06-17,"May 14, 2018 Extension in Time for Holding the Annual General Meeting for the Year Ended 2017-06-30",,https://dps.psx.com.pk/download/document/114497.pdf,financial_results,0.0,1,2026-01-22 20:46:42
+7681,UCAPM,2030-06-17,"Jul 11, 2018 Notice of Annual Review Meeting For the Year Ended 2017-06-30 REVOKED",,https://dps.psx.com.pk/download/document/115963.pdf,financial_results,0.0,1,2026-01-22 20:50:49
+5226,NINA,2030-06-16,"Oct 13, 2016 Financial Results for the Year Ended  2016-06-30",,https://dps.psx.com.pk/download/document/087818.pdf,financial_results,0.0,1,2026-01-22 20:42:01
+1,AIRLINK,2026-01-23,"Oct 27, 2025 Transmission of Quarterly Financial Statements for the Period Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263491.pdf,financial_results,0.0,1,2026-01-22 19:38:55
+2,AIRLINK,2026-01-23,"Oct 23, 2025 Financial Results for the Quarter Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263042.pdf,financial_results,0.0,1,2026-01-22 19:38:55
+3,AIRLINK,2026-01-23,"Oct 1, 2025 Transmission of Annual Report for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/260727.pdf,financial_results,0.0,1,2026-01-22 19:38:55
+4,AIRLINK,2026-01-23,"Sep 29, 2025 Financial Results for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/260277.pdf,financial_results,0.0,1,2026-01-22 19:38:55
+5,AIRLINK,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended March 31, 2025",,https://dps.psx.com.pk/download/document/252834.pdf,financial_results,0.0,1,2026-01-22 19:38:55
+6,AIRLINK,2026-01-23,"Nov 24, 2025 25th Board Meeting (other than Financial Results)",,https://dps.psx.com.pk/download/document/266244.pdf,financial_results,0.0,1,2026-01-22 19:38:55
+7,AIRLINK,2026-01-23,"Oct 22, 2025 Certified True Copy of the Resolutions passed in the 12th Annual General Meeting",,https://dps.psx.com.pk/download/document/262908.pdf,financial_results,0.421,1,2026-01-22 19:38:55
+8,AIRLINK,2026-01-23,"Oct 15, 2025 24th Board Meeting",,https://dps.psx.com.pk/download/document/262287.pdf,meeting,0.0,1,2026-01-22 19:38:55
+9,AIRLINK,2026-01-23,"Oct 1, 2025 Notice of 12th Annual General Meeting - Published",,https://dps.psx.com.pk/download/document/260725.pdf,financial_results,0.0,1,2026-01-22 19:38:55
+10,AIRLINK,2026-01-23,"Jan 22, 2026 Material Information",,https://dps.psx.com.pk/download/document/268997.pdf,material_info,0.0,1,2026-01-22 19:38:55
+11,AIRLINK,2026-01-23,"Dec 1, 2025 Material Information",,https://dps.psx.com.pk/download/document/266632.pdf,material_info,0.0,1,2026-01-22 19:38:55
+12,AIRLINK,2026-01-23,"Oct 22, 2025 24th Board Meeting in progress",,,meeting,0.421,1,2026-01-22 19:38:55
+13,AIRLINK,2026-01-23,"Nov 18, 2025 Credit of Interim Cash Dividend (D-8)",,,dividend,0.682,1,2026-01-22 19:38:55
+14,AIRLINK,2026-01-23,"Nov 7, 2025 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:38:55
+15,AIRLINK,2026-01-23,"Nov 5, 2025 Credit of Final Cash Dividend (D-7)",,,dividend,0.682,1,2026-01-22 19:38:55
+16,FFC,2026-01-23,"Oct 31, 2025 Transmission of Quarterly Report - Quarter Ended September 30, 2025",,https://dps.psx.com.pk/download/document/264632.pdf,financial_results,0.0,1,2026-01-22 19:38:59
+17,FFC,2026-01-23,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended September 30, 2025 REVOKED",,https://dps.psx.com.pk/download/document/264355.pdf,financial_results,0.0,1,2026-01-22 19:38:59
+18,FFC,2026-01-23,"Aug 22, 2025 Transmission of Half Yearly Financial Statements for the Period Ended June 30, 2025",,https://dps.psx.com.pk/download/document/258110.pdf,financial_results,0.0,1,2026-01-22 19:38:59
+19,FFC,2026-01-23,"Jul 29, 2025 Financial Results for the Quarter Ended June 30, 2025",,https://dps.psx.com.pk/download/document/257078.pdf,financial_results,0.0,1,2026-01-22 19:38:59
+20,FFC,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 31 Mar 2025",,https://dps.psx.com.pk/download/document/252901.pdf,financial_results,0.0,1,2026-01-22 19:38:59
+21,FFC,2026-01-23,"Jan 22, 2026 Board Meeting",,https://dps.psx.com.pk/download/document/269003.pdf,meeting,0.0,1,2026-01-22 19:38:59
+22,FFC,2026-01-23,"Dec 24, 2025 Material Information - 238th Board of Directors Meeting of FFC",,https://dps.psx.com.pk/download/document/267751.pdf,meeting,0.0,1,2026-01-22 19:38:59
+23,FFC,2026-01-23,"Dec 17, 2025 Board Meeting Other Than Financial Results",,https://dps.psx.com.pk/download/document/267355.pdf,financial_results,0.0,1,2026-01-22 19:38:59
+24,FFC,2026-01-23,"Dec 8, 2025 Extraordinary General Meeting (EOGM) of Fauji Fertilizer  Company Limited",,https://dps.psx.com.pk/download/document/266946.pdf,meeting,-0.226,1,2026-01-22 19:38:59
+25,FFC,2026-01-23,"Nov 14, 2025 Notice of Extraordinary General Meeting",,https://dps.psx.com.pk/download/document/265672.pdf,meeting,0.0,1,2026-01-22 19:38:59
+26,FFC,2026-01-23,"Jan 19, 2026 Appointment Of Independent Director",,https://dps.psx.com.pk/download/document/268842.pdf,board_change,0.0,1,2026-01-22 19:38:59
+27,FFC,2026-01-23,"Jan 9, 2026 Material Information",,https://dps.psx.com.pk/download/document/268501.pdf,material_info,0.0,1,2026-01-22 19:38:59
+28,FFC,2026-01-23,"Jan 16, 2026 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:38:59
+29,FFC,2026-01-23,"Jan 8, 2026 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:38:59
+30,FFC,2026-01-23,"Jan 6, 2026 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:38:59
+31,GLAXO,2026-01-23,"Oct 29, 2025 Transmission of Quarterly Report for the period ended September 30, 2025",,https://dps.psx.com.pk/download/document/263990.pdf,financial_results,0.0,1,2026-01-22 19:39:02
+32,GLAXO,2026-01-23,"Oct 24, 2025 Financial Results for the Quarter ended September 30, 2025",,https://dps.psx.com.pk/download/document/263262.pdf,financial_results,0.0,1,2026-01-22 19:39:02
+33,GLAXO,2026-01-23,"Aug 29, 2025 Transmission of Half Yearly Report for the Period ended June 30, 2025",,https://dps.psx.com.pk/download/document/258481.pdf,financial_results,0.0,1,2026-01-22 19:39:02
+34,GLAXO,2026-01-23,"Aug 26, 2025 Financial Results for the Quarter ended June 30, 2025",,https://dps.psx.com.pk/download/document/258276.pdf,financial_results,0.0,1,2026-01-22 19:39:02
+35,GLAXO,2026-01-23,"Apr 29, 2025 Transmission of Quarterly Report for the period ended March 31, 2025",,https://dps.psx.com.pk/download/document/252700.pdf,financial_results,0.0,1,2026-01-22 19:39:02
+36,GLAXO,2026-01-23,"Oct 16, 2025 Notice of Board of Directors Meeting (Q3-2025)",,https://dps.psx.com.pk/download/document/262385.pdf,meeting,0.0,1,2026-01-22 19:39:02
+37,GLAXO,2026-01-23,"Aug 19, 2025 Notice of Board of Directors Meeting (Q2- 2025)",,https://dps.psx.com.pk/download/document/257929.pdf,meeting,0.0,1,2026-01-22 19:39:02
+38,GLAXO,2026-01-23,"Apr 28, 2025 Certified True Copy of the Resolutions passed by shareholders in the Annual General Meeting held on April 28, 2025",,https://dps.psx.com.pk/download/document/252418.pdf,financial_results,0.421,1,2026-01-22 19:39:02
+39,GLAXO,2026-01-23,"Apr 17, 2025 Board Meeting Quarter ended March 31, 2025",,https://dps.psx.com.pk/download/document/251315.pdf,meeting,0.0,1,2026-01-22 19:39:02
+40,GLAXO,2026-01-23,"Apr 7, 2025 Notice of Annual General Meeting",,https://dps.psx.com.pk/download/document/250629.pdf,financial_results,0.0,1,2026-01-22 19:39:02
+41,GLAXO,2026-01-23,"Dec 5, 2025 Presentation for Corporate Briefing Session -2025",,https://dps.psx.com.pk/download/document/266850.pdf,general,0.0,1,2026-01-22 19:39:02
+42,GLAXO,2026-01-23,"Dec 3, 2025 Notice of Corporate Briefing Session - 2025",,https://dps.psx.com.pk/download/document/266719.pdf,general,0.0,1,2026-01-22 19:39:02
+43,GLAXO,2026-01-23,"Sep 19, 2025 Credit of Interim cash dividend",,https://dps.psx.com.pk/download/document/259589.pdf,dividend,0.682,1,2026-01-22 19:39:02
+44,GLAXO,2026-01-23,"Sep 2, 2025 Notice of interim cash dividend and share book closure",,https://dps.psx.com.pk/download/document/258709.pdf,dividend,0.296,1,2026-01-22 19:39:02
+45,GLAXO,2026-01-23,"Sep 1, 2025 Prior Publication of Notice of Interim Cash Dividend and Share Book Closure",,https://dps.psx.com.pk/download/document/258650.pdf,dividend,0.296,1,2026-01-22 19:39:03
+46,HBL,2026-01-23,"Oct 29, 2025 Transmission of Quarterly Report for the Period Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263888.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+47,HBL,2026-01-23,"Oct 23, 2025 Announcement of Financial Results for the Third Quarter Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263115.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+48,HBL,2026-01-23,"Aug 4, 2025 Transmission of Half Yearly Report for the Period Ended June 30, 2025",,https://dps.psx.com.pk/download/document/257324.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+49,HBL,2026-01-23,"Jul 31, 2025 Announcement of Financial Results for the Half Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/257224.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+50,HBL,2026-01-23,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended March 31, 2025",,https://dps.psx.com.pk/download/document/252531.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+51,HBL,2026-01-23,"Dec 17, 2025 Board Meeting for Agenda Other than Financial Results",,https://dps.psx.com.pk/download/document/267382.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+52,HBL,2026-01-23,"Dec 9, 2025 Board Meeting for Agenda Other Than Financial Results",,https://dps.psx.com.pk/download/document/266983.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+53,HBL,2026-01-23,"Oct 15, 2025 Board Meeting for Announcement of Financial Results for the Third Quarter ended September 30, 2025",,https://dps.psx.com.pk/download/document/262271.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+54,HBL,2026-01-23,"Jul 23, 2025 Board Meeting for Announcement of Financial Results for the Half Year ended June 30, 2025",,https://dps.psx.com.pk/download/document/256831.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+55,HBL,2026-01-23,"Jun 20, 2025 Board Meeting for Agenda Other than Financial Results",,https://dps.psx.com.pk/download/document/255369.pdf,financial_results,0.0,1,2026-01-22 19:39:06
+56,HBL,2026-01-23,"Nov 17, 2025 Presentation- Corporate Briefing Session of Habib Bank Limited",,https://dps.psx.com.pk/download/document/265836.pdf,general,-0.226,1,2026-01-22 19:39:06
+57,HBL,2026-01-23,"Nov 17, 2025 Corporate Briefing Session of Habib Bank Limited",,https://dps.psx.com.pk/download/document/265821.pdf,general,-0.226,1,2026-01-22 19:39:06
+58,HBL,2026-01-23,"Nov 13, 2025 Newspaper Advertisement for Credit of Third Interim Cash Dividend D-2025 (III)",,https://dps.psx.com.pk/download/document/265592.pdf,dividend,0.682,1,2026-01-22 19:39:06
+59,HBL,2026-01-23,"Nov 12, 2025 Credit of Interim Cash Dividend D-2025 (III)",,,dividend,0.682,1,2026-01-22 19:39:07
+60,HBL,2026-01-23,"Oct 10, 2025 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:39:07
+61,LUCK,2026-01-23,"Oct 30, 2025 Transmission of Quarterly Report for the period ended - September 30, 2025",,https://dps.psx.com.pk/download/document/264455.pdf,financial_results,0.0,1,2026-01-22 19:39:14
+62,LUCK,2026-01-23,"Oct 28, 2025 Financial Results for the 1st Quarter Ended - September 30, 2025",,https://dps.psx.com.pk/download/document/263566.pdf,financial_results,0.0,1,2026-01-22 19:39:14
+63,LUCK,2026-01-23,"Sep 5, 2025 Transmission of Annual Report for the Year Ended -June 30, 2025 - Lucky Cement Limited",,https://dps.psx.com.pk/download/document/258917.pdf,financial_results,0.226,1,2026-01-22 19:39:14
+64,LUCK,2026-01-23,"Aug 11, 2025 Financial Results for the year ended - June 30, 2025",,https://dps.psx.com.pk/download/document/257573.pdf,financial_results,0.0,1,2026-01-22 19:39:14
+65,LUCK,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the period ended - March 31, 2025",,https://dps.psx.com.pk/download/document/253232.pdf,financial_results,0.0,1,2026-01-22 19:39:14
+66,LUCK,2026-01-23,"Jan 20, 2026 Board Meeting",,https://dps.psx.com.pk/download/document/268934.pdf,meeting,0.0,1,2026-01-22 19:39:14
+67,LUCK,2026-01-23,"Dec 17, 2025 Board Meeting Other than Financial Results",,https://dps.psx.com.pk/download/document/267400.pdf,financial_results,0.0,1,2026-01-22 19:39:14
+68,LUCK,2026-01-23,"Oct 21, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/262702.pdf,meeting,0.0,1,2026-01-22 19:39:14
+69,LUCK,2026-01-23,"Sep 29, 2025 CERTIFIED TRUE COPY OF THE RESOLUTIONS PASSED IN THE 32nd ANNUAL GENERAL MEETING OF LUCKY CEMENT LIMITED U/C 5.6.9.(b) OF PSX REGULATIONS",,https://dps.psx.com.pk/download/document/260339.pdf,financial_results,0.572,1,2026-01-22 19:39:14
+70,LUCK,2026-01-23,"Sep 4, 2025 Notice of Annual General Meeting, Form of Proxy and Ballot Paper - Lucky Cement Limited",,https://dps.psx.com.pk/download/document/258859.pdf,financial_results,0.226,1,2026-01-22 19:39:14
+71,LUCK,2026-01-23,"Jan 20, 2026 Disclosure of Interest by an Associated Company",,https://dps.psx.com.pk/download/document/268906.pdf,general,0.159,1,2026-01-22 19:39:14
+72,LUCK,2026-01-23,"Dec 26, 2025 CORPORATE BRIEFING SESSION",,https://dps.psx.com.pk/download/document/267854.pdf,general,0.0,1,2026-01-22 19:39:14
+73,LUCK,2026-01-23,"Dec 19, 2025 Material Information",,https://dps.psx.com.pk/download/document/267525.pdf,material_info,0.0,1,2026-01-22 19:39:14
+74,LUCK,2026-01-23,"Dec 1, 2025 MATERIAL INFORMATION",,https://dps.psx.com.pk/download/document/266631.pdf,material_info,0.0,1,2026-01-22 19:39:14
+75,LUCK,2026-01-23,"Oct 9, 2025 Credit of final cash dividend",,https://dps.psx.com.pk/download/document/261924.pdf,dividend,0.682,1,2026-01-22 19:39:14
+76,MARI,2026-01-23,"Oct 30, 2025 Transmission of Quarterly Report for the period ended September 30. 2025",,https://dps.psx.com.pk/download/document/264550.pdf,financial_results,0.0,1,2026-01-22 19:39:18
+77,MARI,2026-01-23,"Sep 5, 2025 Transmission of Annual Financial Statements for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/258895.pdf,financial_results,0.0,1,2026-01-22 19:39:18
+78,MARI,2026-01-23,"Aug 11, 2025 Financial Results for the Financial Year ended on June 30, 2025",,https://dps.psx.com.pk/download/document/257577.pdf,financial_results,0.0,1,2026-01-22 19:39:18
+79,MARI,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended March 31, 2025",,https://dps.psx.com.pk/download/document/253162.pdf,financial_results,0.0,1,2026-01-22 19:39:18
+80,MARI,2026-01-23,"Jan 16, 2026 Notice of Board of Directors Meeting",,https://dps.psx.com.pk/download/document/268820.pdf,meeting,0.0,1,2026-01-22 19:39:18
+81,MARI,2026-01-23,"Oct 22, 2025 Notice of Board of Directors Meeting",,https://dps.psx.com.pk/download/document/263013.pdf,meeting,0.0,1,2026-01-22 19:39:18
+82,MARI,2026-01-23,"Sep 26, 2025 Certified True Copy of Resolutions Adopted at 41st Annual General Meeting Held on September 26, 2025",,https://dps.psx.com.pk/download/document/260152.pdf,financial_results,0.421,1,2026-01-22 19:39:18
+83,MARI,2026-01-23,"Sep 4, 2025 Notice of 41st Annual General Meeting",,https://dps.psx.com.pk/download/document/258853.pdf,financial_results,0.0,1,2026-01-22 19:39:19
+84,MARI,2026-01-23,"Aug 8, 2025 Board Meeting In Progress",,https://dps.psx.com.pk/download/document/257560.pdf,meeting,0.421,1,2026-01-22 19:39:19
+85,MARI,2026-01-23,"Jan 16, 2026 Material Information",,https://dps.psx.com.pk/download/document/268826.pdf,material_info,0.0,1,2026-01-22 19:39:19
+86,MARI,2026-01-23,"Jan 8, 2026 Allocation and pricing of gas from Mari Field to Fertilizer Plants",,https://dps.psx.com.pk/download/document/268434.pdf,general,0.0,1,2026-01-22 19:39:19
+87,MARI,2026-01-23,"Dec 23, 2025 Appointment of Director",,https://dps.psx.com.pk/download/document/267678.pdf,board_change,0.0,1,2026-01-22 19:39:19
+88,MARI,2026-01-23,"Dec 19, 2025 Joint Venture Agreement with Globacore Minerals Limited",,https://dps.psx.com.pk/download/document/267502.pdf,general,0.318,1,2026-01-22 19:39:19
+89,MARI,2026-01-23,"Dec 3, 2025 Signing of Agreements for Three Offshore & Two Onshore Exploration Blocks",,https://dps.psx.com.pk/download/document/266700.pdf,general,0.273,1,2026-01-22 19:39:19
+90,MCB,2026-01-23,"Oct 29, 2025 Transmission of Third Quarterly Financial Statements for the period ended September 30, 2025",,https://dps.psx.com.pk/download/document/264076.pdf,financial_results,0.0,1,2026-01-22 19:39:22
+91,MCB,2026-01-23,"Oct 22, 2025 FINANCIAL RESULTS FOR THE THIRD QUARTER ENDED SEPTEMBER 30, 2025",,https://dps.psx.com.pk/download/document/262990.pdf,financial_results,0.0,1,2026-01-22 19:39:22
+92,MCB,2026-01-23,"Aug 13, 2025 Transmission of Half Yearly Financial Statements for the period ended June 30, 2025",,https://dps.psx.com.pk/download/document/257759.pdf,financial_results,0.0,1,2026-01-22 19:39:22
+93,MCB,2026-01-23,"Aug 6, 2025 FINANCIAL RESULTS FOR THE HALF YEAR ENDED JUNE 30, 2025",,https://dps.psx.com.pk/download/document/257431.pdf,financial_results,0.0,1,2026-01-22 19:39:22
+94,MCB,2026-01-23,"Apr 29, 2025 Transmission of Quarterly Report for the Period Ended March 31, 2025",,https://dps.psx.com.pk/download/document/252702.pdf,financial_results,0.0,1,2026-01-22 19:39:22
+95,MCB,2026-01-23,"Dec 11, 2025 Board Meeting in Progress - MCB Bank Limited",,https://dps.psx.com.pk/download/document/267127.pdf,meeting,0.226,1,2026-01-22 19:39:22
+96,MCB,2026-01-23,"Dec 3, 2025 Board Meeting Other Than Financial Results",,https://dps.psx.com.pk/download/document/266704.pdf,financial_results,0.0,1,2026-01-22 19:39:22
+97,MCB,2026-01-23,"Jul 29, 2025 Board Meeting - MCB Bank Limited",,https://dps.psx.com.pk/download/document/257079.pdf,meeting,-0.226,1,2026-01-22 19:39:22
+98,MCB,2026-01-23,"Apr 16, 2025 Board Meeting - MCB Bank Limited",,https://dps.psx.com.pk/download/document/251171.pdf,meeting,-0.226,1,2026-01-22 19:39:22
+99,MCB,2026-01-23,"Dec 12, 2025 Approval of Strategic Plan including Annual Budget of MCB Bank Limited - 2026",,https://dps.psx.com.pk/download/document/267169.pdf,financial_results,0.596,1,2026-01-22 19:39:22
+100,MCB,2026-01-23,"Nov 12, 2025 Text of Advertisement Prior to Publication - Credit of Third Interim Cash Dividend (D-91) 2025",,https://dps.psx.com.pk/download/document/265574.pdf,dividend,0.682,1,2026-01-22 19:39:22
+101,MCB,2026-01-23,"Nov 12, 2025 Credit of Third Interim Cash Dividend (D-91) 2025",,https://dps.psx.com.pk/download/document/265573.pdf,dividend,0.682,1,2026-01-22 19:39:22
+102,MCB,2026-01-23,"Nov 12, 2025 Presentation on Corporate Briefing Session of MCB Bank Limited",,https://dps.psx.com.pk/download/document/265533.pdf,general,-0.226,1,2026-01-22 19:39:22
+103,MCB,2026-01-23,"Nov 7, 2025 Corporate Briefing Session - MCB Bank Limited",,https://dps.psx.com.pk/download/document/265275.pdf,general,-0.226,1,2026-01-22 19:39:22
+104,MCB,2026-01-23,"Oct 14, 2025 Board Meeting - MCB Bank Limited",,,meeting,-0.226,1,2026-01-22 19:39:22
+105,MTL,2026-01-23,"Oct 28, 2025 Transmission of Quarterly Report for the Period Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263783.pdf,financial_results,0.0,1,2026-01-22 19:39:26
+106,MTL,2026-01-23,"Oct 27, 2025 Financial Results for the Quarter Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263488.pdf,financial_results,0.0,1,2026-01-22 19:39:26
+107,MTL,2026-01-23,"Oct 27, 2025 Financial Results for the Quarter Ended September 30, 2025 REVOKED",,https://dps.psx.com.pk/download/document/263473.pdf,financial_results,0.0,1,2026-01-22 19:39:26
+108,MTL,2026-01-23,"Oct 3, 2025 Transmission of Annual Report for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/260894.pdf,financial_results,0.0,1,2026-01-22 19:39:26
+109,MTL,2026-01-23,"Sep 15, 2025 Financial Results for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/259287.pdf,financial_results,0.0,1,2026-01-22 19:39:26
+110,MTL,2026-01-23,"Oct 2, 2025 Notice of Annual General Meeting",,https://dps.psx.com.pk/download/document/260769.pdf,financial_results,0.0,1,2026-01-22 19:39:26
+111,MTL,2026-01-23,"Mar 18, 2025 Certified Copy of Resolution Passed in Extra Ordinary General Meeting",,https://dps.psx.com.pk/download/document/249674.pdf,meeting,0.0,1,2026-01-22 19:39:26
+112,MTL,2026-01-23,"Oct 20, 2025 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:26
+113,MTL,2026-01-23,"Sep 8, 2025 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:26
+114,MTL,2026-01-23,"Apr 18, 2025 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:26
+115,MTL,2026-01-23,"Dec 22, 2025 Millat Tractors Limited Agreement for Export of Tractors",,,general,0.318,1,2026-01-22 19:39:26
+116,MTL,2026-01-23,"Dec 2, 2025 Change of Company Secretary",,,general,0.0,1,2026-01-22 19:39:26
+117,MTL,2026-01-23,"Nov 27, 2025 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:39:26
+118,MTL,2026-01-23,"Nov 26, 2025 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:39:26
+119,MTL,2026-01-23,"Nov 20, 2025 Recording of CBS-2025",,,general,0.3,1,2026-01-22 19:39:26
+120,NESTLE,2026-01-23,"Oct 21, 2025 Transmission of Quarterly Report for the Period Ended 30 September 2025",,https://dps.psx.com.pk/download/document/262717.pdf,financial_results,0.0,1,2026-01-22 19:39:29
+121,NESTLE,2026-01-23,"Oct 16, 2025 Financial Results for the Quarter Ended September 30, 2025",,https://dps.psx.com.pk/download/document/262360.pdf,financial_results,0.0,1,2026-01-22 19:39:29
+122,NESTLE,2026-01-23,"Aug 27, 2025 Transmission of Quarterly Report for the Period Ended June 30, 2025",,https://dps.psx.com.pk/download/document/258342.pdf,financial_results,0.0,1,2026-01-22 19:39:30
+123,NESTLE,2026-01-23,"Jul 24, 2025 Financial Results for the Quarter Ended June 30, 2025",,https://dps.psx.com.pk/download/document/256902.pdf,financial_results,0.0,1,2026-01-22 19:39:30
+124,NESTLE,2026-01-23,"Jun 27, 2025 Notice of Extraordinary General Meeting",,https://dps.psx.com.pk/download/document/255733.pdf,meeting,0.0,1,2026-01-22 19:39:30
+125,NESTLE,2026-01-23,"Apr 22, 2025 47th Annual General Meeting- Certified Resolutions",,https://dps.psx.com.pk/download/document/251819.pdf,financial_results,0.0,1,2026-01-22 19:39:30
+126,NESTLE,2026-01-23,"Nov 24, 2025 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,https://dps.psx.com.pk/download/document/266258.pdf,board_change,0.286,1,2026-01-22 19:39:30
+127,NESTLE,2026-01-23,"Apr 30, 2025 Credit of Final Cash Dividend for the year ended December 31, 2024",,,dividend,0.682,1,2026-01-22 19:39:30
+128,NESTLE,2026-01-23,"Jan 22, 2026 BOARD MEETING",,,meeting,0.0,1,2026-01-22 19:39:30
+129,NESTLE,2026-01-23,"Oct 1, 2025 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:30
+130,NESTLE,2026-01-23,"Jul 15, 2025 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:30
+131,NESTLE,2026-01-23,"Nov 25, 2025 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:39:30
+132,NESTLE,2026-01-23,"Nov 5, 2025 Credit of Interim Cash Dividend",,,dividend,0.682,1,2026-01-22 19:39:30
+133,NESTLE,2026-01-23,"Aug 19, 2025 Credit of Interim Cash Dividend Warrants",,,dividend,0.682,1,2026-01-22 19:39:30
+134,OGDC,2026-01-23,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended September 30, 2025",,https://dps.psx.com.pk/download/document/264549.pdf,financial_results,0.0,1,2026-01-22 19:39:33
+135,OGDC,2026-01-23,"Oct 29, 2025 Financial Results for the Quarter Ended September 30 2025",,https://dps.psx.com.pk/download/document/264119.pdf,financial_results,0.0,1,2026-01-22 19:39:33
+136,OGDC,2026-01-23,"Oct 6, 2025 Transmission of Annual Report for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/261312.pdf,financial_results,0.0,1,2026-01-22 19:39:33
+137,OGDC,2026-01-23,"Sep 23, 2025 Financial Results for the Year Ended June 30 2025",,https://dps.psx.com.pk/download/document/259805.pdf,financial_results,0.0,1,2026-01-22 19:39:33
+138,OGDC,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended March 31, 2025",,https://dps.psx.com.pk/download/document/253039.pdf,financial_results,0.0,1,2026-01-22 19:39:33
+139,OGDC,2026-01-23,"Oct 27, 2025 RESOLUTIONS PASSED BY THE SHAREHOLDERS IN 28th ANNUAL GENERAL MEETING HELD ON OCTOBER 27, 2025",,https://dps.psx.com.pk/download/document/263415.pdf,financial_results,0.0,1,2026-01-22 19:39:33
+140,OGDC,2026-01-23,"Oct 22, 2025 Board Meeting and Closed Period",,https://dps.psx.com.pk/download/document/263007.pdf,meeting,0.0,1,2026-01-22 19:39:33
+141,OGDC,2026-01-23,"Oct 3, 2025 Notice of Annual General Meeting",,https://dps.psx.com.pk/download/document/260997.pdf,financial_results,0.0,1,2026-01-22 19:39:33
+142,OGDC,2026-01-23,"Sep 16, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/259349.pdf,meeting,0.0,1,2026-01-22 19:39:33
+143,OGDC,2026-01-23,"Sep 10, 2025 CERTIFIED TRUE COPY OF RESOLUTIONS ADOPTED AT EXTRAORDINARY GENERAL MEETING HELD ON SEPTEMBER 10 2025",,https://dps.psx.com.pk/download/document/259096.pdf,meeting,0.421,1,2026-01-22 19:39:33
+144,OGDC,2026-01-23,"Jan 20, 2026 OIL AND GAS DISCOVERY AT BARAGZAI X-01 (SLANT) OVER SAMANA SUK AND SHINAWARI FORMATIONS, NASHPA BLOCK, KHYBER PAKHTUNKHWA, PAKISTAN",,https://dps.psx.com.pk/download/document/268901.pdf,general,-0.14,1,2026-01-22 19:39:33
+145,OGDC,2026-01-23,"Jan 2, 2026 Material Information",,https://dps.psx.com.pk/download/document/268175.pdf,material_info,0.0,1,2026-01-22 19:39:33
+146,OGDC,2026-01-23,"Jan 1, 2026 RECEIPT OF RS 8.3 BILLION FROM UCH POWER (PRIVATE) LIMITED",,https://dps.psx.com.pk/download/document/268089.pdf,general,-0.226,1,2026-01-22 19:39:33
+147,OGDC,2026-01-23,"Jan 1, 2026 OIL AND GAS DISCOVERY AT BARAGZAI X-01 (SLANT) WELL - DATTA FORMATION, NASHPA BLOCK, KHYBER PAKHTUNKHWA, PAKISTAN",,https://dps.psx.com.pk/download/document/268084.pdf,general,0.098,1,2026-01-22 19:39:33
+148,OGDC,2026-01-23,"Dec 24, 2025 RECEIPT OF SIXTH INTEREST PAYMENT UNDER TERM FINANCE CERTIFICATES (TFCs) BY POWER HOLDING LIMITED",,https://dps.psx.com.pk/download/document/267737.pdf,general,0.273,1,2026-01-22 19:39:33
+149,PPL,2026-01-23,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended 30 September 2025",,https://dps.psx.com.pk/download/document/264362.pdf,financial_results,0.0,1,2026-01-22 19:39:37
+150,PPL,2026-01-23,"Oct 29, 2025 Financial Results for the Quarter Ended 30 September 2025",,https://dps.psx.com.pk/download/document/263929.pdf,financial_results,0.0,1,2026-01-22 19:39:37
+151,PPL,2026-01-23,"Oct 6, 2025 Transmission of Annual Report for the Year Ended 30 June 2025",,https://dps.psx.com.pk/download/document/261187.pdf,financial_results,0.0,1,2026-01-22 19:39:37
+152,PPL,2026-01-23,"Sep 19, 2025 Financial Results for the Year Ended 30 June 2025",,https://dps.psx.com.pk/download/document/259574.pdf,financial_results,0.0,1,2026-01-22 19:39:37
+153,PPL,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended 31 march 2025",,https://dps.psx.com.pk/download/document/253141.pdf,financial_results,0.0,1,2026-01-22 19:39:37
+154,PPL,2026-01-23,"Oct 20, 2025 Meeting of the Board of Directors and Closed Period",,https://dps.psx.com.pk/download/document/262617.pdf,meeting,0.0,1,2026-01-22 19:39:37
+155,PPL,2026-01-23,"Oct 3, 2025 Notice of Annual General Meeting 2025",,https://dps.psx.com.pk/download/document/260948.pdf,financial_results,0.0,1,2026-01-22 19:39:37
+156,PPL,2026-01-23,"Sep 10, 2025 Meeting of the Board of Directors and Closed Period",,https://dps.psx.com.pk/download/document/259107.pdf,meeting,0.0,1,2026-01-22 19:39:37
+157,PPL,2026-01-23,"Sep 10, 2025 Special Resolutions Passed at the Extraordinary General Meeting 2025",,https://dps.psx.com.pk/download/document/259101.pdf,meeting,0.402,1,2026-01-22 19:39:37
+158,PPL,2026-01-23,"Aug 19, 2025 Notice of Extraordinary General Meeting Scheduled to be held on Wednesday, 10th September 2025",,https://dps.psx.com.pk/download/document/257935.pdf,meeting,0.0,1,2026-01-22 19:39:37
+159,PPL,2026-01-23,"Jan 20, 2026 Discovery of Hydrocarbons from Exploratory Well Baragzai X-01 (Slant) from Samana Suk & Shinawari Formations in Partner Operated Nashpa Block",,https://dps.psx.com.pk/download/document/268923.pdf,general,0.098,1,2026-01-22 19:39:37
+160,PPL,2026-01-23,"Jan 19, 2026 Discovery of Hydrocarbons from Exploratory Well Bilitang-1 from Lockhart Formation in Partner Operated TAL Block",,https://dps.psx.com.pk/download/document/268877.pdf,general,0.098,1,2026-01-22 19:39:37
+161,PPL,2026-01-23,"Jan 9, 2026 Appointment of Managing Director CEO of the Company - Mr Mohammad Khalid Rehman",,https://dps.psx.com.pk/download/document/268521.pdf,board_change,0.0,1,2026-01-22 19:39:37
+162,PPL,2026-01-23,"Jan 9, 2026 Material Information - Appointment of a Director Mr Mirza Nasiruddin Mashhood Ahmad",,https://dps.psx.com.pk/download/document/268509.pdf,board_change,0.0,1,2026-01-22 19:39:37
+163,PPL,2026-01-23,"Jan 2, 2026 Discovery of Hydrocarbons in TAL Block at Bilitang 1 Exploratory Well Khyber Pakhtunkhwa Province Pakistan",,https://dps.psx.com.pk/download/document/268136.pdf,general,0.098,1,2026-01-22 19:39:37
+164,PSO,2026-01-23,"Oct 30, 2025 Transmission of Quarterly Report for the period ended September 30, 2025",,https://dps.psx.com.pk/download/document/264179.pdf,financial_results,0.0,1,2026-01-22 19:39:42
+165,PSO,2026-01-23,"Oct 28, 2025 Financial Results for the First Quarter ended September 30, 2025",,https://dps.psx.com.pk/download/document/263690.pdf,financial_results,0.0,1,2026-01-22 19:39:42
+166,PSO,2026-01-23,"Oct 2, 2025 Transmission of Annual Report for the year ended June 30, 2025",,https://dps.psx.com.pk/download/document/260771.pdf,financial_results,0.0,1,2026-01-22 19:39:42
+167,PSO,2026-01-23,"Aug 19, 2025 Financial Results for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/257951.pdf,financial_results,0.0,1,2026-01-22 19:39:42
+168,PSO,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the Period ended March 31, 2025",,https://dps.psx.com.pk/download/document/253077.pdf,financial_results,0.0,1,2026-01-22 19:39:42
+169,PSO,2026-01-23,"Oct 20, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/262620.pdf,meeting,0.0,1,2026-01-22 19:39:42
+170,PSO,2026-01-23,"Oct 1, 2025 Notice of Annual General Meeting",,https://dps.psx.com.pk/download/document/260758.pdf,financial_results,0.0,1,2026-01-22 19:39:42
+171,PSO,2026-01-23,"Aug 12, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/257654.pdf,meeting,0.0,1,2026-01-22 19:39:42
+172,PSO,2026-01-23,"Apr 22, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/251731.pdf,meeting,0.0,1,2026-01-22 19:39:42
+173,PSO,2026-01-23,"Feb 6, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/246899.pdf,meeting,0.0,1,2026-01-22 19:39:42
+174,PSO,2026-01-23,"Jan 9, 2026 Change of Member - Board of Management",,https://dps.psx.com.pk/download/document/268495.pdf,board_change,0.0,1,2026-01-22 19:39:42
+175,PSO,2026-01-23,"Nov 6, 2025 Credit of Final Cash Dividend",,https://dps.psx.com.pk/download/document/265130.pdf,dividend,0.682,1,2026-01-22 19:39:42
+176,PSO,2026-01-23,"Nov 6, 2025 Appointment of Member - Board of Management",,https://dps.psx.com.pk/download/document/265126.pdf,board_change,0.0,1,2026-01-22 19:39:42
+177,PSO,2026-01-23,"Oct 24, 2025 Resolutions passed and adopted at the 49th AGM",,https://dps.psx.com.pk/download/document/263308.pdf,meeting,0.0,1,2026-01-22 19:39:42
+178,PSO,2026-01-23,"Sep 26, 2025 Material Information",,https://dps.psx.com.pk/download/document/260149.pdf,material_info,0.0,1,2026-01-22 19:39:42
+179,SAZEW,2026-01-23,"Oct 20, 2025 Transmission of Quarterly Financial Statements for the Period Ended September 30, 2025",,https://dps.psx.com.pk/download/document/262629.pdf,financial_results,0.0,1,2026-01-22 19:39:45
+181,SAZEW,2026-01-23,"Sep 4, 2025 Transmission of Annual Report for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/258831.pdf,financial_results,0.0,1,2026-01-22 19:39:45
+182,SAZEW,2026-01-23,"Sep 1, 2025 Financial Results for the Year Ended June 30, 2025",,https://dps.psx.com.pk/download/document/258632.pdf,financial_results,0.0,1,2026-01-22 19:39:45
+183,SAZEW,2026-01-23,"May 13, 2025 Credit of 3rd Interim Cash Dividend for the year ending June 30, 2025",,https://dps.psx.com.pk/download/document/253762.pdf,dividend,0.682,1,2026-01-22 19:39:45
+184,SAZEW,2026-01-23,"Sep 25, 2025 Certified Copy of Resolutions passed in 34th Annual General Meeting of the Company",,https://dps.psx.com.pk/download/document/260053.pdf,financial_results,0.0,1,2026-01-22 19:39:45
+185,SAZEW,2026-01-23,"Sep 3, 2025 Notice of Annual General Meeting",,https://dps.psx.com.pk/download/document/258767.pdf,financial_results,0.0,1,2026-01-22 19:39:45
+186,SAZEW,2026-01-23,"Jan 20, 2026 Material Information",,https://dps.psx.com.pk/download/document/268935.pdf,material_info,0.0,1,2026-01-22 19:39:45
+187,SAZEW,2026-01-23,"Jan 7, 2026 Production and Sales data regarding Four Wheelers and Three Wheelers for the month of December 2025",,https://dps.psx.com.pk/download/document/268397.pdf,general,0.0,1,2026-01-22 19:39:45
+188,SAZEW,2026-01-23,"Dec 11, 2025 Production and Sales data regarding Four Wheelers and Three Wheelers for the month of November 2025",,https://dps.psx.com.pk/download/document/267103.pdf,general,0.0,1,2026-01-22 19:39:45
+189,SAZEW,2026-01-23,"Nov 10, 2025 Production and Sales data regarding Four Wheelers and Three Wheelers for the month of October 2025",,https://dps.psx.com.pk/download/document/265396.pdf,general,0.0,1,2026-01-22 19:39:45
+190,SAZEW,2026-01-23,"Oct 15, 2025 Financial Results for the Quarter Ended 2025-09-30",,,financial_results,0.0,1,2026-01-22 19:39:45
+191,SAZEW,2026-01-23,"Jan 19, 2026 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:45
+192,SAZEW,2026-01-23,"Oct 8, 2025 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:46
+193,SAZEW,2026-01-23,"Aug 22, 2025 Board Meeting",,,meeting,0.0,1,2026-01-22 19:39:46
+194,SAZEW,2026-01-23,"Nov 7, 2025 Credit of 1st Interim Cash Dividend",,,dividend,0.682,1,2026-01-22 19:39:46
+195,UBL,2026-01-23,"Oct 30, 2025 Transmission of Quarterly Report for the Period Ended September 30, 2025",,https://dps.psx.com.pk/download/document/264343.pdf,financial_results,0.0,1,2026-01-22 19:39:49
+196,UBL,2026-01-23,"Oct 15, 2025 Financial Results for the Quarter ended September 30, 2025",,https://dps.psx.com.pk/download/document/262254.pdf,financial_results,0.0,1,2026-01-22 19:39:49
+197,UBL,2026-01-23,"Sep 1, 2025 Transmission of Half Yearly Report for the Period Ended June 30, 2025",,https://dps.psx.com.pk/download/document/258618.pdf,financial_results,0.0,1,2026-01-22 19:39:49
+198,UBL,2026-01-23,"Jul 11, 2025 Financial Results for the Quarter Ended 30 June 2025",,https://dps.psx.com.pk/download/document/256339.pdf,financial_results,0.0,1,2026-01-22 19:39:49
+199,UBL,2026-01-23,"Apr 30, 2025 Transmission of Quarterly Report for the Period Ended March 31, 2025",,https://dps.psx.com.pk/download/document/252987.pdf,financial_results,0.0,1,2026-01-22 19:39:49
+200,UBL,2026-01-23,"Dec 10, 2025 Board Meeting Other Than Financial Results",,https://dps.psx.com.pk/download/document/267025.pdf,financial_results,0.0,1,2026-01-22 19:39:49
+201,UBL,2026-01-23,"Oct 3, 2025 Notice of Board Meeting and Closed Period for the Period Ended Ended September 30, 2025",,https://dps.psx.com.pk/download/document/261057.pdf,meeting,0.0,1,2026-01-22 19:39:49
+202,UBL,2026-01-23,"Jul 3, 2025 Board Meeting of United Bank Limited (UBL)",,https://dps.psx.com.pk/download/document/256040.pdf,meeting,0.226,1,2026-01-22 19:39:49
+203,UBL,2026-01-23,"May 16, 2025 CERTIFIED COPY OF RESOLUTIONS PASSED IN THE EXTRAORDINARY GENERAL MEETING OF UNITED BANK LIMITED",,https://dps.psx.com.pk/download/document/253927.pdf,meeting,0.226,1,2026-01-22 19:39:49
+204,UBL,2026-01-23,"Apr 23, 2025 Notice of Extra-Ordinary General Meeting (EOGM) of UBL (Prior to Publication)",,https://dps.psx.com.pk/download/document/251984.pdf,meeting,0.0,1,2026-01-22 19:39:49
+205,UBL,2026-01-23,"Jan 6, 2026 Book Closure for the Entitlement of 28th Quarterly Coupon Payments on Additional Tier 1 TFCs issued by United Bank Limited (UBL)",,https://dps.psx.com.pk/download/document/268323.pdf,financial_results,-0.074,1,2026-01-22 19:39:49
+206,UBL,2026-01-23,"Jan 1, 2026 DISCLOSURE OF INTEREST BY THE DIRECTORS, CEO, EXECUTIVES,  THEIR SPOUSES AND SUBSTANTIAL SHAREHOLDERS OF LISTED COMPANIES",,https://dps.psx.com.pk/download/document/268079.pdf,board_change,0.286,1,2026-01-22 19:39:49
+207,UBL,2026-01-23,"Jan 13, 2026 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:39:49
+208,UBL,2026-01-23,"Jan 6, 2026 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:39:49
+209,UBL,2026-01-23,"Dec 30, 2025 Disclosure of Interest by a Director CEO, or Executive of a listed company and their Spouses and the Substantial Shareholders u/c 5.6.1.(d) of PSX Regulations",,,board_change,0.286,1,2026-01-22 19:39:49
+210,786,2026-01-23,"Nov 14, 2025 Corporate Briefing Session of 786 Investments Limited for the year ended June 30, 2025 Presentation",,https://dps.psx.com.pk/download/document/265648.pdf,general,-0.226,1,2026-01-22 20:23:06
+211,786,2026-01-23,"Nov 14, 2025 Corporate Briefing Session for the year end 30 June 2025 Presentation",,https://dps.psx.com.pk/download/document/265647.pdf,general,0.0,1,2026-01-22 20:23:06
+212,786,2026-01-23,"Oct 24, 2025 Transmission of Quarterly Report for the Period Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263286.pdf,financial_results,0.0,1,2026-01-22 20:23:06
+213,786,2026-01-23,"Oct 23, 2025 Financial Results for the Quarter Ended September 30, 2025",,https://dps.psx.com.pk/download/document/263142.pdf,financial_results,0.0,1,2026-01-22 20:23:06
+214,786,2026-01-23,"Sep 30, 2025 Transmission of Annual Report for the Year Ended June 2025",,https://dps.psx.com.pk/download/document/260586.pdf,financial_results,0.0,1,2026-01-22 20:23:06
+215,786,2026-01-23,"Oct 21, 2025 EXTRACT RESOLUTIONS PASSED BY THE SHAREHOLDERS IN ANNUAL GENERAL MEETING",,https://dps.psx.com.pk/download/document/262737.pdf,financial_results,0.0,1,2026-01-22 20:23:06
+216,786,2026-01-23,"Oct 17, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/262428.pdf,meeting,0.0,1,2026-01-22 20:23:06
+217,786,2026-01-23,"Sep 30, 2025 Notice of 34 Annual General Meeting for the year ended June 30,2025",,https://dps.psx.com.pk/download/document/260411.pdf,financial_results,0.0,1,2026-01-22 20:23:06
+218,786,2026-01-23,"Sep 22, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/259718.pdf,meeting,0.0,1,2026-01-22 20:23:06
+219,786,2026-01-23,"Apr 21, 2025 Board Meeting for the Quarter Ended March 2025",,https://dps.psx.com.pk/download/document/251512.pdf,meeting,0.0,1,2026-01-22 20:23:06
+220,786,2026-01-23,"Jan 20, 2026 Request for issuance of No Objection Certificate (NOC) for release of Rights Shares Subscription Money",,https://dps.psx.com.pk/download/document/268927.pdf,general,0.0,1,2026-01-22 20:23:06
+221,786,2026-01-23,"Jan 16, 2026 Extract of Circular Resolution Passed on January 15, 2026",,https://dps.psx.com.pk/download/document/268814.pdf,general,0.0,1,2026-01-22 20:23:06
+222,786,2026-01-23,"Jan 14, 2026 Right Shares Subscription Status",,https://dps.psx.com.pk/download/document/268736.pdf,general,0.296,1,2026-01-22 20:23:06
+223,786,2026-01-23,"Dec 29, 2025 Auditor Certificate on Payment for Subscription of Right Shares by Directors and Substantial Shareholders",,https://dps.psx.com.pk/download/document/267933.pdf,board_change,0.459,1,2026-01-22 20:23:06
+224,AABS,2026-01-23,"Jan 6, 2026 Transmission of Annual Report for the Year Ended September 30, 2025",,https://dps.psx.com.pk/download/document/268358.pdf,financial_results,0.0,1,2026-01-22 20:23:13
+225,AABS,2026-01-23,"Jan 5, 2026 Financial Results for the year Ended September 30, 2025",,https://dps.psx.com.pk/download/document/268197.pdf,financial_results,0.0,1,2026-01-22 20:23:13
+226,AABS,2026-01-23,"Aug 27, 2025 Advertisement published regarding Credit of Interim Dividend for the period ended June 30 ,2025",,https://dps.psx.com.pk/download/document/258321.pdf,dividend,0.682,1,2026-01-22 20:23:13
+227,AABS,2026-01-23,"Aug 26, 2025 Credit of Interim Dividend for the period ended June 30, 2025 - Prior to the publication",,https://dps.psx.com.pk/download/document/258259.pdf,dividend,0.682,1,2026-01-22 20:23:13
+228,AABS,2026-01-23,"Aug 1, 2025 Advertisement regarding intimation of Book closure of Interim Dividend for the quarter ended June 30, 2025",,https://dps.psx.com.pk/download/document/257271.pdf,dividend,0.0,1,2026-01-22 20:23:13
+229,AABS,2026-01-23,"Jan 21, 2026 Board Meeting",,https://dps.psx.com.pk/download/document/268982.pdf,meeting,0.0,1,2026-01-22 20:23:13
+230,AABS,2026-01-23,"Jan 6, 2026 Advertisement regarding Notice of 35th Annual General Meeting",,https://dps.psx.com.pk/download/document/268297.pdf,financial_results,0.0,1,2026-01-22 20:23:13
+231,AABS,2026-01-23,"Jan 5, 2026 Notice of 35th Annual General Meeting - Prior to the Publication",,https://dps.psx.com.pk/download/document/268207.pdf,financial_results,0.0,1,2026-01-22 20:23:13
+232,AABS,2026-01-23,"Jan 2, 2026 Board Meeting in Progress",,https://dps.psx.com.pk/download/document/268178.pdf,meeting,0.421,1,2026-01-22 20:23:13
+233,AABS,2026-01-23,"Dec 26, 2025 Board Meeting",,https://dps.psx.com.pk/download/document/267788.pdf,meeting,0.0,1,2026-01-22 20:23:13
+234,AABS,2026-01-23,"Jan 5, 2026 FILING OF CASUAL VACANCY",,https://dps.psx.com.pk/download/document/268198.pdf,general,0.202,1,2026-01-22 20:23:13
+235,AABS,2026-01-23,"Oct 22, 2025 Resignation of Director",,https://dps.psx.com.pk/download/document/262859.pdf,board_change,-0.296,1,2026-01-22 20:23:13
+236,AABS,2026-01-23,"Aug 7, 2025 Advertisement regarding Notice to the shareholder regarding unclaim dividend",,https://dps.psx.com.pk/download/document/257475.pdf,dividend,0.3,1,2026-01-22 20:23:13
+237,AABS,2026-01-23,"Aug 6, 2025 Notice to the shareholder regarding un-claim dividend-prior to the advertisement",,https://dps.psx.com.pk/download/document/257417.pdf,dividend,0.3,1,2026-01-22 20:23:13
+238,AABS,2026-01-23,"Feb 11, 2025 Credit of Final Dividend Warrant",,https://dps.psx.com.pk/download/document/247178.pdf,dividend,0.682,1,2026-01-22 20:23:13
+239,AAL,2026-01-23,"Jan 11, 2022 Financial Results for the Quarter Ended March 31,2019",,https://dps.psx.com.pk/download/document/179846.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+240,AAL,2026-01-23,"Jan 11, 2022 Financial Results for the half year ended December 31, 2018",,https://dps.psx.com.pk/download/document/179843.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+241,AAL,2026-01-23,"Jan 11, 2022 Financial Results for the year ended June 30, 2019",,https://dps.psx.com.pk/download/document/179840.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+242,AAL,2026-01-23,"Feb 28, 2019 Financial Results for the Half Year Ended December 31, 2018 REVOKED",,https://dps.psx.com.pk/download/document/126812.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+243,AAL,2026-01-23,"Oct 30, 2018 Transmission of Quarterly Report for the Period Ended September 30, 2018",,https://dps.psx.com.pk/download/document/121825.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+244,AAL,2026-01-23,"Feb 2, 2022 Postponed / Cancellation of Annual General Meeting",,https://dps.psx.com.pk/download/document/180826.pdf,financial_results,-0.202,1,2026-01-22 20:23:16
+245,AAL,2026-01-23,"Jan 10, 2022 Notice of Annual General Meeting",,https://dps.psx.com.pk/download/document/179793.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+246,AAL,2026-01-23,"Dec 31, 2021 Board Meeting - Annual Accounts",,https://dps.psx.com.pk/download/document/179449.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+247,AAL,2026-01-23,"Dec 31, 2021 Board Meeting - Quartely Accounts",,https://dps.psx.com.pk/download/document/179448.pdf,meeting,0.0,1,2026-01-22 20:23:16
+248,AAL,2026-01-23,"Dec 31, 2021 Board Meeting - Half Yearly Accounts",,https://dps.psx.com.pk/download/document/179447.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+249,AAL,2026-01-23,"Oct 22, 2019 Miscellenous Information",,https://dps.psx.com.pk/download/document/137339.pdf,general,0.0,1,2026-01-22 20:23:16
+250,AAL,2026-01-23,"Oct 21, 2019 Appointment of Chief Financial Officer",,https://dps.psx.com.pk/download/document/137131.pdf,financial_results,0.0,1,2026-01-22 20:23:16
+251,AASM,2026-01-23,"Oct 30, 2025 Transmission of quarterly Report for the period ended September 30, 2025",,https://dps.psx.com.pk/download/document/264531.pdf,financial_results,0.0,1,2026-01-22 20:23:19
+252,AASM,2026-01-23,"Oct 30, 2025 Financial Results for the Quarter ended September 30, 2025",,https://dps.psx.com.pk/download/document/264413.pdf,financial_results,0.0,1,2026-01-22 20:23:19
+253,AASM,2026-01-23,"Oct 6, 2025 Transmission of Annual Financial Statement for the year ended on June 30, 2025",,https://dps.psx.com.pk/download/document/261158.pdf,financial_results,0.0,1,2026-01-22 20:23:19
+254,AASM,2026-01-23,"Sep 30, 2025 Financial Results for the Year ended June 30, 2025",,https://dps.psx.com.pk/download/document/260459.pdf,financial_results,0.0,1,2026-01-22 20:23:19
+255,AASM,2026-01-23,"Sep 29, 2025 Financial Results for the Year ended June 30, 2025 REVOKED",,https://dps.psx.com.pk/download/document/260355.pdf,financial_results,0.0,1,2026-01-22 20:23:19
+256,AASM,2026-01-23,"Oct 23, 2025 Board meeting",,https://dps.psx.com.pk/download/document/263067.pdf,meeting,0.0,1,2026-01-22 20:23:19
+257,AASM,2026-01-23,"Oct 6, 2025 Notice of Annual General Meeting",,https://dps.psx.com.pk/download/document/261153.pdf,financial_results,0.0,1,2026-01-22 20:23:19
+258,AASM,2026-01-23,"Sep 22, 2025 Board meeting",,https://dps.psx.com.pk/download/document/259664.pdf,meeting,0.0,1,2026-01-22 20:23:19
+259,AASM,2026-01-23,"Jun 18, 2025 Meeting Postopned",,https://dps.psx.com.pk/download/document/255227.pdf,meeting,0.0,1,2026-01-22 20:23:19
+260,AASM,2026-01-23,"Jun 17, 2025 Board meeting other than financial result",,https://dps.psx.com.pk/download/document/255185.pdf,financial_results,0.0,1,2026-01-22 20:23:19
+261,AASM,2026-01-23,"Jan 9, 2026 Progress Report",,https://dps.psx.com.pk/download/document/268522.pdf,general,0.421,1,2026-01-22 20:23:19

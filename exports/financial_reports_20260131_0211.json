@@ -1,0 +1,116 @@
+[
+  {
+    "symbol": "FFC",
+    "company_name": "Fauji Fertilizer Company Limited",
+    "report_date": "2026-01-31",
+    "revenue": "3606.13 Billion PKR",
+    "net_profit": "81461.88 Billion PKR",
+    "eps": null,
+    "gross_margin": null,
+    "net_margin": null,
+    "total_assets": null,
+    "total_liabilities": null,
+    "dividend": "Rs. 805.00 per share",
+    "key_highlights": [
+      "Rs. 283.00 Billion",
+      "Rs. 20.90 Billion",
+      "Rs. 10.60 Billion",
+      "Rs. 34.40 Billion",
+      "Rs. 57.60 Billion"
+    ]
+  },
+  {
+    "symbol": "LUCK",
+    "company_name": "Lucky Cement Limited",
+    "report_date": "2026-01-31",
+    "revenue": null,
+    "net_profit": null,
+    "eps": null,
+    "gross_margin": null,
+    "net_margin": null,
+    "total_assets": null,
+    "total_liabilities": null,
+    "dividend": null,
+    "key_highlights": []
+  },
+  {
+    "symbol": "UBL",
+    "company_name": "United Bank Limited",
+    "report_date": "2026-01-31",
+    "revenue": null,
+    "net_profit": "156006.44 Billion PKR",
+    "eps": null,
+    "gross_margin": null,
+    "net_margin": null,
+    "total_assets": null,
+    "total_liabilities": null,
+    "dividend": "Rs. 432.00 per share",
+    "key_highlights": [
+      "Rs. 222.60 Billion",
+      "Rs. 98.50 Billion",
+      "Rs. 55.00 Billion",
+      "Rs. 100.10 Billion",
+      "Rs. 49.70 Billion"
+    ]
+  },
+  {
+    "symbol": "MEBL",
+    "company_name": "Meezan Bank Limited",
+    "report_date": "2026-01-31",
+    "revenue": "2.02 Billion PKR",
+    "net_profit": null,
+    "eps": null,
+    "gross_margin": null,
+    "net_margin": null,
+    "total_assets": null,
+    "total_liabilities": null,
+    "dividend": "Rs. 7.00 per share",
+    "key_highlights": [
+      "Rs. 67.20 Billion",
+      "Rs. 77.10 Billion",
+      "Rs. 312.00 Billion",
+      "Rs. 378.00 Billion",
+      "Rs. 124.00 Billion"
+    ]
+  },
+  {
+    "symbol": "PSO",
+    "company_name": "Pakistan State Oil Company Limited",
+    "report_date": "2026-01-31",
+    "revenue": null,
+    "net_profit": null,
+    "eps": null,
+    "gross_margin": null,
+    "net_margin": null,
+    "total_assets": null,
+    "total_liabilities": null,
+    "dividend": null,
+    "key_highlights": [
+      "Rs. 9.40 Billion",
+      "Rs. 10.50 Billion",
+      "Rs. 31.00 Million",
+      "Rs. 426.00 Billion",
+      "Rs. 294.00 Billion"
+    ]
+  },
+  {
+    "symbol": "FFBL",
+    "company_name": "Fauji Fertilizer Bin Qasim Limited",
+    "report_date": "2026-01-31",
+    "revenue": "17.00 Million PKR",
+    "net_profit": null,
+    "eps": null,
+    "gross_margin": null,
+    "net_margin": null,
+    "total_assets": null,
+    "total_liabilities": null,
+    "dividend": "Rs. 11.00 per share",
+    "key_highlights": [
+      "Rs. 0.40 Billion",
+      "Rs. 18.60 Billion",
+      "Rs. 0.40 Billion",
+      "Rs. 4.80 Billion",
+      "Rs. 2.90 Billion"
+    ]
+  }
+]

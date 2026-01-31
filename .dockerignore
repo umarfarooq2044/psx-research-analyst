@@ -1,0 +1,48 @@
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore local data (will be recreated)
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore local reports (generated fresh)
+reports/*.html
+exports/*.xlsx
+exports/*.csv
+
+# Ignore logs
+logs/*.log
+
+# Ignore environment files (use Cloud secrets)
+.env
+.env.local
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore tests
+tests/
+test_*.py
+
+# Ignore documentation
+*.md
+!README.md
+
+# Ignore artifacts directory
+.gemini/

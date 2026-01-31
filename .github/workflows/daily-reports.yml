@@ -1,0 +1,79 @@
+# PSX Research Analyst - Automated Daily Reports
+# This workflow runs automatically on schedule to send market analysis emails
+# 
+# Schedule (Pakistan Time):
+#   - Pre-Market: 8:30 AM PKT (Mon-Fri)
+#   - Post-Market: 4:30 PM PKT (Mon-Fri)
+
+name: PSX Daily Market Reports
+
+on:
+  schedule:
+    # Pre-market: 8:30 AM PKT = 3:30 AM UTC (Mon-Fri)
+    - cron: '30 3 * * 1-5'
+    # Post-market: 4:30 PM PKT = 11:30 AM UTC (Mon-Fri)
+    - cron: '30 11 * * 1-5'
+  
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Report type to run'
+        required: true
+        default: 'post_market'
+        type: choice
+        options:
+          - pre_market
+          - post_market
+          - mid_day
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # Allow up to 60 minutes for full analysis
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Determine report type
+        id: report
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.report_type }}" >> $GITHUB_OUTPUT
+          else
+            # Determine based on schedule time
+            HOUR=$(date -u +%H)
+            if [ "$HOUR" -lt "6" ]; then
+              echo "type=pre_market" >> $GITHUB_OUTPUT
+            else
+              echo "type=post_market" >> $GITHUB_OUTPUT
+            fi
+          fi
+      
+      - name: Run Market Analysis
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
+        run: |
+          python scheduler/orchestrator.py --run ${{ steps.report.outputs.type }}
+      
+      - name: Upload reports as artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: market-reports-${{ github.run_number }}
+          path: reports/
+          retention-days: 7
