@@ -1,0 +1,55 @@
+name: Test Database Connection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-connection:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install sqlalchemy psycopg2-binary
+
+    - name: Test Connection
+      run: |
+        python -c "
+        import os
+        import sys
+        from sqlalchemy import create_engine, text
+        
+        url = os.environ.get('DATABASE_URL')
+        if not url:
+            print('❌ ERROR: DATABASE_URL secret is NOT set in GitHub Settings!')
+            sys.exit(1)
+            
+        try:
+            # Mask password in logs
+            safe_url = url.split('@')[-1] if '@' in url else '***'
+            print(f'🔌 Attempting to connect to: {safe_url}')
+            
+            engine = create_engine(url)
+            with engine.connect() as conn:
+                print('✅ NETWORK: Connection Successful!')
+                
+                # Test query
+                result = conn.execute(text('SELECT 1')).fetchone()
+                print(f'✅ QUERY: Database returned {result[0]}')
+                
+                print('🎉 SUCCESS: The system can talk to Supabase!')
+                
+        except Exception as e:
+            print(f'❌ CONNECTION FAILED: {e}')
+            sys.exit(1)
+        "
