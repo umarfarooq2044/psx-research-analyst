@@ -87,9 +87,38 @@ def generate_postmarket_report(
             return '#58a6ff'
         elif score >= 40:
             return '#d29922'
-        else:
             return '#f85149'
     
+    # Pre-generate Undervalued Gems HTML to avoid nested f-string errors
+    undervalued_gems_html = ""
+    if undervalued_gems:
+        gems_grid = ''.join([f'''
+                    <div class="indicator" style="border: 1px solid #3fb950;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="stock-symbol" style="font-size: 16px;">{gem['symbol']}</span>
+                            <span class="badge badge-strong-buy" style="font-size: 10px;">SCORE: {gem['score']}</span>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 12px; color: #8b949e;">
+                            Relative P/E: <strong style="color: #c9d1d9;">{gem.get('pe_ratio', 'N/A')}</strong> vs Sector
+                        </div>
+                        <div style="margin-top: 4px; font-size: 12px; color: #8b949e;">
+                            Growth: <strong style="color: #3fb950;">{gem.get('growth', 'N/A')}%</strong>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 11px;">
+                            {gem.get('reason', 'Strong Fundamentals')}
+                        </div>
+                    </div>
+                    ''' for gem in undervalued_gems[:4]])
+        
+        undervalued_gems_html = f'''
+            <div class="section">
+                <div class="section-title">💎 UNDERVALUED GEMS (Deep Value + Growth)</div>
+                <div class="indicator-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    {gems_grid}
+                </div>
+            </div>
+        '''
+
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -166,30 +195,8 @@ def generate_postmarket_report(
             </div>
             
             <!-- Undervalued Gems -->
-            {'' if not undervalued_gems else f'''
-            <div class="section">
-                <div class="section-title">💎 UNDERVALUED GEMS (Deep Value + Growth)</div>
-                <div class="indicator-grid" style="grid-template-columns: repeat(2, 1fr);">
-                    {''.join([f'''
-                    <div class="indicator" style="border: 1px solid #3fb950;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="stock-symbol" style="font-size: 16px;">{gem['symbol']}</span>
-                            <span class="badge badge-strong-buy" style="font-size: 10px;">SCORE: {gem['score']}</span>
-                        </div>
-                        <div style="margin-top: 8px; font-size: 12px; color: #8b949e;">
-                            Relative P/E: <strong style="color: #c9d1d9;">{gem.get('pe_ratio', 'N/A')}</strong> vs Sector
-                        </div>
-                        <div style="margin-top: 4px; font-size: 12px; color: #8b949e;">
-                            Growth: <strong style="color: #3fb950;">{gem.get('growth', 'N/A')}%</strong>
-                        </div>
-                        <div style="margin-top: 8px; font-size: 11px;">
-                            {gem.get('reason', 'Strong Fundamentals')}
-                        </div>
-                    </div>
-                    ''' for gem in undervalued_gems[:4]])}
-                </div>
-            </div>
-            '''}
+            <!-- Undervalued Gems -->
+            {undervalued_gems_html}
             
             <!-- Sector Performance -->
             <div class="section">
