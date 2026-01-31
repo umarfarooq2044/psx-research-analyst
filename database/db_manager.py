@@ -1,653 +1,326 @@
 """
-PSX Research Analyst - Database Manager
-CRUD operations for all database tables including global markets,
-sector indices, alerts, stock scores, and technical indicators
+PSX Research Analyst - Database Manager (SQLAlchemy Version)
+CRUD operations for both SQLite (Local) and PostgreSQL (Supabase)
 """
-import sqlite3
 import json
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Tuple
+from datetime import datetime, timedelta, date
+from typing import List, Dict, Optional, Tuple, Any
 import os
 import sys
+from sqlalchemy import desc, func, text
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from database.models import get_connection, init_database
-
+from database.models import (
+    get_db_session, init_database,
+    Ticker, PriceHistory, Announcement, AnalysisResult, GlobalMarket,
+    KSE100Index, SectorIndex, NewsHeadline, StockScore, TechnicalIndicator,
+    ReportHistory, AlertHistory
+)
 
 class DBManager:
-    """Database manager for PSX Research Analyst"""
+    """Database manager for PSX Research Analyst (ORM version)"""
     
     def __init__(self):
-        """Initialize database manager and ensure tables exist"""
+        """Initialize database manager"""
+        # Ensure tables exist on startup
         init_database()
     
     # ==================== TICKER OPERATIONS ====================
     
     def upsert_ticker(self, symbol: str, name: str, sector: str = None):
         """Insert or update a ticker"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO tickers (symbol, name, sector, last_updated)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(symbol) DO UPDATE SET
-                name = excluded.name,
-                sector = COALESCE(excluded.sector, tickers.sector),
-                last_updated = excluded.last_updated
-        """, (symbol, name, sector, datetime.now()))
-        conn.commit()
-        conn.close()
+        with get_db_session() as session:
+            ticker = session.query(Ticker).filter_by(symbol=symbol).first()
+            if ticker:
+                ticker.name = name
+                if sector:
+                    ticker.sector = sector
+                ticker.last_updated = datetime.now()
+            else:
+                ticker = Ticker(symbol=symbol, name=name, sector=sector)
+                session.add(ticker)
     
-    def bulk_upsert_tickers(self, tickers: List[Dict]):
+    def bulk_upsert_tickers(self, tickers_data: List[Dict]):
         """Bulk insert or update tickers"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        for ticker in tickers:
-            cursor.execute("""
-                INSERT INTO tickers (symbol, name, sector, last_updated)
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(symbol) DO UPDATE SET
-                    name = excluded.name,
-                    last_updated = excluded.last_updated
-            """, (ticker['symbol'], ticker['name'], ticker.get('sector'), datetime.now()))
-        conn.commit()
-        conn.close()
+        with get_db_session() as session:
+            for item in tickers_data:
+                ticker = session.query(Ticker).filter_by(symbol=item['symbol']).first()
+                if ticker:
+                    ticker.name = item['name']
+                    if item.get('sector'):
+                        ticker.sector = item.get('sector')
+                    ticker.last_updated = datetime.now()
+                else:
+                    ticker = Ticker(
+                        symbol=item['symbol'], 
+                        name=item['name'], 
+                        sector=item.get('sector')
+                    )
+                    session.add(ticker)
     
     def get_all_tickers(self) -> List[Dict]:
         """Get all active tickers"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT symbol, name, sector FROM tickers WHERE is_active = 1")
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
+        with get_db_session() as session:
+            tickers = session.query(Ticker).filter_by(is_active=1).all()
+            return [{'symbol': t.symbol, 'name': t.name, 'sector': t.sector} for t in tickers]
     
     def get_ticker(self, symbol: str) -> Optional[Dict]:
         """Get a specific ticker"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT symbol, name, sector FROM tickers WHERE symbol = ?", (symbol,))
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
+        with get_db_session() as session:
+            ticker = session.query(Ticker).filter_by(symbol=symbol).first()
+            if ticker:
+                return {'symbol': ticker.symbol, 'name': ticker.name, 'sector': ticker.sector}
+            return None
     
     # ==================== PRICE OPERATIONS ====================
     
-    def insert_price(self, symbol: str, date: str, open_price: float = None,
+    def insert_price(self, symbol: str, date_str: str, open_price: float = None,
                      high_price: float = None, low_price: float = None,
                      close_price: float = None, volume: int = None):
         """Insert price data for a ticker"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("""
-                INSERT INTO price_history (symbol, date, open_price, high_price, low_price, close_price, volume)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(symbol, date) DO UPDATE SET
-                    open_price = COALESCE(excluded.open_price, price_history.open_price),
-                    high_price = COALESCE(excluded.high_price, price_history.high_price),
-                    low_price = COALESCE(excluded.low_price, price_history.low_price),
-                    close_price = COALESCE(excluded.close_price, price_history.close_price),
-                    volume = COALESCE(excluded.volume, price_history.volume)
-            """, (symbol, date, open_price, high_price, low_price, close_price, volume))
-            conn.commit()
-        except Exception as e:
-            print(f"Error inserting price for {symbol}: {e}")
-        finally:
-            conn.close()
+        with get_db_session() as session:
+            # Parse date string to object if needed
+            if isinstance(date_str, str):
+                price_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            else:
+                price_date = date_str
+                
+            price = session.query(PriceHistory).filter_by(symbol=symbol, date=price_date).first()
+            
+            if price:
+                if open_price: price.open_price = open_price
+                if high_price: price.high_price = high_price
+                if low_price: price.low_price = low_price
+                if close_price: price.close_price = close_price
+                if volume: price.volume = volume
+            else:
+                price = PriceHistory(
+                    symbol=symbol, date=price_date,
+                    open_price=open_price, high_price=high_price,
+                    low_price=low_price, close_price=close_price,
+                    volume=volume
+                )
+                session.add(price)
     
     def get_price_history(self, symbol: str, days: int = 30) -> List[Dict]:
         """Get price history for a ticker"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT date, open_price, high_price, low_price, close_price, volume
-            FROM price_history
-            WHERE symbol = ?
-            ORDER BY date DESC
-            LIMIT ?
-        """, (symbol, days))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
+        with get_db_session() as session:
+            history = session.query(PriceHistory).filter_by(symbol=symbol)\
+                .order_by(desc(PriceHistory.date))\
+                .limit(days).all()
+                
+            return [{
+                'date': h.date.strftime('%Y-%m-%d'),
+                'open_price': h.open_price,
+                'high_price': h.high_price,
+                'low_price': h.low_price,
+                'close_price': h.close_price,
+                'volume': h.volume
+            } for h in history]
     
     def get_latest_price(self, symbol: str) -> Optional[Dict]:
         """Get the latest price for a ticker"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT date, close_price, volume, high_price, low_price, open_price
-            FROM price_history
-            WHERE symbol = ?
-            ORDER BY date DESC
-            LIMIT 1
-        """, (symbol,))
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
+        with get_db_session() as session:
+            price = session.query(PriceHistory).filter_by(symbol=symbol)\
+                .order_by(desc(PriceHistory.date)).first()
+            
+            if price:
+                return {
+                    'date': price.date.strftime('%Y-%m-%d'),
+                    'close_price': price.close_price,
+                    'volume': price.volume,
+                    'high_price': price.high_price,
+                    'low_price': price.low_price,
+                    'open_price': price.open_price,
+                    'change_percent': 0  # To be calculated separately if needed
+                }
+            return None
     
     def get_52_week_high_low(self, symbol: str) -> Tuple[float, float]:
         """Get 52-week high and low for a ticker"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        one_year_ago = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
-        cursor.execute("""
-            SELECT MAX(high_price) as high_52w, MIN(low_price) as low_52w
-            FROM price_history
-            WHERE symbol = ? AND date >= ?
-        """, (symbol, one_year_ago))
-        row = cursor.fetchone()
-        conn.close()
-        if row and row['high_52w']:
-            return row['high_52w'], row['low_52w']
-        return None, None
-    
-    # ==================== ANNOUNCEMENT OPERATIONS ====================
-    
-    def insert_announcement(self, symbol: str, headline: str, content: str = None,
-                           pdf_url: str = None, announcement_type: str = None,
-                           announcement_date: str = None) -> bool:
-        """Insert an announcement if it doesn't exist (deduplication)"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("""
-                INSERT INTO announcements (symbol, headline, content, pdf_url, announcement_type, announcement_date)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (symbol, headline, content, pdf_url, announcement_type, 
-                  announcement_date or datetime.now().strftime('%Y-%m-%d')))
-            conn.commit()
-            conn.close()
-            return True
-        except sqlite3.IntegrityError:
-            conn.close()
-            return False
-    
-    def get_recent_announcements(self, symbol: str = None, days: int = 7) -> List[Dict]:
-        """Get recent announcements, optionally filtered by symbol"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        since_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
-        
-        if symbol:
-            cursor.execute("""
-                SELECT id, symbol, headline, content, pdf_url, announcement_type, 
-                       announcement_date, sentiment_score, processed
-                FROM announcements
-                WHERE symbol = ? AND announcement_date >= ?
-                ORDER BY announcement_date DESC
-            """, (symbol, since_date))
-        else:
-            cursor.execute("""
-                SELECT id, symbol, headline, content, pdf_url, announcement_type,
-                       announcement_date, sentiment_score, processed
-                FROM announcements
-                WHERE announcement_date >= ?
-                ORDER BY announcement_date DESC
-            """, (since_date,))
-        
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-    
-    def get_unprocessed_announcements(self) -> List[Dict]:
-        """Get announcements that haven't been sentiment analyzed"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT id, symbol, headline, content
-            FROM announcements
-            WHERE processed = 0
-        """)
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-    
-    def update_announcement_sentiment(self, announcement_id: int, sentiment_score: float):
-        """Update sentiment score for an announcement"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE announcements
-            SET sentiment_score = ?, processed = 1
-            WHERE id = ?
-        """, (sentiment_score, announcement_id))
-        conn.commit()
-        conn.close()
+        with get_db_session() as session:
+            one_year_ago = datetime.now().date() - timedelta(days=365)
+            
+            result = session.query(
+                func.max(PriceHistory.high_price), 
+                func.min(PriceHistory.low_price)
+            ).filter(
+                PriceHistory.symbol == symbol,
+                PriceHistory.date >= one_year_ago
+            ).first()
+            
+            if result:
+                return result[0], result[1]
+            return None, None
     
     # ==================== ANALYSIS OPERATIONS ====================
     
-    def save_analysis(self, symbol: str, date: str, rsi: float = None,
+    def save_analysis(self, symbol: str, date_str: str, rsi: float = None,
                       volume_spike: bool = False, sentiment_score: float = None,
                       buy_score: int = None, recommendation: str = None, notes: str = None):
-        """Save analysis results for a ticker"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO analysis_results (symbol, date, rsi, volume_spike, sentiment_score, 
-                                         buy_score, recommendation, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(symbol, date) DO UPDATE SET
-                rsi = excluded.rsi,
-                volume_spike = excluded.volume_spike,
-                sentiment_score = excluded.sentiment_score,
-                buy_score = excluded.buy_score,
-                recommendation = excluded.recommendation,
-                notes = excluded.notes
-        """, (symbol, date, rsi, 1 if volume_spike else 0, sentiment_score,
-              buy_score, recommendation, notes))
-        conn.commit()
-        conn.close()
-    
-    def get_today_analysis(self) -> List[Dict]:
-        """Get all analysis results for today"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            SELECT ar.*, t.name as company_name
-            FROM analysis_results ar
-            JOIN tickers t ON ar.symbol = t.symbol
-            WHERE ar.date = ?
-            ORDER BY ar.buy_score DESC
-        """, (today,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-    
-    def get_top_opportunities(self, limit: int = 5) -> List[Dict]:
-        """Get top buy opportunities from today's analysis"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            SELECT ar.*, t.name as company_name
-            FROM analysis_results ar
-            JOIN tickers t ON ar.symbol = t.symbol
-            WHERE ar.date = ?
-            ORDER BY ar.buy_score DESC
-            LIMIT ?
-        """, (today, limit))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-    
-    def get_red_alerts(self, threshold: int = 4) -> List[Dict]:
-        """Get stocks with sell signals (low buy scores)"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            SELECT ar.*, t.name as company_name
-            FROM analysis_results ar
-            JOIN tickers t ON ar.symbol = t.symbol
-            WHERE ar.date = ? AND ar.buy_score <= ?
-            ORDER BY ar.buy_score ASC
-            LIMIT 10
-        """, (today, threshold))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-    
-    def get_watchlist_analysis(self, watchlist: List[str]) -> List[Dict]:
-        """Get analysis for watchlist stocks"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        placeholders = ','.join('?' * len(watchlist))
-        cursor.execute(f"""
-            SELECT ar.*, t.name as company_name
-            FROM analysis_results ar
-            JOIN tickers t ON ar.symbol = t.symbol
-            WHERE ar.date = ? AND ar.symbol IN ({placeholders})
-        """, [today] + watchlist)
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
+        """Save analysis results"""
+        with get_db_session() as session:
+            if isinstance(date_str, str):
+                analysis_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            else:
+                analysis_date = date_str
+            
+            analysis = session.query(AnalysisResult).filter_by(symbol=symbol, date=analysis_date).first()
+            
+            if analysis:
+                analysis.rsi = rsi
+                analysis.volume_spike = 1 if volume_spike else 0
+                analysis.sentiment_score = sentiment_score
+                analysis.buy_score = buy_score
+                analysis.recommendation = recommendation
+                analysis.notes = description = notes
+            else:
+                analysis = AnalysisResult(
+                    symbol=symbol, date=analysis_date,
+                    rsi=rsi, volume_spike=1 if volume_spike else 0,
+                    sentiment_score=sentiment_score, buy_score=buy_score,
+                    recommendation=recommendation, notes=notes
+                )
+                session.add(analysis)
 
-    # ==================== GLOBAL MARKETS OPERATIONS ====================
-    
-    def save_global_markets(self, data: Dict):
-        """Save global market data"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            INSERT INTO global_markets (
-                date, sp500, sp500_change, nasdaq, nasdaq_change, dow, dow_change,
-                nikkei, nikkei_change, hang_seng, hang_seng_change, shanghai, shanghai_change,
-                wti_oil, wti_change, brent_oil, brent_change, usd_pkr, usd_pkr_change,
-                gold, gold_change
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(date) DO UPDATE SET
-                sp500 = excluded.sp500, sp500_change = excluded.sp500_change,
-                nasdaq = excluded.nasdaq, nasdaq_change = excluded.nasdaq_change,
-                dow = excluded.dow, dow_change = excluded.dow_change,
-                nikkei = excluded.nikkei, nikkei_change = excluded.nikkei_change,
-                hang_seng = excluded.hang_seng, hang_seng_change = excluded.hang_seng_change,
-                shanghai = excluded.shanghai, shanghai_change = excluded.shanghai_change,
-                wti_oil = excluded.wti_oil, wti_change = excluded.wti_change,
-                brent_oil = excluded.brent_oil, brent_change = excluded.brent_change,
-                usd_pkr = excluded.usd_pkr, usd_pkr_change = excluded.usd_pkr_change,
-                gold = excluded.gold, gold_change = excluded.gold_change
-        """, (
-            today,
-            data.get('sp500'), data.get('sp500_change'),
-            data.get('nasdaq'), data.get('nasdaq_change'),
-            data.get('dow'), data.get('dow_change'),
-            data.get('nikkei'), data.get('nikkei_change'),
-            data.get('hang_seng'), data.get('hang_seng_change'),
-            data.get('shanghai'), data.get('shanghai_change'),
-            data.get('wti_oil'), data.get('wti_change'),
-            data.get('brent_oil'), data.get('brent_change'),
-            data.get('usd_pkr'), data.get('usd_pkr_change'),
-            data.get('gold'), data.get('gold_change')
-        ))
-        conn.commit()
-        conn.close()
-    
-    def get_latest_global_markets(self) -> Optional[Dict]:
-        """Get latest global market data"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT * FROM global_markets ORDER BY date DESC LIMIT 1
-        """)
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
-
-    # ==================== KSE-100 INDEX OPERATIONS ====================
-    
-    def save_kse100_index(self, data: Dict):
-        """Save KSE-100 index data"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            INSERT INTO kse100_index (
-                date, open_value, high_value, low_value, close_value,
-                change_value, change_percent, volume, value_traded,
-                advancing, declining, unchanged
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(date) DO UPDATE SET
-                open_value = excluded.open_value,
-                high_value = excluded.high_value,
-                low_value = excluded.low_value,
-                close_value = excluded.close_value,
-                change_value = excluded.change_value,
-                change_percent = excluded.change_percent,
-                volume = excluded.volume,
-                value_traded = excluded.value_traded,
-                advancing = excluded.advancing,
-                declining = excluded.declining,
-                unchanged = excluded.unchanged
-        """, (
-            today,
-            data.get('open_value'), data.get('high_value'),
-            data.get('low_value'), data.get('close_value'),
-            data.get('change_value'), data.get('change_percent'),
-            data.get('volume'), data.get('value_traded'),
-            data.get('advancing'), data.get('declining'), data.get('unchanged')
-        ))
-        conn.commit()
-        conn.close()
-    
-    def get_kse100_history(self, days: int = 30) -> List[Dict]:
-        """Get KSE-100 index history"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT * FROM kse100_index ORDER BY date DESC LIMIT ?
-        """, (days,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-    
-    def get_latest_kse100(self) -> Optional[Dict]:
-        """Get latest KSE-100 data"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM kse100_index ORDER BY date DESC LIMIT 1")
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
-
-    # ==================== SECTOR INDEX OPERATIONS ====================
-    
-    def save_sector_index(self, sector: str, data: Dict):
-        """Save sector index data"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            INSERT INTO sector_indices (
-                date, sector, index_value, change_value, change_percent,
-                top_gainer, top_loser
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(date, sector) DO UPDATE SET
-                index_value = excluded.index_value,
-                change_value = excluded.change_value,
-                change_percent = excluded.change_percent,
-                top_gainer = excluded.top_gainer,
-                top_loser = excluded.top_loser
-        """, (
-            today, sector,
-            data.get('index_value'), data.get('change_value'),
-            data.get('change_percent'), data.get('top_gainer'), data.get('top_loser')
-        ))
-        conn.commit()
-        conn.close()
-    
-    def get_sector_indices(self, date: str = None) -> List[Dict]:
-        """Get all sector indices for a date"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        target_date = date or datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            SELECT * FROM sector_indices WHERE date = ? ORDER BY change_percent DESC
-        """, (target_date,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-
-    # ==================== NEWS OPERATIONS ====================
-    
-    def save_news(self, headline: str, source: str, url: str = None,
-                  category: str = None, sentiment_score: float = None,
-                  impact_level: str = None, related_symbols: List[str] = None):
-        """Save news headline"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        symbols_str = ','.join(related_symbols) if related_symbols else None
-        try:
-            cursor.execute("""
-                INSERT INTO news_headlines (
-                    date, source, headline, url, category, sentiment_score,
-                    impact_level, related_symbols
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (today, source, headline, url, category, sentiment_score,
-                  impact_level, symbols_str))
-            conn.commit()
-        except sqlite3.IntegrityError:
-            pass  # Duplicate headline
-        finally:
-            conn.close()
-    
-    def get_recent_news(self, days: int = 1) -> List[Dict]:
-        """Get recent news headlines"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        since_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
-        cursor.execute("""
-            SELECT * FROM news_headlines WHERE date >= ? ORDER BY created_at DESC
-        """, (since_date,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-
-    # ==================== ALERT OPERATIONS ====================
-    
-    def save_alert(self, alert_type: str, message: str, symbol: str = None,
-                   trigger_value: float = None, threshold_value: float = None,
-                   channel: str = 'email'):
-        """Save alert to history"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO alerts_history (
-                alert_type, symbol, message, trigger_value, threshold_value, channel
-            ) VALUES (?, ?, ?, ?, ?, ?)
-        """, (alert_type, symbol, message, trigger_value, threshold_value, channel))
-        conn.commit()
-        conn.close()
-    
-    def get_recent_alerts(self, hours: int = 24) -> List[Dict]:
-        """Get recent alerts"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        since = (datetime.now() - timedelta(hours=hours)).strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute("""
-            SELECT * FROM alerts_history WHERE sent_at >= ? ORDER BY sent_at DESC
-        """, (since,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-
-    # ==================== 100-POINT STOCK SCORE OPERATIONS ====================
-    
     def save_stock_score(self, symbol: str, scores: Dict):
         """Save 100-point stock score"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        total = sum([
-            scores.get('financial', 0),
-            scores.get('valuation', 0),
-            scores.get('technical', 0),
-            scores.get('sector_macro', 0),
-            scores.get('news', 0)
-        ])
-        
-        # Determine rating
-        if total >= 85:
-            rating = "STRONG BUY"
-        elif total >= 70:
-            rating = "BUY"
-        elif total >= 55:
-            rating = "HOLD"
-        elif total >= 40:
-            rating = "REDUCE"
-        else:
-            rating = "SELL/AVOID"
-        
-        cursor.execute("""
-            INSERT INTO stock_scores (
-                symbol, date, financial_score, valuation_score, technical_score,
-                sector_macro_score, news_score, total_score, rating, score_details
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(symbol, date) DO UPDATE SET
-                financial_score = excluded.financial_score,
-                valuation_score = excluded.valuation_score,
-                technical_score = excluded.technical_score,
-                sector_macro_score = excluded.sector_macro_score,
-                news_score = excluded.news_score,
-                total_score = excluded.total_score,
-                rating = excluded.rating,
-                score_details = excluded.score_details
-        """, (
-            symbol, today,
-            scores.get('financial', 0), scores.get('valuation', 0),
-            scores.get('technical', 0), scores.get('sector_macro', 0),
-            scores.get('news', 0), total, rating,
-            json.dumps(scores.get('details', {}))
-        ))
-        conn.commit()
-        conn.close()
-    
-    def get_stock_scores(self, date: str = None, limit: int = 50) -> List[Dict]:
-        """Get stock scores for a date"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        target_date = date or datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            SELECT ss.*, t.name as company_name
-            FROM stock_scores ss
-            LEFT JOIN tickers t ON ss.symbol = t.symbol
-            WHERE ss.date = ?
-            ORDER BY ss.total_score DESC
-            LIMIT ?
-        """, (target_date, limit))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
+        with get_db_session() as session:
+            today = datetime.now().date()
+            score = session.query(StockScore).filter_by(symbol=symbol, date=today).first()
+            
+            total = sum([
+                scores.get('financial', 0), scores.get('valuation', 0),
+                scores.get('technical', 0), scores.get('sector_macro', 0),
+                scores.get('news', 0)
+            ])
+            
+            if total >= 85: rating = "STRONG BUY"
+            elif total >= 70: rating = "BUY"
+            elif total >= 55: rating = "HOLD"
+            elif total >= 40: rating = "REDUCE"
+            else: rating = "SELL/AVOID"
+            
+            details = json.dumps(scores.get('details', {}))
+            
+            if score:
+                score.financial_score = scores.get('financial', 0)
+                score.valuation_score = scores.get('valuation', 0)
+                score.technical_score = scores.get('technical', 0)
+                score.sector_macro_score = scores.get('sector_macro', 0)
+                score.news_score = scores.get('news', 0)
+                score.total_score = total
+                score.rating = rating
+                score.score_details = details
+            else:
+                score = StockScore(
+                    symbol=symbol, date=today,
+                    financial_score=scores.get('financial', 0),
+                    valuation_score=scores.get('valuation', 0),
+                    technical_score=scores.get('technical', 0),
+                    sector_macro_score=scores.get('sector_macro', 0),
+                    news_score=scores.get('news', 0),
+                    total_score=total,
+                    rating=rating,
+                    score_details=details
+                )
+                session.add(score)
+                
+    def get_stock_score(self, symbol: str) -> Optional[Dict]:
+        """Get latest stock score"""
+        with get_db_session() as session:
+            score = session.query(StockScore).filter_by(symbol=symbol)\
+                .order_by(desc(StockScore.date)).first()
+            
+            if score:
+                # Assuming you want the object attributes as a dict
+                return {
+                    'symbol': score.symbol,
+                    'date': score.date.strftime('%Y-%m-%d'),
+                    'total_score': score.total_score,
+                    'rating': score.rating,
+                    'technical_score': score.technical_score,
+                    'fundamental_score': score.financial_score + score.valuation_score, # Approximation
+                    'sentiment_score': score.news_score,
+                    'momentum_score': score.technical_score, # Approximation
+                    'details': json.loads(score.score_details) if score.score_details else {}
+                }
+            return None
 
-    # ==================== TECHNICAL INDICATORS OPERATIONS ====================
-    
+    # ==================== TECHNICAL INDICATORS ====================
+
     def save_technical_indicators(self, symbol: str, indicators: Dict):
-        """Save technical indicators for a symbol"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            INSERT INTO technical_indicators (
-                symbol, date, ma_10, ma_50, ma_200, rsi, macd, macd_signal,
-                macd_histogram, bollinger_upper, bollinger_middle, bollinger_lower,
-                support_level, resistance_level, trend
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(symbol, date) DO UPDATE SET
-                ma_10 = excluded.ma_10, ma_50 = excluded.ma_50, ma_200 = excluded.ma_200,
-                rsi = excluded.rsi, macd = excluded.macd, macd_signal = excluded.macd_signal,
-                macd_histogram = excluded.macd_histogram,
-                bollinger_upper = excluded.bollinger_upper,
-                bollinger_middle = excluded.bollinger_middle,
-                bollinger_lower = excluded.bollinger_lower,
-                support_level = excluded.support_level,
-                resistance_level = excluded.resistance_level,
-                trend = excluded.trend
-        """, (
-            symbol, today,
-            indicators.get('ma_10'), indicators.get('ma_50'), indicators.get('ma_200'),
-            indicators.get('rsi'), indicators.get('macd'), indicators.get('macd_signal'),
-            indicators.get('macd_histogram'),
-            indicators.get('bollinger_upper'), indicators.get('bollinger_middle'),
-            indicators.get('bollinger_lower'),
-            indicators.get('support_level'), indicators.get('resistance_level'),
-            indicators.get('trend')
-        ))
-        conn.commit()
-        conn.close()
-    
+        """Save technical indicators"""
+        with get_db_session() as session:
+            today = datetime.now().date()
+            tech = session.query(TechnicalIndicator).filter_by(symbol=symbol, date=today).first()
+            
+            if tech:
+                tech.ma_10 = indicators.get('ma_10')
+                tech.ma_50 = indicators.get('ma_50')
+                tech.ma_200 = indicators.get('ma_200')
+                tech.rsi = indicators.get('rsi')
+                tech.macd = indicators.get('macd')
+                tech.macd_signal = indicators.get('macd_signal')
+                tech.macd_histogram = indicators.get('macd_histogram')
+                tech.bollinger_upper = indicators.get('bollinger_upper')
+                tech.bollinger_middle = indicators.get('bollinger_middle')
+                tech.bollinger_lower = indicators.get('bollinger_lower')
+                tech.support_level = indicators.get('support_level')
+                tech.resistance_level = indicators.get('resistance_level')
+                tech.trend = indicators.get('trend')
+            else:
+                tech = TechnicalIndicator(
+                    symbol=symbol, date=today,
+                    ma_10=indicators.get('ma_10'),
+                    ma_50=indicators.get('ma_50'),
+                    ma_200=indicators.get('ma_200'),
+                    rsi=indicators.get('rsi'),
+                    macd=indicators.get('macd'),
+                    macd_signal=indicators.get('macd_signal'),
+                    macd_histogram=indicators.get('macd_histogram'),
+                    bollinger_upper=indicators.get('bollinger_upper'),
+                    bollinger_middle=indicators.get('bollinger_middle'),
+                    bollinger_lower=indicators.get('bollinger_lower'),
+                    support_level=indicators.get('support_level'),
+                    resistance_level=indicators.get('resistance_level'),
+                    trend=indicators.get('trend')
+                )
+                session.add(tech)
+
     def get_technical_indicators(self, symbol: str) -> Optional[Dict]:
-        """Get latest technical indicators for a symbol"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT * FROM technical_indicators
-            WHERE symbol = ?
-            ORDER BY date DESC LIMIT 1
-        """, (symbol,))
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
+        """Get latest technical indicators"""
+        with get_db_session() as session:
+            tech = session.query(TechnicalIndicator).filter_by(symbol=symbol)\
+                .order_by(desc(TechnicalIndicator.date)).first()
+            
+            if tech:
+                return {
+                    'rsi': tech.rsi,
+                    'sma_20': tech.bollinger_middle,
+                    'sma_50': tech.ma_50,
+                    'macd': tech.macd,
+                    'macd_signal': tech.macd_signal,
+                    'support': tech.support_level,
+                    'resistance': tech.resistance_level
+                }
+            return None
 
     # ==================== REPORT HISTORY ====================
-    
-    def save_report_history(self, report_type: str, file_path: str = None,
-                           recipients: str = None, status: str = 'sent'):
-        """Save report generation history"""
-        conn = get_connection()
-        cursor = conn.cursor()
-        today = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("""
-            INSERT INTO report_history (
-                report_type, date, sent_at, recipients, file_path, status
-            ) VALUES (?, ?, ?, ?, ?, ?)
-        """, (report_type, today, datetime.now(), recipients, file_path, status))
-        conn.commit()
-        conn.close()
 
+    def save_report_history(self, report_type: str, file_path: str = None, 
+                           recipients: str = None, status: str = 'sent'):
+        """Save report history"""
+        with get_db_session() as session:
+            history = ReportHistory(
+                report_type=report_type,
+                date=datetime.now().date(),
+                sent_at=datetime.now(),
+                recipients=recipients,
+                file_path=file_path,
+                status=status
+            )
+            session.add(history)
 
 # Singleton instance
 db = DBManager()

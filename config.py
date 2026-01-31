@@ -40,6 +40,7 @@ NEWS_SOURCES = {
 # DATABASE SETTINGS
 # ============================================================================
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), "psx_data.db")
+DATABASE_URL = os.getenv("DATABASE_URL")  # For PostgreSQL (Supabase)
 
 # ============================================================================
 # WATCHLIST - Stocks to always include in report
