@@ -44,6 +44,9 @@ class ProfessionalReportGenerator:
         
         Returns: Path to generated CSV file
         """
+        import pytz
+        pkt = pytz.timezone('Asia/Karachi')
+        
         filepath = os.path.join(self.reports_dir, f'hourly_news_{self.timestamp}.csv')
         
         # Combine all news
@@ -51,7 +54,7 @@ class ProfessionalReportGenerator:
         
         for item in news_data.get('national', []):
             all_news.append({
-                'Time': datetime.now().strftime('%Y-%m-%d %H:%M'),
+                'Time': datetime.now(pkt).strftime('%Y-%m-%d %H:%M'),
                 'Category': 'National (Pakistan)',
                 'Source': item.get('source', 'Unknown'),
                 'Headline': item.get('headline', ''),

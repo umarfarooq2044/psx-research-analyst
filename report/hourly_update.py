@@ -25,7 +25,10 @@ def generate_hourly_update_html(
 ) -> str:
     """Generate HTML for hourly quick update email"""
     
-    current_time = datetime.now()
+    import pytz
+    
+    pkt = pytz.timezone('Asia/Karachi')
+    current_time = datetime.now(pkt)
     hour = current_time.strftime("%I:%M %p")
     date = current_time.strftime("%B %d, %Y")
     
@@ -212,8 +215,11 @@ def run_hourly_update() -> Dict:
     print(f"\n[4/4] Generating hourly report and sending email...")
     html = generate_hourly_update_html(news_data, market_moving)
     
+    import pytz
+    
     # Send email with CSV attachment
-    current_time = datetime.now()
+    pkt = pytz.timezone('Asia/Karachi')
+    current_time = datetime.now(pkt)
     subject = f"⏰ PSX Hourly Update - {current_time.strftime('%I:%M %p')} | {news_data.get('sentiment_label', 'Neutral')} Sentiment"
     
     try:
