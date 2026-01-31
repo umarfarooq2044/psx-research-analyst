@@ -55,7 +55,6 @@ def get_postmarket_css() -> str:
 def generate_postmarket_report(
     market_summary: Dict,
     top_stocks: List[Dict],
-    top_stocks: List[Dict],
     sector_performance: List[Dict],
     technical_analysis: Dict,
     news_summary: Dict,
