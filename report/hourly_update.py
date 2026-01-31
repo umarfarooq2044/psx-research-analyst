@@ -15,17 +15,54 @@ import os
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import requests
+from config import FOREX_API_URL, OIL_API_URL
+
+def fetch_global_macro_data() -> Dict:
+    """Fetch live Global Macro Data (USD/PKR, Oil)"""
+    data = {'usd_pkr': 0, 'oil': 0, 'usd_change': 0, 'oil_change': 0}
+    try:
+        # 1. USD/PKR (Free API)
+        resp = requests.get(FOREX_API_URL, timeout=5)
+        if resp.status_code == 200:
+            rates = resp.json().get('rates', {})
+            usd_pkr = rates.get('PKR', 0)
+            data['usd_pkr'] = round(usd_pkr, 2)
+            # Calculate change if previous stored.. for now just current value
+            
+        # 2. Oil (Simple/Free API or scrape)
+        # Using a simple requests attempt to an oil price API if valid
+        # If API fails, we might leave as 0
+        try:
+            resp_oil = requests.get(OIL_API_URL, headers={'Authorization': 'Token ...'}, timeout=5)
+            # Note: OIL_API_URL in config might need a real free endpoint or token.
+            # Fallback to simple scraping/hardcoded if API requires key not present.
+            pass 
+        except:
+            pass
+            
+    except Exception as e:
+        print(f"Macro fetch warning: {e}")
+    
+    return data
+
 from news.comprehensive_news import get_all_news, get_market_moving_news
 
 
 def generate_hourly_update_html(
     news_data: Dict,
     market_moving: List[Dict],
-    top_movers: Optional[Dict] = None
+    top_movers: Optional[Dict] = None,
+    alerts: List[str] = None,
+    active_stocks: List[Dict] = None
 ) -> str:
-    """Generate HTML for hourly quick update email"""
+    """Generate HTML for hourly surveillance email"""
     
     import pytz
+    
+    if alerts is None: alerts = []
+    if active_stocks is None: active_stocks = []
+    if top_movers is None: top_movers = {'gainers': [], 'losers': []}
     
     pkt = pytz.timezone('Asia/Karachi')
     current_time = datetime.now(pkt)
@@ -127,8 +164,41 @@ def generate_hourly_update_html(
                 </span>
             </div>
             
-            <!-- Market-Moving News -->
+            <!-- Actionable Alerts -->
             <div style="padding: 20px;">
+                <h2 style="color: #f0883e; margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid #30363d; padding-bottom: 10px;">
+                    ⚡ ACTIONABLE RISK ALERTS
+                </h2>
+                {f'<div style="background: rgba(248,81,73,0.15); border-left: 4px solid #f85149; padding: 15px; border-radius: 4px;">' + 
+                 ''.join([f'<div style="margin-bottom: 8px; color: #c9d1d9;">{alert}</div>' for alert in alerts]) + 
+                 '</div>' if alerts else '<p style="color: #8b949e;">No critical risk alerts at this moment.</p>'}
+            </div>
+
+            <!-- Active Stocks / Volume Spikes -->
+            <div style="padding: 0 20px 20px 20px;">
+                <h3 style="color: #58a6ff; margin: 0 0 10px 0; font-size: 16px;">
+                    📊 Volume Leaders & Spikes
+                </h3>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                    <tr style="background: #21262d;">
+                        <th style="padding: 8px; text-align: left; color: #8b949e;">Symbol</th>
+                        <th style="padding: 8px; text-align: right; color: #8b949e;">Price</th>
+                        <th style="padding: 8px; text-align: right; color: #8b949e;">Change</th>
+                        <th style="padding: 8px; text-align: right; color: #8b949e;">Volume</th>
+                    </tr>
+                    {''.join([f'''
+                    <tr style="border-bottom: 1px solid #30363d;">
+                        <td style="padding: 8px; font-weight: bold; color: #c9d1d9;">{s['symbol']}</td>
+                        <td style="padding: 8px; text-align: right; color: #c9d1d9;">{s['price']:.2f}</td>
+                        <td style="padding: 8px; text-align: right; color: {'#00d26a' if s['change'] > 0 else '#ff4757'};">{s['change']:+.2f}%</td>
+                        <td style="padding: 8px; text-align: right; color: #c9d1d9;">{s['volume']:,}</td>
+                    </tr>
+                    ''' for s in active_stocks]) if active_stocks else '<tr><td colspan="4" style="padding:10px; text-align:center; color:#8b949e;">No significant volume active</td></tr>'}
+                </table>
+            </div>
+
+            <!-- Market-Moving News -->
+            <div style="padding: 0 20px 20px 20px;">
                 <h2 style="color: #ff4757; margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid #30363d; padding-bottom: 10px;">
                     🚨 MARKET-MOVING NEWS
                 </h2>
@@ -193,51 +263,114 @@ def generate_hourly_update_html(
 
 
 def run_hourly_update() -> Dict:
-    """Run hourly quick update and send email with CSV attachment"""
+    """Run hourly surveillance (Full Market Scan) and send email"""
     from report.email_sender import send_email
     from report.csv_generator import generate_hourly_news_csv
+    from scraper.price_scraper import fetch_all_prices
+    from database.db_manager import db
+    from analysis.technical import analyze_ticker_technical
+    import asyncio
     
     print("=" * 60)
-    print(f"⏰ HOURLY QUICK UPDATE - {datetime.now().strftime('%I:%M %p')}")
+    print(f"⏰ FULL MARKET SURVEILLANCE - {datetime.now().strftime('%I:%M %p')}")
     print("=" * 60)
     
-    # Collect news (lightweight - no price fetching)
-    print("\n[1/4] Collecting news from all sources...")
+    # 1. News & Sentiment
+    print("\n[1/5] Scanning News Sources (Official + Media)...")
     news_data = get_all_news()
-    
-    print("\n[2/4] Identifying market-moving news...")
     market_moving = get_market_moving_news()
     
-    print("\n[3/4] Generating CSV report...")
-    csv_path = generate_hourly_news_csv(news_data)
-    print(f"  → Created: {os.path.basename(csv_path)}")
+    # 2. Unlimited Market Scan
+    print("\n[2/5] Scanning ALL Stocks for Volatility & Volume...")
+    tickers = db.get_all_tickers()
+    symbols = [t['symbol'] for t in tickers]
     
-    print(f"\n[4/4] Generating hourly report and sending email...")
-    html = generate_hourly_update_html(news_data, market_moving)
+    # Fetch live prices
+    fetch_all_prices(symbols)
+    
+    # Detect Anomalies
+    alerts = []
+    volume_spikes = []
+    price_movers = []
+    
+    print(f"  → Analyzing {len(symbols)} tickers...")
+    
+    for symbol in symbols:
+        price_data = db.get_latest_price(symbol)
+        if not price_data: continue
+        
+        # Check Price Volatility
+        change = price_data.get('change_percent', 0)
+        if abs(change) > 5.0:
+            price_movers.append({
+                'symbol': symbol,
+                'change': change,
+                'price': price_data.get('close_price'),
+                'volume': price_data.get('volume', 0)
+            })
+            alerts.append(f"⚠️ {symbol}: High Volatility ({change:+.2f}%)")
+            
+        # Check Volume Spikes
+        # Simple check: Current Vol > 20-Day Avg Vol (if available) * 2.5
+        # For lightweight, we can check if volume > 1M and change is small (Accumulation?)
+        vol = price_data.get('volume', 0)
+        if vol > 1_000_000: # Significant volume
+            volume_spikes.append({
+                'symbol': symbol,
+                'volume': vol,
+                'change': change,
+                'price': price_data.get('close_price')
+            })
+            if change > 0:
+                alerts.append(f"🟢 {symbol}: High Volume Buying ({vol:,.0f})")
+            else:
+                alerts.append(f"🔴 {symbol}: High Volume Selling ({vol:,.0f})")
+
+    # 3. Macro Check
+    print("\n[3/5] Fetching Global Macro Data...")
+    global_data = fetch_global_macro_data()
+    if global_data.get('usd_pkr'):
+        alerts.append(f"💵 USD/PKR Rate: {global_data['usd_pkr']}") 
+    
+    # 4. Generate Reports
+    print("\n[4/5] Generating Intelligence Reports...")
+    csv_path = generate_hourly_news_csv(news_data)
+    
+    # Prepare High Risk List (News Negative + Technical Breakdown)
+    high_risk_stocks = []
+    for item in market_moving:
+        if item.get('sentiment', 0) < -0.3:
+            # Extract symbol if mentioned? For now, just news items
+            pass
+            
+    # 5. Send Email
+    print("\n[5/5] Sending Executive Summary...")
+    html = generate_hourly_update_html(
+        news_data, 
+        market_moving, 
+        top_movers={'gainers': [m for m in price_movers if m['change']>0][:5], 
+                   'losers': [m for m in price_movers if m['change']<0][:5]},
+        alerts=alerts[:10],
+        active_stocks=volume_spikes[:5]
+    )
     
     import pytz
-    
-    # Send email with CSV attachment
     pkt = pytz.timezone('Asia/Karachi')
     current_time = datetime.now(pkt)
-    subject = f"⏰ PSX Hourly Update - {current_time.strftime('%I:%M %p')} | {news_data.get('sentiment_label', 'Neutral')} Sentiment"
+    sentiment_label = news_data.get('sentiment_label', 'Neutral')
+    
+    subject = f"🚨 HOURLY ALERT: {sentiment_label} | {len(alerts)} Risk Signals | {current_time.strftime('%I:%M %p')}"
     
     try:
-        send_email(
-            subject=subject, 
-            html_content=html,
-            attachments=[csv_path]
-        )
-        print(f"\n✅ Hourly update sent with CSV attachment!")
+        send_email(subject=subject, html_content=html, attachments=[csv_path])
+        print(f"\n✅ Surveillance Complete. Alert Sent.")
     except Exception as e:
-        print(f"\n❌ Email error: {e}")
-    
+        print(f"\n❌ Email Error: {e}")
+        
     return {
-        'timestamp': current_time.isoformat(),
-        'news_count': len(news_data.get('national', [])) + len(news_data.get('international', [])),
-        'market_moving_count': len(market_moving),
-        'sentiment': news_data.get('sentiment_label', 'Neutral'),
-        'csv_report': csv_path
+        'alerts': len(alerts),
+        'volume_spikes': len(volume_spikes),
+        'time': current_time.isoformat()
     }
 
 

@@ -82,6 +82,16 @@ class ComprehensiveNewsScraper:
     
     def scrape_the_news(self) -> List[Dict]:
         return self._parse_feed("https://www.thenews.com.pk/rss/1/10", "The News")
+
+    def scrape_profit_pk(self) -> List[Dict]:
+        """Scrape Profit (Pakistan Today)"""
+        return self._parse_feed("https://profit.pakistantoday.com.pk/feed/", "Profit PK")
+
+    def scrape_mettis_global(self) -> List[Dict]:
+        """Scrape Mettis Global (Main Feed)"""
+        # Mettis might not have a public RSS, trying generic scrape or specific feed if known.
+        # Often WordPress sites have /feed/
+        return self._parse_feed("https://mettisglobal.news/feed/", "Mettis Global")
     
     # =========================================================================
     # INTERNATIONAL NEWS SOURCES (RSS/Scraping)
@@ -186,6 +196,12 @@ class ComprehensiveNewsScraper:
         
         print("  → The News...")
         all_news['national'].extend(self.scrape_the_news())
+        
+        print("  → Profit PK...")
+        all_news['national'].extend(self.scrape_profit_pk())
+        
+        print("  → Mettis Global...")
+        all_news['national'].extend(self.scrape_mettis_global())
         
         # International sources
         print("  → Reuters Markets...")
