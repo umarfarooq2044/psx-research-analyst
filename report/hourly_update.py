@@ -54,7 +54,8 @@ def generate_hourly_update_html(
     market_moving: List[Dict],
     top_movers: Optional[Dict] = None,
     alerts: List[str] = None,
-    active_stocks: List[Dict] = None
+    active_stocks: List[Dict] = None,
+    synthesis_data: Dict = None
 ) -> str:
     """Generate HTML for hourly surveillance email"""
     
@@ -68,6 +69,12 @@ def generate_hourly_update_html(
     current_time = datetime.now(pkt)
     hour = current_time.strftime("%I:%M %p")
     date = current_time.strftime("%B %d, %Y")
+    
+    # Generate Executive Summary Block
+    summary_html = ""
+    if synthesis_data:
+        from analysis.market_synthesis import market_brain
+        summary_html = market_brain.get_html_summary(synthesis_data)
     
     # Calculate sentiment color
     sentiment = news_data.get('overall_sentiment', 0)
@@ -160,6 +167,8 @@ def generate_hourly_update_html(
                     {date} • {hour}
                 </p>
             </div>
+            
+            {summary_html}
             
             <!-- Sentiment Banner -->
             <div style="background: {sentiment_color}; padding: 15px; text-align: center;">
@@ -343,6 +352,25 @@ def run_hourly_update() -> Dict:
     print("\n[4/5] Generating Intelligence Reports...")
     csv_path = generate_hourly_news_csv(news_data)
     
+    # === MARKET SYNTHESIS & RECOMMENDATION ===
+    from analysis.market_synthesis import market_brain
+    
+    # Prepare data for synthesis
+    # Calculate simple breadth from active movers as proxy
+    gainers = [m for m in price_movers if m['change'] > 0]
+    losers = [m for m in price_movers if m['change'] < 0]
+    
+    top_movers_dict = {'gainers': gainers, 'losers': losers}
+    
+    synthesis = market_brain.generate_synthesis(
+        news_data=news_data,
+        market_status={}, # Future: get from Index trend
+        macro_data=global_data,
+        top_movers=top_movers_dict
+    )
+    
+    print(f"\n🧠 ANALYST BRAIN SAYS: {synthesis['strategy']}")
+    
     # Prepare High Risk / Opportunity List (News + Technical Correlation)
     smart_signals = []
     
@@ -377,10 +405,10 @@ def run_hourly_update() -> Dict:
     html = generate_hourly_update_html(
         news_data, 
         market_moving, 
-        top_movers={'gainers': [m for m in price_movers if m['change']>0][:5], 
-                   'losers': [m for m in price_movers if m['change']<0][:5]},
+        top_movers={'gainers': gainers[:5], 'losers': losers[:5]},
         alerts=alerts[:10],
-        active_stocks=volume_spikes[:5]
+        active_stocks=volume_spikes[:5],
+        synthesis_data=synthesis # Pass synthesis
     )
     
     import pytz
