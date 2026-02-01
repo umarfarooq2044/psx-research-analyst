@@ -90,7 +90,7 @@ class GeminiAnalyst:
         Generates a text-based executive summary for the hourly report.
         Focuses on: Best News, Bad News, Strategy, and Company Specifics.
         """
-        if not self.model:
+        if not self.client:
             return {
                 "strategy": "AI Unavailable - Focus on Volume",
                 "best_news": "N/A", "bad_news": "N/A", "actions": []
