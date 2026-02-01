@@ -1,5 +1,5 @@
 import os
-import google.generativeai as genai
+from google import genai
 import json
 from typing import List, Dict, Optional
 import time
@@ -42,32 +42,34 @@ class GeminiAnalyst:
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             print("WARNING: GEMINI_API_KEY not found. AI features will be disabled.")
-            self.model = None
+            self.client = None
             return
             
-        genai.configure(api_key=api_key)
+        self.client = genai.Client(api_key=api_key)
         
         # Load Institutional Wisdom (In-Context Learning)
         lessons = alpha_loop.load_lessons()
-        system_prompt = f"{self.BASE_INSTRUCTION}\n\nINSTITUTIONAL MEMORY & LESSONS LEARNED:\n{lessons}"
-        
-        self.model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=system_prompt,
-            generation_config={"response_mime_type": "application/json"}
-        )
+        self.system_prompt = f"{self.BASE_INSTRUCTION}\n\nINSTITUTIONAL MEMORY & LESSONS LEARNED:\n{lessons}"
+        self.model_id = "gemini-1.5-flash"
         
     @retry_with_backoff(retries=3, backoff_in_seconds=2)
     def analyze_market_batch(self, payload: str) -> List[Dict]:
         """
         Send a massive batch of financial/news data to Gemini.
         """
-        if not self.model:
+        if not self.client:
             return []
             
         try:
             print("🧠 sending payload to Gemini Cognitive Engine...")
-            response = self.model.generate_content(payload)
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=payload,
+                config={
+                    "system_instruction": self.system_prompt,
+                    "response_mime_type": "application/json"
+                }
+            )
             
             # Parse JSON
             try:
@@ -113,7 +115,14 @@ class GeminiAnalyst:
         """
         
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt,
+                config={
+                    "system_instruction": self.system_prompt,
+                    "response_mime_type": "application/json"
+                }
+            )
             text = response.text.replace('```json', '').replace('```', '')
             return json.loads(text)
         except Exception as e:

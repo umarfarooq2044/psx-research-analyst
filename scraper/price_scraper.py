@@ -20,8 +20,8 @@ from config import (
 from database.db_manager import db
 from utils.resilience import retry_with_backoff
 
-# Concurrency limit to be polite to the server
-CONCURRENCY_LIMIT = 20
+# Concurrency limit to be polite to the server (Reduced from 20 to avoid 429s)
+CONCURRENCY_LIMIT = 5
 
 # Fix Windows console encoding for emoji support
 if sys.platform == 'win32':
@@ -43,6 +43,10 @@ class AsyncPriceScraper:
     async def fetch_intraday_data(self, session: aiohttp.ClientSession, symbol: str) -> Optional[Dict]:
         """Fetch intraday data for a single symbol asynchronously"""
         url = TIMESERIES_URL_TEMPLATE.format(ticker=symbol)
+        
+        # Add small random jitter to avoid rhythmic bursts (0.1s to 0.5s)
+        import random
+        await asyncio.sleep(random.uniform(0.1, 0.5))
         
         for attempt in range(MAX_RETRIES):
             try:
