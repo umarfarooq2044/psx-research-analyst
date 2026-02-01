@@ -77,11 +77,18 @@ jobs:
           fi
           echo "Determined report type: $(cat $GITHUB_OUTPUT)"
       
+      - name: Run Database Migration
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python migrate_smi.py
+
       - name: Run Market Analysis
         env:
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           echo "Running ${{ steps.report.outputs.type }} analysis..."
           python scheduler/orchestrator.py --run ${{ steps.report.outputs.type }}
