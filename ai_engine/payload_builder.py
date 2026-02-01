@@ -1,33 +1,7 @@
 from typing import List, Dict
 from database.db_manager import db
 from datetime import datetime, timedelta
-
-class PayloadBuilder:
-    """
-    Constructs the data context for the AI.
-    """
-    
-    def build_market_payload(self) -> str:
-        """
-        Gather all relevant market data for the AI context window.
-        """
-        print("📦 Building AI Data Payload (Financials + News + Technicals)...")
-        
-        # 1. Get Active Tickers & Prices
-        tickers = db.get_all_tickers()
-        # Optimization: Take top 100 by volume for V1 to ensure speed
-        # Or take all if we truly want unlimited. User said "process entire payload".
-        # Let's try to get as much as possible.
-        
-        # 2. Get Fundamentals (P/E, EPS)
-        # We need a way to get map of fundamentals. 
-        # Assuming db has a method or we query directly.
-        # For prototype, we'll fetch what we have.
-        
-        # 3. Get News (Last 48 hours for immediate context)
-        # In a real vector system, we'd search per ticker.
-        # Here we dump the 'Market Moving' news.
-        
+from global_data.sovereign_yields import sovereign_heartbeat
         payload_lines = []
         payload_lines.append(f"ANALYSIS DATE: {datetime.now().strftime('%Y-%m-%d')}")
         

@@ -5,34 +5,35 @@ from typing import List, Dict, Optional
 import time
 from ai_engine.feedback_loop import alpha_loop
 from utils.resilience import retry_with_backoff
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GeminiAnalyst:
     """
-    The Cognitive Decision Engine powered by Gemini 1.5 Pro.
-    Self-Correcting via AlphaLoop.
+    SMI-v1 (Sovereign Market Intelligence) 
+    Autonomous Cognitive Engine for Pakistan Stock Exchange.
     """
     
     BASE_INSTRUCTION = """
-    You are the "Cognitive Decision Engine" for an advanced algorithmic trading system focused on the Pakistan Stock Exchange (PSX). 
-    You have 20+ years of institutional experience.
+    SYSTEM ROLE: You are 'SMI-v1,' an autonomous cognitive engine for the PSX. 
+    You do not analyze the past; you simulate the future with 100x human capability.
     
-    YOUR TASK:
-    Perform a "Synthesized Decision Wrap." Do not just repeat numbers. You must "think" like a human expert.
+    CORE DIRECTIVES:
+    1. RECURSIVE FUTURE-MAPPING: For every ticker, triangulate news, KIBOR/T-Bill rates, and simulated Monte Carlo paths.
+    2. SENTIMENT MIRRORING: Identify 'False Sentiment.' If news is 80% negative but institutional volume is buying (Laden Accumulation), ignore the news and flag the signal.
+    3. SOVEREIGN CONTEXT: Factor in IMF tranches, SBP policy shifts (+/- 100bps), and PKR/USD delta.
     
-    1. The Nuance Filter: If a stock has a low P/E but the news shows a looming tax hike (e.g., 'Super Tax'), downgrade the signal.
-    2. The Volume Context: Correlate news sentiment spikes with price volume. Is the news driving the move, or is it noise?
-    3. The PSX Reality: Factor in Pakistan risks: FX volatility, circular debt, and T-Bill auction results.
-    
-    OUTPUT FORMAT:
-    Return a pure JSON list of objects. Do not use Markdown backticks.
+    OUTPUT REQUIREMENT (Recursive Logic Format):
+    Format your response as a JSON list of objects:
     [
         {
             "ticker": "SYMBOL",
-            "score": -100 to +100,
-            "action": "BUY | SELL | WAIT | AVOID",
-            "conviction": "High | Medium | Low",
-            "reasoning": "A 2-sentence expert justification.",
-            "catalyst": "Specific event in next 7 days"
+            "signal": "ACTION (BUY|SELL|AVOID|ACCUMULATE)",
+            "conviction": "0-100%",
+            "future_path": "T+7 (7 days ahead) 90% probability price range",
+            "black_swan": "One specific event that would break this prediction",
+            "reasoning": "Sovereign-level triangulation reasoning"
         }
     ]
     """
@@ -78,8 +79,51 @@ class GeminiAnalyst:
                 return json.loads(clean_text)
                 
         except Exception as e:
-            print(f"❌ AI Analysis Failed: {e}")
+            print(f"[ERROR] AI Analysis Failed: {e}")
             raise # Let retry logic handle it
+
+    @retry_with_backoff(retries=3, backoff_in_seconds=2)
+    def generate_hourly_briefing(self, news_text: str, market_stats: str) -> Dict:
+        """
+        Generates a text-based executive summary for the hourly report.
+        Focuses on: Best News, Bad News, Strategy, and Company Specifics.
+        """
+        if not self.model:
+            return {
+                "strategy": "AI Unavailable - Focus on Volume",
+                "best_news": "N/A", "bad_news": "N/A", "actions": []
+            }
+            
+        prompt = f"""
+        Analyze these news headlines and market stats to provide a Real-Time Hourly Briefing.
+        
+        MARKET STATS:
+        {market_stats}
+        
+        NEWS HEADLINES:
+        {news_text}
+        
+        OUTPUT JSON FORMAT:
+        {{
+            "strategy": "One sentence direct advice (e.g., 'Sell the news on Tech, buy dips in Oil')",
+            "best_news": "The single most positive headline/development",
+            "bad_news": "The single most negative risk/headline",
+            "actions": ["Specific company advice (e.g., 'OGDC: Buy breakout', 'TRG: Avoid')"]
+        }}
+        """
+        
+        try:
+            response = self.model.generate_content(prompt)
+            text = response.text.replace('```json', '').replace('```', '')
+            return json.loads(text)
+        except Exception as e:
+            logger.error(f"AI Briefing Verification Failed: {e}")
+            return {
+                "strategy": "Market is volatile. Trade with caution.",
+                "best_news": "Monitoring flows",
+                "bad_news": "Uncertainty high",
+                "actions": ["Wait for clarity"]
+            }
 
 # Singleton
 ai_analyst = GeminiAnalyst()
