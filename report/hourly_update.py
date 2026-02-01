@@ -70,6 +70,22 @@ def generate_hourly_update_html(
     hour = current_time.strftime("%I:%M %p")
     date = current_time.strftime("%B %d, %Y")
     
+    # Build SMI-v1 Cognitive Briefing
+    smi_briefing_html = ""
+    if synthesis_data and synthesis_data.get('strategy'):
+        smi_briefing_html = f"""
+        <div style="padding: 20px; background: #0d1117; border-left: 4px solid #7856ff; margin: 15px 0;">
+            <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
+            <div style="color: #e7e9ea; font-size: 15px; font-weight: 600; line-height: 1.4;">
+                {synthesis_data.get('strategy')}
+            </div>
+            <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
+                <div style="color: #00d26a;">↑ {synthesis_data.get('best_news', 'Bullish Catalysts Stable')}</div>
+                <div style="color: #f85149;">↓ {synthesis_data.get('bad_news', 'Risk Factors Monitored')}</div>
+            </div>
+        </div>
+        """
+
     # Generate Executive Summary Block
     summary_html = ""
     if synthesis_data:
@@ -169,6 +185,7 @@ def generate_hourly_update_html(
             </div>
             
             {summary_html}
+            {smi_briefing_html}
             
             <!-- Sentiment Banner -->
             <div style="background: {sentiment_color}; padding: 15px; text-align: center;">
@@ -299,6 +316,14 @@ def run_hourly_update() -> Dict:
     # 2. Unlimited Market Scan
     print("\n[2/5] Scanning ALL Stocks for Volatility & Volume...")
     tickers = db.get_all_tickers()
+    
+    # Cloud Fallback: If DB is empty, discover tickers
+    if not tickers:
+        print("  ⚠️ No tickers found in DB. Discovering now...")
+        from scraper.ticker_discovery import discover_and_save_tickers
+        discover_and_save_tickers()
+        tickers = db.get_all_tickers()
+        
     symbols = [t['symbol'] for t in tickers]
     
     # Fetch live prices

@@ -392,21 +392,28 @@ class DBManager:
                     date=datetime.now().date()
                 ).first()
                 
+                # Normalize keys (SMI-v1 uses 'signal', 'future_path', 'black_swan')
+                action_val = d.get('signal') or d.get('action')
+                
                 if existing:
-                    existing.action = d.get('action')
+                    existing.action = action_val
                     existing.conviction = d.get('conviction')
-                    existing.score = d.get('score')
+                    existing.score = d.get('score', 0)
                     existing.reasoning = d.get('reasoning')
+                    existing.future_path = d.get('future_path')
+                    existing.black_swan = d.get('black_swan')
                     existing.catalyst = d.get('catalyst')
                     existing.created_at = datetime.utcnow()
                 else:
                     new_decision = AIDecision(
                         symbol=d['ticker'],
                         date=datetime.now().date(),
-                        action=d.get('action'),
+                        action=action_val,
                         conviction=d.get('conviction'),
-                        score=d.get('score'),
+                        score=d.get('score', 0),
                         reasoning=d.get('reasoning'),
+                        future_path=d.get('future_path'),
+                        black_swan=d.get('black_swan'),
                         catalyst=d.get('catalyst')
                     )
                     session.add(new_decision)

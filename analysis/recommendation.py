@@ -197,6 +197,19 @@ def analyze_ticker(symbol: str) -> Optional[Dict]:
     # Get ticker info
     ticker_info = db.get_ticker(symbol)
     
+    # 🦅 SMI-v1 Integration: Fetch latest AI decision for this ticker
+    # This bridges recursive logic (Tunnel, Black Swan) into the main report
+    with get_db_session() as session:
+        from database.models import AIDecision
+        from sqlalchemy import desc
+        ai_data = session.query(AIDecision).filter_by(symbol=symbol).order_by(desc(AIDecision.date)).first()
+        
+        smi_data = {
+            'future_path': ai_data.future_path if ai_data else 'N/A',
+            'black_swan': ai_data.black_swan if ai_data else 'N/A',
+            'conviction': ai_data.conviction if ai_data else '50%'
+        }
+
     result = {
         'symbol': symbol,
         'name': ticker_info.get('name', symbol) if ticker_info else symbol,
@@ -206,7 +219,8 @@ def analyze_ticker(symbol: str) -> Optional[Dict]:
         'notes': notes,
         'technical': technical or {},
         'sentiment': sentiment,
-        'analyzed_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        'analyzed_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        **smi_data # Merge SMI-v1 Probability Tunnel & Black Swan
     }
     
     # Save to database

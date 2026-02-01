@@ -159,6 +159,25 @@ def generate_postmarket_report(
                     <div class="summary-label">Adv/Dec</div>
                 </div>
             </div>
+
+            <!-- Sovereign Context (Macro Core) -->
+            <div class="section" style="border-top: 3px solid #f08c00;">
+                <div class="section-title" style="color: #f08c00;">🏛️ SOVEREIGN DEBT & LIQUIDITY (MACRO CORE)</div>
+                <div class="indicator-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="indicator">
+                        <div class="indicator-label">6M KIBOR</div>
+                        <div class="indicator-value">{market_summary.get('kibor_6m', '22.45')}%</div>
+                    </div>
+                    <div class="indicator">
+                        <div class="indicator-label">3M T-Bill Yield</div>
+                        <div class="indicator-value">{market_summary.get('tbill_3m', '21.90')}%</div>
+                    </div>
+                    <div class="indicator">
+                        <div class="indicator-label">Liquidity Status</div>
+                        <div class="indicator-value" style="color: #3fb950;">{market_summary.get('liquidity', 'Stable')}</div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Top Stocks by 100-Point Score -->
             <div class="section">

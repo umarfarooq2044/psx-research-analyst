@@ -184,18 +184,36 @@ def generate_premarket_report(
                 ''' for event in corporate_events[:5]]) if corporate_events else '<p style="color: #8899a6;">No major corporate events scheduled today.</p>'}
             </div>
             
-            <!-- Stocks to Watch -->
+            <!-- SMI-v1 Recursive Intelligence -->
             <div class="section">
-                <div class="section-title">👀 STOCKS TO WATCH TODAY</div>
+                <div class="section-title">🦅 SMI-v1 RECURSIVE SIGNALS (T+7 PROBABILITY TUNNELS)</div>
                 {''.join([f'''
-                <div class="stock-row">
-                    <div>
-                        <span class="stock-symbol">{stock['symbol']}</span>
-                        <span style="color: #8899a6; font-size: 12px;"> - {stock.get('reason', '')}</span>
+                <div class="stock-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span class="stock-symbol" style="font-size: 18px;">{stock['symbol']}</span>
+                        <span class="badge badge-{stock.get('action', 'hold').lower()}">{stock.get('conviction', '50%')} CONVICTION</span>
                     </div>
-                    <span class="badge badge-{stock.get('action', 'hold').lower()}">{stock.get('action', 'WATCH')}</span>
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <div style="flex: 1; background: #15202b; padding: 10px; border-radius: 6px; border-left: 3px solid #1d9bf0;">
+                            <div style="font-size: 10px; color: #8899a6; text-transform: uppercase;">Signal</div>
+                            <div style="font-size: 14px; font-weight: 600; color: {'#00ba7c' if stock.get('action') == 'BUY' else '#f91880' if stock.get('action') == 'SELL' else '#e7e9ea'}">
+                                {stock.get('action', 'WAIT')}
+                            </div>
+                        </div>
+                        <div style="flex: 2; background: #15202b; padding: 10px; border-radius: 6px; border-left: 3px solid #7856ff;">
+                            <div style="font-size: 10px; color: #8899a6; text-transform: uppercase;">Probability Tunnel (T+7)</div>
+                            <div style="font-size: 13px; font-weight: 600;">{stock.get('future_path', 'Stochastic Range: N/A')}</div>
+                        </div>
+                    </div>
+                    <div style="width: 100%; background: rgba(249,24,128,0.05); padding: 8px; border-radius: 4px; border: 1px dashed rgba(249,24,128,0.3); font-size: 11px;">
+                        <span style="color: #f91880; font-weight: 700;">BLACK SWAN:</span> {stock.get('black_swan', 'Unknown catalyst breakpoint')}
+                    </div>
+                    <div style="color: #8899a6; font-size: 12px; margin-top: 4px;">
+                        <strong>Logic:</strong> {stock.get('reason', 'Consensus-driven reasoning')}
+                    </div>
+                    <div style="height: 10px; width: 100%; border-bottom: 1px solid #38444d;"></div>
                 </div>
-                ''' for stock in stocks_to_watch[:10]])}
+                ''' for stock in stocks_to_watch[:8]])}
             </div>
             
             <!-- Risk Warnings -->

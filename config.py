@@ -42,6 +42,10 @@ NEWS_SOURCES = {
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), "psx_data.db")
 DATABASE_URL = os.getenv("DATABASE_URL")  # For PostgreSQL (Supabase)
 
+# Fix for SQLAlchemy 1.4+: it requires postgresql:// instead of postgres://
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # ============================================================================
 # WATCHLIST - Stocks to always include in report
 # ============================================================================

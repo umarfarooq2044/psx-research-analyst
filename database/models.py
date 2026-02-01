@@ -250,9 +250,12 @@ class AIDecision(Base):
     symbol = Column(String, ForeignKey('tickers.symbol'), nullable=False)
     date = Column(Date, nullable=False)
     action = Column(String) # BUY, SELL, WAIT
-    conviction = Column(String) # High, Medium, Low
+    signal = Column(String) # Recursive logic signal
+    conviction = Column(String) # 0-100%
     score = Column(Integer) # -100 to 100
     reasoning = Column(Text)
+    future_path = Column(String) # T+7 probability range
+    black_swan = Column(String) # Prediction breaker
     catalyst = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     

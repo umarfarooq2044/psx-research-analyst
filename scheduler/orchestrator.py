@@ -98,6 +98,11 @@ class ScheduleOrchestrator:
                 'trend': 'Awaiting market open'
             }
             
+            # 3.5. Ensure tickers exist (Cloud Fallback)
+            if not db.get_all_tickers():
+                print("  ⚠️ No tickers found in DB. Discovering now...")
+                discover_and_save_tickers()
+
             # 4. Get corporate events (from announcements)
             print("[4/5] Fetching corporate events...")
             announcements = db.get_recent_announcements(days=1)
@@ -203,6 +208,13 @@ class ScheduleOrchestrator:
             # 1. Fetch current prices
             print("\n[1/4] Fetching current prices...")
             tickers = db.get_all_tickers()
+            
+            # Cloud Fallback: If DB is empty, discover tickers
+            if not tickers:
+                print("  ⚠️ No tickers found in DB. Discovering now...")
+                discover_and_save_tickers()
+                tickers = db.get_all_tickers()
+                
             fetch_all_prices([t['symbol'] for t in tickers])  # Analyze ALL
             
             # 2. Get KSE-100 status

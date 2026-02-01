@@ -42,6 +42,10 @@ class ComprehensiveNewsScraper:
         }
         self.session = requests.Session()
         self.session.headers.update(self.headers)
+        # Simple cache to prevent redundant scraping (5 min duration)
+        self._cache = None
+        self._cache_time = 0
+        self._cache_duration = 300 
     
     def _parse_feed(self, url: str, source: str, category: str = 'national', limit: int = 100) -> List[Dict]:
         """Helper to parse RSS feeds"""
@@ -103,7 +107,7 @@ class ComprehensiveNewsScraper:
         news = []
         try:
             url = "https://www.reuters.com/markets/"
-            response = self.session.get(url, timeout=15)
+            response = self.session.get(url, timeout=30)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
                 # Try generic selectors for Reuters structure
@@ -149,7 +153,7 @@ class ComprehensiveNewsScraper:
         news = []
         try:
             url = "https://www.psx.com.pk/psx/exchange/market/company-notices"
-            response = self.session.get(url, timeout=15)
+            response = self.session.get(url, timeout=30)
             soup = BeautifulSoup(response.text, 'html.parser')
             
             rows = soup.find_all('tr', limit=20)
@@ -309,7 +313,12 @@ class ComprehensiveNewsScraper:
         return news_items
 
     def collect_all_news(self) -> Dict:
-        """Collect news from all sources"""
+        """Collect news from all sources (with simple 5-min caching)"""
+        now = time.time()
+        if self._cache and (now - self._cache_time < self._cache_duration):
+            print("🕒 Using cached news data (collected less than 5 mins ago)")
+            return self._cache
+
         print("📰 Collecting news from RSS & Scrapers...")
         
         all_news = {
@@ -370,6 +379,11 @@ class ComprehensiveNewsScraper:
             )
         
         print(f"✓ Collected {len(all_news['national'])} national + {len(all_news['international'])} international news")
+        
+        # Save to cache
+        self._cache = all_news
+        self._cache_time = time.time()
+        
         return all_news
 
 # Singleton instance

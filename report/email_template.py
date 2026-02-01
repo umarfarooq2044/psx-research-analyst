@@ -252,6 +252,11 @@ def generate_stock_card(stock: Dict, card_type: str = "normal") -> str:
     sent_str = f"{sent_score:+.2f}" if sent_score else "0.00"
     vol_str = f"{volume_ratio:.1f}x" if volume_ratio else "1.0x"
     
+    # SMI-v1 Recursive Fields
+    future_path = stock.get('future_path', 'N/A')
+    black_swan = stock.get('black_swan', 'N/A')
+    conviction = stock.get('conviction', '50%')
+    
     return f"""
     <div class="stock-card {card_class}">
         <div class="stock-header">
@@ -261,6 +266,19 @@ def generate_stock_card(stock: Dict, card_type: str = "normal") -> str:
             </div>
             <span class="score-badge {score_class}">{buy_score}/10 {recommendation}</span>
         </div>
+        
+        <!-- SMI-v1 Recursive Intelligence Layer -->
+        <div style="margin-bottom: 12px; display: flex; gap: 10px;">
+            <div style="flex: 1; background: #e8f5e9; border: 1px solid #c8e6c9; padding: 6px 10px; border-radius: 4px; font-size: 11px;">
+                <div style="color: #2e7d32; font-weight: 700; text-transform: uppercase; font-size: 9px;">🦅 T+7 Tunnel</div>
+                <div style="font-weight: 600; color: #1b5e20;">{future_path}</div>
+            </div>
+            <div style="flex: 1; background: #fff3e0; border: 1px solid #ffe0b2; padding: 6px 10px; border-radius: 4px; font-size: 11px;">
+                <div style="color: #e65100; font-weight: 700; text-transform: uppercase; font-size: 9px;">⚡ Black Swan</div>
+                <div style="font-weight: 600; color: #bf360c;">{black_swan}</div>
+            </div>
+        </div>
+
         <div class="stock-metrics">
             <div class="metric">
                 <span class="metric-label">Price:</span>
@@ -271,15 +289,17 @@ def generate_stock_card(stock: Dict, card_type: str = "normal") -> str:
                 <span class="metric-value">{rsi_str}</span>
             </div>
             <div class="metric">
-                <span class="metric-label">Volume:</span>
-                <span class="metric-value">{vol_str}</span>
+                <span class="metric-label">Conviction:</span>
+                <span class="metric-value" style="color: #1a237e;">{conviction}</span>
             </div>
             <div class="metric">
                 <span class="metric-label">Sentiment:</span>
                 <span class="metric-value">{sent_str}</span>
             </div>
         </div>
-        <div class="stock-notes">{notes}</div>
+        <div class="stock-notes" style="background: #ffffff; padding: 8px; border-radius: 4px; border: 1px solid #eee;">
+            <strong>AI Logic:</strong> {notes}
+        </div>
     </div>
     """
 
