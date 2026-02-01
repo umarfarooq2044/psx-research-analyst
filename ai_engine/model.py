@@ -3,13 +3,16 @@ import google.generativeai as genai
 import json
 from typing import List, Dict, Optional
 import time
+from ai_engine.feedback_loop import alpha_loop
+from utils.resilience import retry_with_backoff
 
 class GeminiAnalyst:
     """
     The Cognitive Decision Engine powered by Gemini 1.5 Pro.
+    Self-Correcting via AlphaLoop.
     """
     
-    SYSTEM_INSTRUCTION = """
+    BASE_INSTRUCTION = """
     You are the "Cognitive Decision Engine" for an advanced algorithmic trading system focused on the Pakistan Stock Exchange (PSX). 
     You have 20+ years of institutional experience.
     
@@ -37,20 +40,23 @@ class GeminiAnalyst:
     def __init__(self):
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
-            print("⚠️ GEMINI_API_KEY not found. AI features will be disabled.")
+            print("WARNING: GEMINI_API_KEY not found. AI features will be disabled.")
             self.model = None
             return
             
         genai.configure(api_key=api_key)
         
-        # Use Gemini 1.5 Flash for speed/cost or Pro for depth. Using Flash for now as it's efficient.
-        # User requested Pro features (2M context), so we prefer 'gemini-1.5-pro-latest' if avail, else flash.
+        # Load Institutional Wisdom (In-Context Learning)
+        lessons = alpha_loop.load_lessons()
+        system_prompt = f"{self.BASE_INSTRUCTION}\n\nINSTITUTIONAL MEMORY & LESSONS LEARNED:\n{lessons}"
+        
         self.model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash", # Switch to 'gemini-1.5-pro' if key supports it
-            system_instruction=self.SYSTEM_INSTRUCTION,
+            model_name="gemini-1.5-flash",
+            system_instruction=system_prompt,
             generation_config={"response_mime_type": "application/json"}
         )
         
+    @retry_with_backoff(retries=3, backoff_in_seconds=2)
     def analyze_market_batch(self, payload: str) -> List[Dict]:
         """
         Send a massive batch of financial/news data to Gemini.
@@ -73,7 +79,7 @@ class GeminiAnalyst:
                 
         except Exception as e:
             print(f"❌ AI Analysis Failed: {e}")
-            return []
+            raise # Let retry logic handle it
 
 # Singleton
 ai_analyst = GeminiAnalyst()

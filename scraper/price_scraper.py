@@ -18,6 +18,7 @@ from config import (
     REQUEST_TIMEOUT, MAX_RETRIES
 )
 from database.db_manager import db
+from utils.resilience import retry_with_backoff
 
 # Concurrency limit to be polite to the server
 CONCURRENCY_LIMIT = 20
@@ -38,6 +39,7 @@ class AsyncPriceScraper:
         }
         self.semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
     
+    @retry_with_backoff(retries=MAX_RETRIES, backoff_in_seconds=1)
     async def fetch_intraday_data(self, session: aiohttp.ClientSession, symbol: str) -> Optional[Dict]:
         """Fetch intraday data for a single symbol asynchronously"""
         url = TIMESERIES_URL_TEMPLATE.format(ticker=symbol)
