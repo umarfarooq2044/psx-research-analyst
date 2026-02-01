@@ -14,7 +14,7 @@ from database.models import (
     get_db_session, init_database,
     Ticker, PriceHistory, Announcement, AnalysisResult, GlobalMarket,
     KSE100Index, SectorIndex, NewsHeadline, StockScore, TechnicalIndicator,
-    ReportHistory, AlertHistory, Fundamentals
+    ReportHistory, AlertHistory, Fundamentals, AIDecision
 )
 
 class DBManager:
@@ -379,6 +379,37 @@ class DBManager:
                 status=status
             )
             session.add(history)
+
+    # ==================== AI DECISIONS ====================
+    
+    def save_ai_decisions(self, decisions: List[Dict]):
+        """Save AI analysis results"""
+        with get_db_session() as session:
+            for d in decisions:
+                # Upsert based on symbol + date
+                existing = session.query(AIDecision).filter_by(
+                    symbol=d['ticker'], 
+                    date=datetime.now().date()
+                ).first()
+                
+                if existing:
+                    existing.action = d.get('action')
+                    existing.conviction = d.get('conviction')
+                    existing.score = d.get('score')
+                    existing.reasoning = d.get('reasoning')
+                    existing.catalyst = d.get('catalyst')
+                    existing.created_at = datetime.utcnow()
+                else:
+                    new_decision = AIDecision(
+                        symbol=d['ticker'],
+                        date=datetime.now().date(),
+                        action=d.get('action'),
+                        conviction=d.get('conviction'),
+                        score=d.get('score'),
+                        reasoning=d.get('reasoning'),
+                        catalyst=d.get('catalyst')
+                    )
+                    session.add(new_decision)
 
 # Singleton instance
 db = DBManager()

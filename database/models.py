@@ -243,6 +243,21 @@ class AlertHistory(Base):
     channel = Column(String, default='email')
     acknowledged = Column(Integer, default=0)
 
+class AIDecision(Base):
+    __tablename__ = 'ai_decisions'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    symbol = Column(String, ForeignKey('tickers.symbol'), nullable=False)
+    date = Column(Date, nullable=False)
+    action = Column(String) # BUY, SELL, WAIT
+    conviction = Column(String) # High, Medium, Low
+    score = Column(Integer) # -100 to 100
+    reasoning = Column(Text)
+    catalyst = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (UniqueConstraint('symbol', 'date', name='uq_ai_decision_date'),)
+
 # ============================================================================
 # DATABASE CONNECTION MANAGEMENT
 # ============================================================================
