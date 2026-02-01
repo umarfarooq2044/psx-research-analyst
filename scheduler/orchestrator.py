@@ -81,7 +81,11 @@ class ScheduleOrchestrator:
             
             # 2. Get previous day KSE-100 data
             print("[2/5] Getting previous day recap...")
-            previous_day = db.get_latest_kse100() or {}
+            _prev = db.get_latest_kse100()
+            previous_day = _prev if _prev else {
+                'close_value': 0, 'change_percent': 0, 'volume': 0, 
+                'advancing': 0, 'declining': 0
+            }
             
             # 3. Calculate technical outlook
             print("[3/5] Calculating technical outlook...")
@@ -202,8 +206,13 @@ class ScheduleOrchestrator:
             fetch_all_prices([t['symbol'] for t in tickers])  # Analyze ALL
             
             # 2. Get KSE-100 status
+            # 2. Get KSE-100 status
             print("[2/4] Getting market status...")
-            kse100 = get_kse100_summary()
+            _kse = get_kse100_summary()
+            kse100 = _kse if _kse else {
+                'close_value': 0, 'change_percent': 0, 'volume': 0, 
+                'advancing': 0, 'declining': 0, 'sentiment': 'Neutral'
+            }
             
             # 3. Quick sector scan
             print("[3/4] Scanning sectors...")
@@ -287,8 +296,13 @@ class ScheduleOrchestrator:
             analyze_all_announcements()
             
             # 4. Get KSE-100 final data
+            # 4. Get KSE-100 final data
             print("[4/8] Getting KSE-100 data...")
-            kse100 = get_kse100_summary()
+            _kse = get_kse100_summary()
+            kse100 = _kse if _kse else {
+                'close_value': 0, 'change_percent': 0, 'volume': 0, 
+                'advancing': 0, 'declining': 0, 'sentiment': 'Neutral'
+            }
             market_summary = {
                 'close_value': kse100.get('close_value', 0),
                 'change_percent': kse100.get('change_percent', 0),
