@@ -24,6 +24,15 @@ class DBManager:
         """Initialize database manager"""
         # Ensure tables exist on startup
         init_database()
+        
+    def _ensure_ticker_exists(self, session, symbol: str):
+        """Helper to ensure a ticker exists before inserting related data (FK safety)"""
+        ticker = session.query(Ticker).filter_by(symbol=symbol).first()
+        if not ticker:
+            # Auto-register missing ticker to satisfy Foreign Key constraints
+            new_ticker = Ticker(symbol=symbol, name=symbol, is_active=1)
+            session.add(new_ticker)
+            session.flush() # Ensure it's in the DB before proceeding
     
     # ==================== TICKER OPERATIONS ====================
     
@@ -79,6 +88,9 @@ class DBManager:
                      close_price: float = None, volume: int = None):
         """Insert price data for a ticker"""
         with get_db_session() as session:
+            # FK safety
+            self._ensure_ticker_exists(session, symbol)
+            
             # Parse date string to object if needed
             if isinstance(date_str, str):
                 price_date = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -109,6 +121,11 @@ class DBManager:
             
         with get_db_session() as session:
             today = datetime.now().date()
+            
+            # FK safety: Ensure all symbols exist
+            symbols = [p['symbol'] for p in price_records]
+            for sym in set(symbols):
+                self._ensure_ticker_exists(session, sym)
             
             # Fetch all existing prices for these symbols on this date to minimize queries
             symbols = [p['symbol'] for p in price_records]
@@ -282,6 +299,8 @@ class DBManager:
                       buy_score: int = None, recommendation: str = None, notes: str = None):
         """Save analysis results"""
         with get_db_session() as session:
+            self._ensure_ticker_exists(session, symbol)
+            
             if isinstance(date_str, str):
                 analysis_date = datetime.strptime(date_str, '%Y-%m-%d').date()
             else:
@@ -308,6 +327,7 @@ class DBManager:
     def save_stock_score(self, symbol: str, scores: Dict):
         """Save 100-point stock score"""
         with get_db_session() as session:
+            self._ensure_ticker_exists(session, symbol)
             today = datetime.now().date()
             score = session.query(StockScore).filter_by(symbol=symbol, date=today).first()
             
@@ -383,6 +403,7 @@ class DBManager:
     def save_fundamentals(self, symbol: str, data: Dict):
         """Save fundamental data"""
         with get_db_session() as session:
+            self._ensure_ticker_exists(session, symbol)
             # Import Fundamentals model inside method to avoid circular import issues if any
             # (Though top-level import is better, adhering to file structure)
             from database.models import Fundamentals # Assuming model name is Fundamentals
@@ -441,6 +462,7 @@ class DBManager:
     def save_technical_indicators(self, symbol: str, indicators: Dict):
         """Save technical indicators"""
         with get_db_session() as session:
+            self._ensure_ticker_exists(session, symbol)
             today = datetime.now().date()
             tech = session.query(TechnicalIndicator).filter_by(symbol=symbol, date=today).first()
             
@@ -517,6 +539,7 @@ class DBManager:
         """Save AI analysis results"""
         with get_db_session() as session:
             for d in decisions:
+                self._ensure_ticker_exists(session, d['ticker'])
                 # Upsert based on symbol + date
                 existing = session.query(AIDecision).filter_by(
                     symbol=d['ticker'], 
@@ -654,6 +677,7 @@ class DBManager:
                             announcement_type: str = None, announcement_date: str = None) -> bool:
         """Insert a corporate announcement, avoid duplicates based on symbol + headline"""
         with get_db_session() as session:
+            self._ensure_ticker_exists(session, symbol)
             # Check for existing
             existing = session.query(Announcement).filter_by(
                 symbol=symbol, 
