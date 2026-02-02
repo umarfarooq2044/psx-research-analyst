@@ -134,17 +134,31 @@ def generate_postmarket_report(
                 <div class="subtitle">{now.strftime('%A, %B %d, %Y')} | Market Close Report | Generated at {now.strftime('%I:%M %p')} PKT</div>
             </div>
             
+            <!-- SMI-v1 Cognitive Briefing -->
+            {f'''
+            <div style="padding: 20px; background: #0d1117; border-left: 4px solid #7856ff; margin: 15px 0; border: 1px solid #30363d; border-radius: 8px;">
+                <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
+                <div style="color: #e7e9ea; font-size: 16px; font-weight: 600; line-height: 1.4;">
+                    {news_summary.get('synthesis', {}).get('strategy', 'Neutral Outlook')}
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
+                    <div style="color: #3fb950;">🏆 Catalysts: {news_summary.get('synthesis', {}).get('best_news', 'Stable')}</div>
+                    <div style="color: #f85149;">⚠️ Risks: {news_summary.get('synthesis', {}).get('bad_news', 'Monitored')}</div>
+                </div>
+            </div>
+            ''' if news_summary.get('synthesis') else ''}
+            
             <!-- Market Summary Cards -->
             <div class="summary-grid">
                 <div class="summary-card">
                     <div class="summary-value {'positive' if (market_summary.get('change_percent', 0) or 0) > 0 else 'negative'}">
-                        {market_summary.get('close_value', 0):,.0f}
+                        {(market_summary.get('close_value', 0) or 0):,.0f}
                     </div>
                     <div class="summary-label">KSE-100 Close</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-value {'positive' if (market_summary.get('change_percent', 0) or 0) > 0 else 'negative'}">
-                        {'+' if (market_summary.get('change_percent', 0) or 0) > 0 else ''}{market_summary.get('change_percent', 0) or 0:.2f}%
+                        {'+' if (market_summary.get('change_percent', 0) or 0) > 0 else ''}{(market_summary.get('change_percent', 0) or 0):.2f}%
                     </div>
                     <div class="summary-label">Day Change</div>
                 </div>
@@ -196,9 +210,9 @@ def generate_postmarket_report(
                         {''.join([f'''
                         <tr>
                             <td><span class="stock-symbol">{stock['symbol']}</span></td>
-                            <td>Rs. {stock.get('price', 0):,.2f}</td>
+                            <td>Rs. {(stock.get('price', 0) or 0):,.2f}</td>
                             <td class="{'positive' if (stock.get('change_percent', 0) or 0) > 0 else 'negative'}">
-                                {'+' if (stock.get('change_percent', 0) or 0) > 0 else ''}{stock.get('change_percent', 0) or 0:.2f}%
+                                {'+' if (stock.get('change_percent', 0) or 0) > 0 else ''}{(stock.get('change_percent', 0) or 0):.2f}%
                             </td>
                             <td>
                                 <div class="score-bar">
@@ -224,7 +238,7 @@ def generate_postmarket_report(
                 <div class="sector-row">
                     <div style="font-weight: 600;">{sector['name']}</div>
                     <div class="{'positive' if (sector.get('change_percent', 0) or 0) > 0 else 'negative'}">
-                        {'+' if (sector.get('change_percent', 0) or 0) > 0 else ''}{sector.get('change_percent', 0) or 0:.2f}%
+                        {'+' if (sector.get('change_percent', 0) or 0) > 0 else ''}{(sector.get('change_percent', 0) or 0):.2f}%
                     </div>
                 </div>
                 ''' for sector in sector_performance])}
@@ -252,11 +266,11 @@ def generate_postmarket_report(
                     </div>
                     <div class="indicator">
                         <div class="indicator-label">Support</div>
-                        <div class="indicator-value">{f"{technical_analysis.get('support'):,.0f}" if technical_analysis.get('support') else 'N/A'}</div>
+                        <div class="indicator-value">{f"{(technical_analysis.get('support', 0) or 0):,.0f}" if technical_analysis.get('support') else 'N/A'}</div>
                     </div>
                     <div class="indicator">
                         <div class="indicator-label">Resistance</div>
-                        <div class="indicator-value">{f"{technical_analysis.get('resistance'):,.0f}" if technical_analysis.get('resistance') else 'N/A'}</div>
+                        <div class="indicator-value">{f"{(technical_analysis.get('resistance', 0) or 0):,.0f}" if technical_analysis.get('resistance') else 'N/A'}</div>
                     </div>
                     <div class="indicator">
                         <div class="indicator-label">Bollinger</div>

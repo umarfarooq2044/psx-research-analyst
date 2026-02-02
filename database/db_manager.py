@@ -101,6 +101,46 @@ class DBManager:
                     volume=volume
                 )
                 session.add(price)
+
+    def bulk_upsert_prices(self, price_records: List[Dict]):
+        """Bulk insert or update price records for a single date"""
+        if not price_records:
+            return
+            
+        with get_db_session() as session:
+            today = datetime.now().date()
+            
+            # Fetch all existing prices for these symbols on this date to minimize queries
+            symbols = [p['symbol'] for p in price_records]
+            existing_prices = session.query(PriceHistory).filter(
+                PriceHistory.symbol.in_(symbols),
+                PriceHistory.date == today
+            ).all()
+            
+            existing_map = {p.symbol: p for p in existing_prices}
+            
+            for p_data in price_records:
+                sym = p_data['symbol']
+                if sym in existing_map:
+                    price_obj = existing_map[sym]
+                    if 'open_price' in p_data: price_obj.open_price = p_data['open_price']
+                    if 'high_price' in p_data: price_obj.high_price = p_data['high_price']
+                    if 'low_price' in p_data: price_obj.low_price = p_data['low_price']
+                    if 'close_price' in p_data: price_obj.close_price = p_data['close_price']
+                    if 'volume' in p_data: price_obj.volume = p_data['volume']
+                else:
+                    new_price = PriceHistory(
+                        symbol=sym,
+                        date=today,
+                        open_price=p_data.get('open_price'),
+                        high_price=p_data.get('high_price'),
+                        low_price=p_data.get('low_price'),
+                        close_price=p_data.get('close_price'),
+                        volume=p_data.get('volume')
+                    )
+                    session.add(new_price)
+            
+            # Commit happens automatically with get_db_session() context manager
     
     def get_price_history(self, symbol: str, days: int = 30) -> List[Dict]:
         """Get price history for a ticker"""
@@ -153,7 +193,89 @@ class DBManager:
                 return result[0], result[1]
             return None, None
     
-    # ==================== ANALYSIS OPERATIONS ====================
+    def get_latest_kse100(self) -> Optional[Dict]:
+        """Get latest KSE-100 index data"""
+        with get_db_session() as session:
+            h = session.query(KSE100Index).order_by(desc(KSE100Index.date)).first()
+            if h:
+                return {
+                    'date': h.date.strftime('%Y-%m-%d'),
+                    'close_value': h.close_value,
+                    'change_percent': h.change_percent,
+                    'volume': h.volume,
+                    'advancing': h.advancing,
+                    'declining': h.declining,
+                    'sentiment': h.sentiment
+                }
+            return None
+
+    def save_kse100_index(self, data: Dict):
+        """Save KSE-100 index data"""
+        with get_db_session() as session:
+            today = datetime.now().date()
+            index = session.query(KSE100Index).filter_by(date=today).first()
+            
+            if index:
+                index.close_value = data.get('close_value')
+                index.change_percent = data.get('change_percent')
+                index.volume = data.get('volume')
+                index.advancing = data.get('advancing')
+                index.declining = data.get('declining')
+                index.sentiment = data.get('sentiment')
+            else:
+                index = KSE100Index(
+                    date=today,
+                    close_value=data.get('close_value'),
+                    change_percent=data.get('change_percent'),
+                    volume=data.get('volume'),
+                    advancing=data.get('advancing'),
+                    declining=data.get('declining'),
+                    sentiment=data.get('sentiment')
+                )
+                session.add(index)
+
+    def get_kse100_history(self, days: int = 30) -> List[Dict]:
+        """Get KSE-100 history"""
+        with get_db_session() as session:
+            history = session.query(KSE100Index).order_by(desc(KSE100Index.date)).limit(days).all()
+            return [{
+                'date': h.date.strftime('%Y-%m-%d'),
+                'close_value': h.close_value,
+                'change_percent': h.change_percent,
+                'volume': h.volume,
+                'advancing': h.advancing,
+                'declining': h.declining,
+                'high_value': h.close_value, 
+                'low_value': h.close_value
+            } for h in history]
+
+    def get_sector_indices(self) -> List[Dict]:
+        """Get all sector indices"""
+        with get_db_session() as session:
+            sectors = session.query(SectorIndex).all()
+            return [{
+                'sector': s.sector,
+                'index_value': s.index_value,
+                'change_percent': s.change_percent
+            } for s in sectors]
+
+    def save_sector_index(self, sector: str, index_value: float, change_percent: float = 0):
+        """Save sector index data"""
+        with get_db_session() as session:
+            today = datetime.now().date()
+            idx = session.query(SectorIndex).filter_by(sector=sector, date=today).first()
+            
+            if idx:
+                idx.index_value = index_value
+                idx.change_percent = change_percent
+            else:
+                idx = SectorIndex(
+                    sector=sector,
+                    date=today,
+                    index_value=index_value,
+                    change_percent=change_percent
+                )
+                session.add(idx)
     
     def save_analysis(self, symbol: str, date_str: str, rsi: float = None,
                       volume_spike: bool = False, sentiment_score: float = None,
@@ -247,7 +369,16 @@ class DBManager:
                 }
             return None
 
-    # ==================== FUNDAMENTALS OPERATIONS ====================
+    def get_stock_scores(self, limit: int = 20) -> List[Dict]:
+        """Get top stock scores"""
+        with get_db_session() as session:
+            scores = session.query(StockScore).order_by(desc(StockScore.total_score)).limit(limit).all()
+            return [{
+                'symbol': s.symbol,
+                'total_score': s.total_score,
+                'rating': s.rating,
+                'components': json.loads(s.score_details) if s.score_details else {}
+            } for s in scores]
     
     def save_fundamentals(self, symbol: str, data: Dict):
         """Save fundamental data"""
@@ -417,6 +548,175 @@ class DBManager:
                         catalyst=d.get('catalyst')
                     )
                     session.add(new_decision)
+
+    def get_recent_ai_decisions(self, limit: int = 10) -> List[Dict]:
+        """Get latest AI decisions"""
+        with get_db_session() as session:
+            decisions = session.query(AIDecision).order_by(desc(AIDecision.date), desc(AIDecision.id)).limit(limit).all()
+            return [{
+                'symbol': d.symbol,
+                'date': d.date.strftime('%Y-%m-%d'),
+                'action': d.action,
+                'conviction': d.conviction,
+                'score': d.score,
+                'reasoning': d.reasoning,
+                'future_path': d.future_path,
+                'black_swan': d.black_swan,
+                'catalyst': d.catalyst
+            } for d in decisions]
+
+    def save_global_markets(self, data: Dict):
+        """Save or update global market data for today"""
+        with get_db_session() as session:
+            today = datetime.now().date()
+            gm = session.query(GlobalMarket).filter_by(date=today).first()
+            
+            if gm:
+                # Update existing
+                if data.get('sp500'): gm.sp500 = data['sp500']
+                if data.get('sp500_change'): gm.sp500_change = data['sp500_change']
+                if data.get('nasdaq'): gm.nasdaq = data['nasdaq']
+                if data.get('nasdaq_change'): gm.nasdaq_change = data['nasdaq_change']
+                if data.get('dow'): gm.dow = data['dow']
+                if data.get('dow_change'): gm.dow_change = data['dow_change']
+                if data.get('nikkei'): gm.nikkei = data['nikkei']
+                if data.get('nikkei_change'): gm.nikkei_change = data['nikkei_change']
+                if data.get('hang_seng'): gm.hang_seng = data['hang_seng']
+                if data.get('hang_seng_change'): gm.hang_seng_change = data['hang_seng_change']
+                if data.get('shanghai'): gm.shanghai = data['shanghai']
+                if data.get('shanghai_change'): gm.shanghai_change = data['shanghai_change']
+                if data.get('wti_oil'): gm.wti_oil = data['wti_oil']
+                if data.get('wti_change'): gm.wti_change = data['wti_change']
+                if data.get('brent_oil'): gm.brent_oil = data['brent_oil']
+                if data.get('brent_change'): gm.brent_change = data['brent_change']
+                if data.get('usd_pkr'): gm.usd_pkr = data['usd_pkr']
+                if data.get('usd_pkr_change'): gm.usd_pkr_change = data['usd_pkr_change']
+                if data.get('gold'): gm.gold = data['gold']
+                if data.get('gold_change'): gm.gold_change = data['gold_change']
+            else:
+                # Create new
+                gm = GlobalMarket(
+                    date=today,
+                    sp500=data.get('sp500'),
+                    sp500_change=data.get('sp500_change'),
+                    nasdaq=data.get('nasdaq'),
+                    nasdaq_change=data.get('nasdaq_change'),
+                    dow=data.get('dow'),
+                    dow_change=data.get('dow_change'),
+                    nikkei=data.get('nikkei'),
+                    nikkei_change=data.get('nikkei_change'),
+                    hang_seng=data.get('hang_seng'),
+                    hang_seng_change=data.get('hang_seng_change'),
+                    shanghai=data.get('shanghai'),
+                    shanghai_change=data.get('shanghai_change'),
+                    wti_oil=data.get('wti_oil'),
+                    wti_change=data.get('wti_change'),
+                    brent_oil=data.get('brent_oil'),
+                    brent_change=data.get('brent_change'),
+                    usd_pkr=data.get('usd_pkr'),
+                    usd_pkr_change=data.get('usd_pkr_change'),
+                    gold=data.get('gold'),
+                    gold_change=data.get('gold_change')
+                )
+                session.add(gm)
+
+    def get_latest_global_markets(self) -> Optional[Dict]:
+        """Get latest global market data"""
+        with get_db_session() as session:
+            gm = session.query(GlobalMarket).order_by(desc(GlobalMarket.date)).first()
+            if gm:
+                return {
+                    'date': gm.date.strftime('%Y-%m-%d'),
+                    'sp500': gm.sp500,
+                    'sp500_change': gm.sp500_change,
+                    'nasdaq': gm.nasdaq,
+                    'nasdaq_change': gm.nasdaq_change,
+                    'dow': gm.dow,
+                    'dow_change': gm.dow_change,
+                    'nikkei': gm.nikkei,
+                    'nikkei_change': gm.nikkei_change,
+                    'hang_seng': gm.hang_seng,
+                    'hang_seng_change': gm.hang_seng_change,
+                    'shanghai': gm.shanghai,
+                    'shanghai_change': gm.shanghai_change,
+                    'wti_oil': gm.wti_oil,
+                    'wti_change': gm.wti_change,
+                    'brent_oil': gm.brent_oil,
+                    'brent_change': gm.brent_change,
+                    'usd_pkr': gm.usd_pkr,
+                    'usd_pkr_change': gm.usd_pkr_change,
+                    'gold': gm.gold,
+                    'gold_change': gm.gold_change
+                }
+            return None
+
+    def insert_announcement(self, symbol: str, headline: str, pdf_url: str = None, 
+                            announcement_type: str = None, announcement_date: str = None) -> bool:
+        """Insert a corporate announcement, avoid duplicates based on symbol + headline"""
+        with get_db_session() as session:
+            # Check for existing
+            existing = session.query(Announcement).filter_by(
+                symbol=symbol, 
+                headline=headline
+            ).first()
+            
+            if existing:
+                return False
+            
+            # Create new
+            new_ann = Announcement(
+                symbol=symbol,
+                headline=headline,
+                pdf_url=pdf_url,
+                announcement_type=announcement_type,
+                announcement_date=datetime.strptime(announcement_date, '%Y-%m-%d').date() if announcement_date else datetime.now().date(),
+                created_at=datetime.now()
+            )
+            session.add(new_ann)
+            return True
+
+    def get_recent_announcements(self, symbol: str = None, days: int = 7) -> List[Dict]:
+        """Get latest corporate announcements"""
+        with get_db_session() as session:
+            since = datetime.now() - timedelta(days=days)
+            query = session.query(Announcement).filter(
+                Announcement.created_at >= since
+            )
+            
+            if symbol:
+                query = query.filter_by(symbol=symbol)
+                
+            announcements = query.order_by(desc(Announcement.created_at)).all()
+            
+            return [{
+                'id': a.id,
+                'symbol': a.symbol,
+                'headline': a.headline,
+                'announcement_type': a.announcement_type,
+                'sentiment_score': a.sentiment_score,
+                'created_at': a.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            } for a in announcements]
+
+    def get_unprocessed_announcements(self) -> List[Dict]:
+        """Get announcements that haven't been sentiment analyzed"""
+        with get_db_session() as session:
+            announcements = session.query(Announcement).filter(
+                Announcement.sentiment_score == None
+            ).all()
+            
+            return [{
+                'id': a.id,
+                'symbol': a.symbol,
+                'headline': a.headline,
+                'announcement_type': a.announcement_type
+            } for a in announcements]
+
+    def update_announcement_sentiment(self, announcement_id: int, sentiment: float):
+        """Update sentiment score for an announcement"""
+        with get_db_session() as session:
+            ann = session.query(Announcement).get(announcement_id)
+            if ann:
+                ann.sentiment_score = sentiment
 
 # Singleton instance
 db = DBManager()

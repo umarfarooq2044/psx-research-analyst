@@ -302,6 +302,7 @@ def run_hourly_update() -> Dict:
     from scraper.price_scraper import fetch_all_prices
     from database.db_manager import db
     from analysis.technical import analyze_ticker_technical
+    from config import TOP_STOCKS, WATCHLIST
     import asyncio
     
     print("=" * 60)
@@ -313,21 +314,23 @@ def run_hourly_update() -> Dict:
     news_data = get_all_news()
     market_moving = get_market_moving_news()
     
-    # 2. Unlimited Market Scan
-    print("\n[2/5] Scanning ALL Stocks for Volatility & Volume...")
-    tickers = db.get_all_tickers()
+    # 2. Focused Market Scan
+    print("\n[2/5] Scanning Liquid Stocks & Watchlist for Volatility...")
     
-    # Cloud Fallback: If DB is empty, discover tickers
+    # Combined list of priority stocks
+    priority_symbols = list(set(TOP_STOCKS + WATCHLIST))
+    
+    # Verify symbols exist in DB or discover if empty
+    tickers = db.get_all_tickers()
     if not tickers:
         print("  ⚠️ No tickers found in DB. Discovering now...")
         from scraper.ticker_discovery import discover_and_save_tickers
         discover_and_save_tickers()
-        tickers = db.get_all_tickers()
         
-    symbols = [t['symbol'] for t in tickers]
+    symbols = priority_symbols
     
-    # Fetch live prices
-    fetch_all_prices(symbols)
+    # Fetch live prices (Now optimized with Bulk DB insertion)
+    fetch_all_prices(priority_symbols)
     
     # Detect Anomalies
     alerts = []
@@ -458,4 +461,4 @@ def run_hourly_update() -> Dict:
 
 if __name__ == "__main__":
     result = run_hourly_update()
-    print(f"\n📊 Summary: {result['news_count']} news items, {result['market_moving_count']} market-moving")
+    print(f"\n📊 Summary: {result['alerts']} alerts, {result['volume_spikes']} volume spikes detected.")

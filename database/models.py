@@ -272,7 +272,22 @@ def get_engine():
         return create_engine(DATABASE_URL)
     else:
         # SQLite Connection (Local)
-        return create_engine(f'sqlite:///{DATABASE_PATH}')
+        # Increase timeout for better concurrency handling
+        engine = create_engine(
+            f'sqlite:///{DATABASE_PATH}',
+            connect_args={'timeout': 30}
+        )
+        
+        # Set pragmas for better performance and concurrency
+        from sqlalchemy import event
+        @event.listens_for(engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.close()
+            
+        return engine
 
 engine = get_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

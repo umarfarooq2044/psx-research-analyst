@@ -20,8 +20,8 @@ from config import (
 from database.db_manager import db
 from utils.resilience import retry_with_backoff
 
-# Concurrency limit to be polite to the server (Reduced from 20 to avoid 429s)
-CONCURRENCY_LIMIT = 5
+# Concurrency limit to be polite to the server (Optimum for Cloud: 10)
+CONCURRENCY_LIMIT = 10
 
 # Fix Windows console encoding for emoji support
 if sys.platform == 'win32':
@@ -121,20 +121,9 @@ class AsyncPriceScraper:
         return results
     
     def save_results_to_db(self, results: List[Dict]):
-        """Save all results to database"""
-        today = datetime.now().strftime('%Y-%m-%d')
-        print("💾 Saving to database...")
-        
-        for price_data in results:
-            db.insert_price(
-                symbol=price_data['symbol'],
-                date_str=today,
-                open_price=price_data.get('open_price'),
-                high_price=price_data.get('high_price'),
-                low_price=price_data.get('low_price'),
-                close_price=price_data.get('close_price'),
-                volume=price_data.get('volume')
-            )
+        """Save all results to database using bulk upsert"""
+        print(f"💾 Saving {len(results)} prices to database (Bulk)...")
+        db.bulk_upsert_prices(results)
         print("✓ Data saved.")
 
 # ============================================================================

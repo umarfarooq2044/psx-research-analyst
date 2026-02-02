@@ -45,11 +45,17 @@ class GeminiAnalyst:
             self.client = None
             return
             
-        self.client = genai.Client(api_key=api_key)
+        # Use the new google-genai SDK 
+        # Force v1 API to avoid v1beta 404 issues reported in some regions
+        self.client = genai.Client(
+            api_key=api_key,
+            http_options={'api_version': 'v1'}
+        )
         
         # Load Institutional Wisdom (In-Context Learning)
         lessons = alpha_loop.load_lessons()
         self.system_prompt = f"{self.BASE_INSTRUCTION}\n\nINSTITUTIONAL MEMORY & LESSONS LEARNED:\n{lessons}"
+        # Use the canonical model name
         self.model_id = "gemini-1.5-flash"
         
     @retry_with_backoff(retries=3, backoff_in_seconds=2)
@@ -61,7 +67,7 @@ class GeminiAnalyst:
             return []
             
         try:
-            print("🧠 sending payload to Gemini Cognitive Engine...")
+            print(f"🧠 sending payload to Gemini Cognitive Engine ({self.model_id})...")
             response = self.client.models.generate_content(
                 model=self.model_id,
                 contents=payload,
@@ -123,10 +129,17 @@ class GeminiAnalyst:
                     "response_mime_type": "application/json"
                 }
             )
-            text = response.text.replace('```json', '').replace('```', '')
+            # Handle possible markdown backticks
+            text = response.text.strip()
+            if text.startswith('```json'):
+                text = text.replace('```json', '', 1).rsplit('```', 1)[0].strip()
+            elif text.startswith('```'):
+                text = text.replace('```', '', 1).rsplit('```', 1)[0].strip()
+                
             return json.loads(text)
         except Exception as e:
             logger.error(f"AI Briefing Verification Failed: {e}")
+            # Fallback response
             return {
                 "strategy": "Market is volatile. Trade with caution.",
                 "best_news": "Monitoring flows",

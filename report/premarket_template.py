@@ -81,6 +81,20 @@ def generate_premarket_report(
                 <h1>🌅 PSX PRE-MARKET BRIEFING</h1>
                 <div class="subtitle">{now.strftime('%A, %B %d, %Y')} | Generated at {now.strftime('%I:%M %p')} PKT</div>
             </div>
+
+            <!-- SMI-v1 Cognitive Briefing -->
+            {f'''
+            <div style="padding: 20px; background: #1e2732; border-left: 4px solid #7856ff; margin: 15px 0; border: 1px solid #38444d; border-radius: 8px;">
+                <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
+                <div style="color: #e7e9ea; font-size: 16px; font-weight: 600; line-height: 1.4;">
+                    {trading_strategy.get('synthesis', {}).get('strategy', 'Standard Trading Day')}
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
+                    <div style="color: #00ba7c;">🏆 Catalysts: {trading_strategy.get('synthesis', {}).get('best_news', 'Stable')}</div>
+                    <div style="color: #f91880;">⚠️ Risks: {trading_strategy.get('synthesis', {}).get('bad_news', 'Monitored')}</div>
+                </div>
+            </div>
+            ''' if trading_strategy.get('synthesis') else ''}
             
             <!-- Global Markets Overnight -->
             <div class="section">
@@ -90,21 +104,21 @@ def generate_premarket_report(
                         <div class="metric-label">S&P 500</div>
                         <div class="metric-value {'positive' if (global_markets.get('sp500_change', 0) or 0) > 0 else 'negative'}">
                             {global_markets.get('sp500', 'N/A')} 
-                            ({'+' if (global_markets.get('sp500_change', 0) or 0) > 0 else ''}{global_markets.get('sp500_change', 0) or 0:.2f}%)
+                            ({'+' if (global_markets.get('sp500_change', 0) or 0) > 0 else ''}{(global_markets.get('sp500_change', 0) or 0):.2f}%)
                         </div>
                     </div>
                     <div class="metric">
                         <div class="metric-label">NASDAQ</div>
                         <div class="metric-value {'positive' if (global_markets.get('nasdaq_change', 0) or 0) > 0 else 'negative'}">
                             {global_markets.get('nasdaq', 'N/A')}
-                            ({'+' if (global_markets.get('nasdaq_change', 0) or 0) > 0 else ''}{global_markets.get('nasdaq_change', 0) or 0:.2f}%)
+                            ({'+' if (global_markets.get('nasdaq_change', 0) or 0) > 0 else ''}{(global_markets.get('nasdaq_change', 0) or 0):.2f}%)
                         </div>
                     </div>
                     <div class="metric">
                         <div class="metric-label">WTI Crude Oil</div>
                         <div class="metric-value {'positive' if (global_markets.get('wti_change', 0) or 0) > 0 else 'negative'}">
                             ${global_markets.get('wti_oil', 'N/A')}
-                            ({'+' if (global_markets.get('wti_change', 0) or 0) > 0 else ''}{global_markets.get('wti_change', 0) or 0:.2f}%)
+                            ({'+' if (global_markets.get('wti_change', 0) or 0) > 0 else ''}{(global_markets.get('wti_change', 0) or 0):.2f}%)
                         </div>
                     </div>
                     <div class="metric">
@@ -127,13 +141,13 @@ def generate_premarket_report(
                     <div class="metric">
                         <div class="metric-label">KSE-100 Close</div>
                         <div class="metric-value {'positive' if (previous_day.get('change_percent', 0) or 0) > 0 else 'negative'}">
-                            {previous_day.get('close_value', 'N/A'):,.0f}
-                            ({'+' if (previous_day.get('change_percent', 0) or 0) > 0 else ''}{previous_day.get('change_percent', 0) or 0:.2f}%)
+                            {(previous_day.get('close_value', 0) or 0):,.0f}
+                            ({'+' if (previous_day.get('change_percent', 0) or 0) > 0 else ''}{(previous_day.get('change_percent', 0) or 0):.2f}%)
                         </div>
                     </div>
                     <div class="metric">
                         <div class="metric-label">Volume</div>
-                        <div class="metric-value">{previous_day.get('volume', 0):,} shares</div>
+                        <div class="metric-value">{(previous_day.get('volume', 0) or 0):,} shares</div>
                     </div>
                     <div class="metric">
                         <div class="metric-label">Advancing</div>
@@ -152,15 +166,15 @@ def generate_premarket_report(
                 <div class="grid">
                     <div class="metric">
                         <div class="metric-label">Support Level 1</div>
-                        <div class="metric-value">{technical_outlook.get('support_1', 'N/A'):,.0f}</div>
+                        <div class="metric-value">{(technical_outlook.get('support_1', 0) or 0):,.0f}</div>
                     </div>
                     <div class="metric">
                         <div class="metric-label">Resistance Level 1</div>
-                        <div class="metric-value">{technical_outlook.get('resistance_1', 'N/A'):,.0f}</div>
+                        <div class="metric-value">{(technical_outlook.get('resistance_1', 0) or 0):,.0f}</div>
                     </div>
                     <div class="metric">
                         <div class="metric-label">Expected Range</div>
-                        <div class="metric-value">{technical_outlook.get('expected_low', 'N/A'):,.0f} - {technical_outlook.get('expected_high', 'N/A'):,.0f}</div>
+                        <div class="metric-value">{(technical_outlook.get('expected_low', 0) or 0):,.0f} - {(technical_outlook.get('expected_high', 0) or 0):,.0f}</div>
                     </div>
                     <div class="metric">
                         <div class="metric-label">Trend</div>

@@ -32,12 +32,14 @@ from global_data.oil_prices import fetch_oil_prices, get_oil_summary
 from global_data.global_indices import get_us_markets_summary, get_asian_markets_summary, save_global_markets_data
 
 # Import news
-from news.news_scraper import get_market_news_summary
+from news.comprehensive_news import get_all_news, get_market_moving_news
 
 # Import analysis
 from analysis.technical import analyze_ticker_technical
 from analysis.stock_scoring import calculate_stock_score, score_all_stocks
 from analysis.sentiment import analyze_all_announcements
+from analysis.market_synthesis import market_brain
+from global_data.sovereign_yields import sovereign_heartbeat
 
 # Import reports
 from report.premarket_template import generate_premarket_report
@@ -117,19 +119,30 @@ class ScheduleOrchestrator:
                 for ann in announcements[:10]
             ]
             
-            # 5. Identify stocks to watch
-            print("[5/5] Identifying stocks to watch...")
-            scores = db.get_stock_scores(limit=20)
-            stocks_to_watch = [
-                {
-                    'symbol': s['symbol'],
-                    'reason': f"Score {s['total_score']}/100 - {s['rating']}",
-                    'action': 'BUY' if s['rating'] in ['STRONG BUY', 'BUY'] else (
-                        'SELL' if s['rating'] == 'SELL/AVOID' else 'HOLD'
-                    )
-                }
-                for s in scores[:10]
-            ]
+            # 5. Identify stocks to watch (SMI-v1 Intelligence)
+            print("[5/5] Identifying stocks to watch (SMI-v1 Intelligence)...")
+            ai_decisions = db.get_recent_ai_decisions(limit=10)
+            
+            stocks_to_watch = []
+            for d in ai_decisions:
+                stocks_to_watch.append({
+                    'symbol': d['symbol'],
+                    'action': d['action'],
+                    'conviction': d['conviction'],
+                    'future_path': d['future_path'],
+                    'black_swan': d['black_swan'],
+                    'reason': d['reasoning']
+                })
+            
+            # Fallback if no AI decisions exist yet
+            if not stocks_to_watch:
+                scores = db.get_stock_scores(limit=10)
+                stocks_to_watch = [
+                    {'symbol': s['symbol'], 'action': 'WATCH', 'conviction': '50%', 
+                     'future_path': 'Scanning...', 'black_swan': 'Market Volatility', 
+                     'reason': f"Consensus score {s['total_score']}/100"} 
+                    for s in scores
+                ]
             
             # Risk warnings
             risk_warnings = []
@@ -150,13 +163,23 @@ class ScheduleOrchestrator:
                 'bearish' if us_markets.get('sentiment') == 'negative' else 'neutral'
             )
             
+            # AI synthesis for pre-market
+            news_data = get_all_news()
+            synthesis = market_brain.generate_synthesis(
+                news_data=news_data,
+                market_status=previous_day,
+                macro_data=forex or {},
+                top_movers={}
+            )
+            
             trading_strategy = {
                 'bias': bias,
                 'action': 'Accumulate quality stocks' if bias == 'bullish' else (
                     'Be defensive' if bias == 'bearish' else 'Wait for direction'
                 ),
                 'buy_level': sr_levels.get('support_1', 0),
-                'sell_level': sr_levels.get('resistance_1', 0)
+                'sell_level': sr_levels.get('resistance_1', 0),
+                'synthesis': synthesis # For template
             }
             
             # Generate report
@@ -307,20 +330,27 @@ class ScheduleOrchestrator:
             scrape_all_announcements(symbols, show_progress=True)
             analyze_all_announcements()
             
-            # 4. Get KSE-100 final data
-            # 4. Get KSE-100 final data
-            print("[4/8] Getting KSE-100 data...")
+            # 4. Get KSE-100 final data + Sovereign Yields
+            print("[4/8] Getting KSE-100 data & Sovereign Context...")
             _kse = get_kse100_summary()
             kse100 = _kse if _kse else {
                 'close_value': 0, 'change_percent': 0, 'volume': 0, 
                 'advancing': 0, 'declining': 0, 'sentiment': 'Neutral'
             }
+            
+            # Fetch SMI Sovereign Context
+            kibor = sovereign_heartbeat.fetch_kibor_rates()
+            tbills = sovereign_heartbeat.fetch_tbill_yields()
+            
             market_summary = {
                 'close_value': kse100.get('close_value', 0),
                 'change_percent': kse100.get('change_percent', 0),
                 'volume': kse100.get('volume', 0),
                 'advancing': kse100.get('advancing', 0),
-                'declining': kse100.get('declining', 0)
+                'declining': kse100.get('declining', 0),
+                'kibor_6m': kibor.get('6m_kibor'),
+                'tbill_3m': tbills.get('3m_yield'),
+                'liquidity': 'Positive' if kibor.get('trend') == 'receding' else 'Stable'
             }
             
             # 5. Score all stocks
@@ -363,15 +393,25 @@ class ScheduleOrchestrator:
                 'bollinger_signal': 'Neutral'
             }
             
-            # 8. Get news summary
+            # 8. Get news summary (Comprehensive)
             print("[8/8] Analyzing news sentiment...")
-            news = get_market_news_summary(limit=20)
+            news_data = get_all_news()
+            
+            # AI synthesis for post-market
+            synthesis = market_brain.generate_synthesis(
+                news_data=news_data,
+                market_status=market_summary,
+                macro_data=fetch_usd_pkr() or {},
+                top_movers={} # Placeholder
+            )
+            
             news_summary = {
-                'total': news.get('total_headlines', 0),
-                'positive': news.get('positive_count', 0),
-                'negative': news.get('negative_count', 0),
-                'sentiment': news.get('overall_sentiment', 'mixed'),
-                'top_headlines': [h['headline'] for h in news.get('high_impact_news', [])][:5]
+                'total': len(news_data.get('national', [])),
+                'positive': sum(1 for n in news_data.get('national', []) if n['sentiment'] > 0.1),
+                'negative': sum(1 for n in news_data.get('national', []) if n['sentiment'] < -0.1),
+                'sentiment': news_data.get('sentiment_label', 'mixed'),
+                'top_headlines': [h['headline'] for h in news_data.get('national', [])][:5],
+                'synthesis': synthesis # Pass to template
             }
             
             # Risk assessment
@@ -383,8 +423,8 @@ class ScheduleOrchestrator:
             }
             
             # Tomorrow's outlook
-            bias = 'bullish' if news.get('overall_sentiment') == 'bullish' and (kse100.get('change_percent', 0) or 0) > 0 else (
-                'bearish' if news.get('overall_sentiment') == 'bearish' else 'neutral'
+            bias = 'bullish' if news_data.get('overall_sentiment') == 'bullish' and (kse100.get('change_percent', 0) or 0) > 0 else (
+                'bearish' if news_data.get('overall_sentiment') == 'bearish' else 'neutral'
             )
             
             tomorrow_outlook = {
