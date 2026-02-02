@@ -335,6 +335,24 @@ async def async_run_hourly_update() -> Dict:
     print("\n[1/5] Launching Parallel Tasks (News, Prices, Macro)...")
     
     priority_symbols = list(set(TOP_STOCKS + WATCHLIST))
+    
+    # Defensive Check: Ensure all priority symbols exist in tickers table
+    # This prevents ForeignKeyViolation in PostgreSQL/Supabase
+    existing_symbols = {t['symbol'] for t in db.get_all_tickers()}
+    missing_from_db = [s for s in priority_symbols if s not in existing_symbols]
+    if missing_from_db:
+        print(f"  ⚠️ {len(missing_from_db)} priority symbols missing from DB. Syncing tickers...")
+        from scraper.ticker_discovery import discover_and_save_tickers
+        discover_and_save_tickers()
+        
+        # Re-check and fallback if still missing (e.g. not in official XML but in our list)
+        existing_now = {t['symbol'] for t in db.get_all_tickers()}
+        still_missing = [s for s in priority_symbols if s not in existing_now]
+        if still_missing:
+            print(f"  ⚠️ Manually registering {len(still_missing)} symbols to satisfy DB constraints...")
+            for sym in still_missing:
+                db.upsert_ticker(sym, name=sym)
+    
     price_scraper = AsyncPriceScraper()
     
     # Stage 1: Parallel Fetching
