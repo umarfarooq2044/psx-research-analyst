@@ -386,6 +386,59 @@ class ProfessionalReportGenerator:
         return filepath
     
     # =========================================================================
+    # AI COGNITIVE DECISIONS REPORT (GROQ SMI-v1)
+    # =========================================================================
+    
+    def generate_ai_decisions_csv(self, current_decisions: List[Dict] = None) -> str:
+        """
+        Generate a report of the latest AI cognitive decisions from Groq.
+        
+        Returns: Path to generated CSV file
+        """
+        filepath = os.path.join(self.reports_dir, f'ai_cognitive_decisions_{self.timestamp}.csv')
+        
+        # Get decisions: either passed (real-time) or from DB
+        decisions = []
+        if current_decisions:
+            # Map the real-time format to CSV format
+            for d in current_decisions:
+                decisions.append({
+                    'date': datetime.now().date(),
+                    'symbol': d.get('symbol', ''),
+                    'action': d.get('decision', 'HOLD'),
+                    'conviction': f"{d.get('confidence', 0)}%",
+                    'reasoning': d.get('smi_commentary', ''),
+                    'black_swan': d.get('psx_risk_flag', ''),
+                    'future_path': 'Real-time Deployment'
+                })
+        else:
+            decisions = db.get_recent_ai_decisions(limit=100)
+        
+        formatted_decisions = []
+        for d in decisions:
+            formatted_decisions.append({
+                'Date': d.get('date', datetime.now().date()),
+                'Symbol': d.get('symbol', ''),
+                'Signal': d.get('action', ''),
+                'Conviction': d.get('conviction', ''),
+                'Commentary': d.get('reasoning', ''),
+                'Risk_Flag': d.get('black_swan', ''),
+                'Future_Path': d.get('future_path', ''),
+                'Model': 'Groq Llama-3.3-70b (SMI-v1)'
+            })
+            
+        if formatted_decisions:
+            df = pd.DataFrame(formatted_decisions)
+            df.to_csv(filepath, index=False, encoding='utf-8-sig')
+        else:
+            with open(filepath, 'w', newline='', encoding='utf-8-sig') as f:
+                writer = csv.writer(f)
+                writer.writerow(['Date', 'Symbol', 'Signal', 'Conviction', 'Commentary', 'Risk_Flag', 'Future_Path', 'Model'])
+                writer.writerow([datetime.now().strftime('%Y-%m-%d'), 'N/A', 'N/A', 'N/A', 'No AI decisions found', 'N/A', 'N/A', 'Groq'])
+                
+        return filepath
+
+    # =========================================================================
     # HELPER METHODS
     # =========================================================================
     
@@ -472,6 +525,9 @@ class ProfessionalReportGenerator:
         
         print("  → Risk Alerts...")
         reports['risk_alerts'] = self.generate_risk_alerts_csv()
+        
+        print("  → AI Cognitive Decisions...")
+        reports['ai_decisions'] = self.generate_ai_decisions_csv()
         
         print(f"✅ Generated {len(reports)} CSV reports")
         

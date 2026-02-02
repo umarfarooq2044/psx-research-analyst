@@ -71,6 +71,8 @@ class MarketSynthesizer:
             'narrative': narrative,
             'strategy': ai_response.get('decision', 'HOLD'),
             'score': ai_response.get('confidence', 50),
+            'commentary': ai_response.get('smi_commentary', 'N/A'),
+            'risk_flag': ai_response.get('psx_risk_flag', 'Safe'),
             'driver': "Groq Llama-3.3-70b"
         }
         

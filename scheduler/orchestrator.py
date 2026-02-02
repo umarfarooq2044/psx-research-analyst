@@ -164,13 +164,14 @@ class ScheduleOrchestrator:
             )
             
             # AI synthesis for pre-market
+            import asyncio
             news_data = get_all_news()
-            synthesis = market_brain.generate_synthesis(
+            synthesis = asyncio.run(market_brain.generate_synthesis(
                 news_data=news_data,
                 market_status=previous_day,
                 macro_data=forex or {},
                 top_movers={}
-            )
+            ))
             
             trading_strategy = {
                 'bias': bias,
@@ -370,6 +371,36 @@ class ScheduleOrchestrator:
                 for s in scores[:15]
             ]
             
+            # 5.5. SMI-v1 Cognitive Deep Dive (Groq)
+            print("[5.5/8] Requesting SMI-v1 Strategic Analysis for Top Tickers...")
+            from ai_engine.ai_decision import GroqBrain
+            groq_brain = GroqBrain()
+            
+            async def groq_deep_dive():
+                tasks = []
+                for s in top_stocks[:5]:
+                    # Mocking context for post-market
+                    context = {
+                        "Symbol": s['symbol'],
+                        "Close_Price": s['price'],
+                        "Change_Percent": s['change_percent'],
+                        "Score": s['score'],
+                        "News_Sentiment": "Positive" if s['score'] > 70 else "Neutral",
+                        "RSI_14": 50,
+                        "Volume_Ratio": 1.5
+                    }
+                    tasks.append(groq_brain.get_decision(context))
+                results = await asyncio.gather(*tasks)
+                return results
+
+            import asyncio
+            cognitive_results = asyncio.run(groq_deep_dive())
+            cognitive_decisions = []
+            for i, res in enumerate(cognitive_results):
+                cognitive_decisions.append({**res, 'symbol': top_stocks[i]['symbol']})
+            
+            print(f"  → Received {len(cognitive_decisions)} high-conviction signals.")
+            
             # 6. Get sector performance
             print("[6/8] Analyzing sectors...")
             sector_indices = db.get_sector_indices()
@@ -483,13 +514,19 @@ class ScheduleOrchestrator:
                 risk_assessment=risk_assessment,
                 tomorrow_outlook=tomorrow_outlook,
                 action_items=action_items,
-                undervalued_gems=undervalued_gems[:4]
+                undervalued_gems=undervalued_gems[:4],
+                cognitive_decisions=cognitive_decisions
             )
             
             # Generate comprehensive CSV reports
             print("[8.5/8] Generating comprehensive CSV reports...")
-            from report.csv_generator import generate_all_daily_reports
-            csv_reports = generate_all_daily_reports()
+            from report.csv_generator import report_generator
+            csv_reports = report_generator.generate_all_reports()
+            
+            # Ensure the specific AI CSV includes today's real-time decisions
+            ai_csv_path = report_generator.generate_ai_decisions_csv(cognitive_decisions)
+            csv_reports['ai_cognitive_decisions'] = ai_csv_path
+            
             attachments = list(csv_reports.values())
             print(f"  → Generated {len(attachments)} CSV reports for attachment")
             

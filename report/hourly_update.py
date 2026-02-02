@@ -437,6 +437,12 @@ async def async_run_hourly_update() -> Dict:
     print("\n[4/5] Generating Intelligence Reports...")
     csv_path = generate_hourly_news_csv(news_data)
     
+    # Generate Detailed AI Decision CSV (SMI-v1)
+    from report.csv_generator import report_generator
+    ai_csv_path = report_generator.generate_ai_decisions_csv(cognitive_decisions)
+    
+    attachments = [csv_path, ai_csv_path]
+    
     gainers = sorted([m for m in price_movers if m['change'] > 0], key=lambda x: x['change'], reverse=True)
     losers = sorted([m for m in price_movers if m['change'] < 0], key=lambda x: x['change'])
     

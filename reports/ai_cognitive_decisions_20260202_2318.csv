@@ -1,0 +1,3 @@
+﻿Date,Symbol,Signal,Conviction,Commentary,Risk_Flag,Future_Path,Model
+2026-02-02,OGDC,BUY,90%,High conviction buy,Safe,Real-time Deployment,Groq Llama-3.3-70b (SMI-v1)
+2026-02-02,HBL,HOLD,50%,Wait for breakout,Speculative,Real-time Deployment,Groq Llama-3.3-70b (SMI-v1)

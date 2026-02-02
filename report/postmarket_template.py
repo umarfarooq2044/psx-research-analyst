@@ -61,7 +61,8 @@ def generate_postmarket_report(
     risk_assessment: Dict,
     tomorrow_outlook: Dict,
     action_items: List[str],
-    undervalued_gems: List[Dict] = None
+    undervalued_gems: List[Dict] = None,
+    cognitive_decisions: List[Dict] = None
 ) -> str:
     """
     Generate comprehensive post-market analysis HTML email
@@ -139,11 +140,11 @@ def generate_postmarket_report(
             <div style="padding: 20px; background: #0d1117; border-left: 4px solid #7856ff; margin: 15px 0; border: 1px solid #30363d; border-radius: 8px;">
                 <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
                 <div style="color: #e7e9ea; font-size: 16px; font-weight: 600; line-height: 1.4;">
-                    {news_summary.get('synthesis', {}).get('strategy', 'Neutral Outlook')}
+                    {news_summary.get('synthesis', {}).get('strategy', 'Neutral')} Recap: {news_summary.get('synthesis', {}).get('commentary', 'Market Closed')}
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
-                    <div style="color: #3fb950;">🏆 Catalysts: {news_summary.get('synthesis', {}).get('best_news', 'Stable')}</div>
-                    <div style="color: #f85149;">⚠️ Risks: {news_summary.get('synthesis', {}).get('bad_news', 'Monitored')}</div>
+                    <div style="color: #3fb950;">🛡️ Risk: {news_summary.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
+                    <div style="color: #7856ff;">💎 Confidence: {news_summary.get('synthesis', {}).get('score', 50)}%</div>
                 </div>
             </div>
             ''' if news_summary.get('synthesis') else ''}
@@ -226,6 +227,31 @@ def generate_postmarket_report(
                     </tbody>
                 </table>
             </div>
+            
+            <!-- SMI-v1 Cognitive Deep Dive -->
+            {f'''
+            <div class="section" style="border-top: 3px solid #7856ff;">
+                <div class="section-title" style="color: #7856ff;">🦅 SMI-v1 COGNITIVE DEEP DIVE (Llama-3.3-70b)</div>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                    {''.join([f"""
+                    <div style="background: #0d1117; padding: 15px; border-radius: 8px; border: 1px solid #30363d;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span class="stock-symbol" style="font-size: 18px;">{d['symbol']}</span>
+                            <span class="badge" style="background: {'rgba(63,185,80,0.2)' if d['decision']=='BUY' else 'rgba(248,81,73,0.2)'}; color: {'#3fb950' if d['decision']=='BUY' else '#f85149'};">
+                                {d['decision']} (Conf: {d['confidence']}%)
+                            </span>
+                        </div>
+                        <div style="color: #e7e9ea; font-size: 14px; line-height: 1.4; font-style: italic;">
+                            "{d['smi_commentary']}"
+                        </div>
+                        <div style="margin-top: 10px; font-size: 11px; color: #8b949e;">
+                            <span style="color: #f85149; font-weight: bold;">RISK FLAG:</span> {d['psx_risk_flag']} | SMI-v1 Veteran Insight
+                        </div>
+                    </div>
+                    """ for d in cognitive_decisions[:5]])}
+                </div>
+            </div>
+            ''' if cognitive_decisions else ''}
             
             <!-- Undervalued Gems -->
             <!-- Undervalued Gems -->

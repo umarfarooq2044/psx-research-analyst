@@ -87,11 +87,11 @@ def generate_premarket_report(
             <div style="padding: 20px; background: #1e2732; border-left: 4px solid #7856ff; margin: 15px 0; border: 1px solid #38444d; border-radius: 8px;">
                 <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
                 <div style="color: #e7e9ea; font-size: 16px; font-weight: 600; line-height: 1.4;">
-                    {trading_strategy.get('synthesis', {}).get('strategy', 'Standard Trading Day')}
+                    {trading_strategy.get('synthesis', {}).get('strategy', 'Neutral')} Outlook: {trading_strategy.get('synthesis', {}).get('commentary', 'Awaiting Market Open')}
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
-                    <div style="color: #00ba7c;">🏆 Catalysts: {trading_strategy.get('synthesis', {}).get('best_news', 'Stable')}</div>
-                    <div style="color: #f91880;">⚠️ Risks: {trading_strategy.get('synthesis', {}).get('bad_news', 'Monitored')}</div>
+                    <div style="color: #00ba7c;">🛡️ Risk: {trading_strategy.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
+                    <div style="color: #7856ff;">💎 Confidence: {trading_strategy.get('synthesis', {}).get('score', 50)}%</div>
                 </div>
             </div>
             ''' if trading_strategy.get('synthesis') else ''}
