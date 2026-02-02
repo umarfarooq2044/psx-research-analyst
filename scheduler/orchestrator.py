@@ -398,12 +398,13 @@ class ScheduleOrchestrator:
             news_data = get_all_news()
             
             # AI synthesis for post-market
-            synthesis = market_brain.generate_synthesis(
+            import asyncio
+            synthesis = asyncio.run(market_brain.generate_synthesis(
                 news_data=news_data,
                 market_status=market_summary,
                 macro_data=fetch_usd_pkr() or {},
                 top_movers={} # Placeholder
-            )
+            ))
             
             news_summary = {
                 'total': len(news_data.get('national', [])),

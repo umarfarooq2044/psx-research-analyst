@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Dict, List, Optional
+import asyncio
 
 class MarketSynthesizer:
     """
@@ -11,15 +12,19 @@ class MarketSynthesizer:
     def __init__(self):
         pass
 
-    def generate_synthesis(self, 
+    async def generate_synthesis(self, 
                           news_data: Dict, 
                           market_status: Dict, 
                           macro_data: Dict,
                           top_movers: Dict) -> Dict:
         """
-        Generate a comprehensive executive summary using GEMINI AI.
+        Generate a comprehensive executive summary using Groq (Llama-3.3-70b).
         """
-        from ai_engine.model import ai_analyst
+        from ai_engine.ai_decision import GroqBrain
+        brain = GroqBrain()
+        
+        # Determine current loop: is this for the overall market or a specific ticker?
+        # If we have many tickers, we might want a market-level synthesis.
         
         # 1. Prepare Context for AI
         # Flatten news for prompt
@@ -34,33 +39,39 @@ class MarketSynthesizer:
         Sentiment Score: {news_data.get('overall_sentiment', 0)}
         """
         
-        # 2. Ask AI
-        print("🧠 Asking Gemini for Hourly Synthesis...")
-        ai_response = ai_analyst.generate_hourly_briefing(
-            news_text="\n".join(all_headlines), 
-            market_stats=market_stats
-        )
+        # 2. Ask AI (Market Level Context)
+        print("🧠 Asking Groq (Llama-3.3-70b) for Hourly Synthesis...")
+        
+        # We'll use a slightly different approach for the general synthesis
+        # since GroqBrain is tuned for per-ticker decisions by default.
+        # But we can override the data to be a market summary.
+        market_summary_data = {
+            "Symbol": "KSE-100",
+            "News_Summary": news_data.get('sentiment_label', 'Neutral'),
+            "Macro": market_stats,
+            "National_Headlines": all_headlines[:10]
+        }
+        
+        # Use await instead of run_until_complete
+        ai_response = await brain.get_decision(market_summary_data)
         
         # 3. Format Output
-        # AI returns: strategy, best_news, bad_news, actions (list)
+        # Groq returns: decision, confidence, smi_commentary, psx_risk_flag
         
         narrative = f"""
         <ul style="margin: 0; padding-left: 20px;">
-            <li style="margin-bottom: 8px;"><strong>🏆 Best News:</strong> {ai_response.get('best_news', 'N/A')}</li>
-            <li style="margin-bottom: 8px;"><strong>⚠️ Bad News:</strong> {ai_response.get('bad_news', 'N/A')}</li>
-        </ul>
-        <div style="margin-top: 10px; font-weight: bold; color: #c9d1d9;">Specific Actions:</div>
-        <ul style="margin: 0; padding-left: 20px;">
-            {''.join([f'<li>{a}</li>' for a in ai_response.get('actions', [])])}
+            <li style="margin-bottom: 8px;"><strong>⚠️ SMI Commentary:</strong> {ai_response.get('smi_commentary', 'N/A')}</li>
+            <li style="margin-bottom: 8px;"><strong>🛡️ Risk Flag:</strong> {ai_response.get('psx_risk_flag', 'Safe')}</li>
+            <li style="margin-bottom: 8px;"><strong>💎 Confidence:</strong> {ai_response.get('confidence', 0)}%</li>
         </ul>
         """
         
         summary = {
-            'headline': f"AI STRATEGY: {ai_response.get('strategy', 'Neutral')}",
+            'headline': f"SMI-v1 COGNITIVE SIGNAL: {ai_response.get('decision', 'HOLD')}",
             'narrative': narrative,
-            'strategy': ai_response.get('strategy', 'Neutral'),
-            'score': 8.5, # Placeholder or ask AI for score too
-            'driver': "AI Consensus"
+            'strategy': ai_response.get('decision', 'HOLD'),
+            'score': ai_response.get('confidence', 50),
+            'driver': "Groq Llama-3.3-70b"
         }
         
         return summary
@@ -77,9 +88,9 @@ class MarketSynthesizer:
         return f"""
         <div style="background-color: #0d1117; border: 1px solid {color}; border-radius: 6px; padding: 20px; margin: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="color: {color}; margin: 0; font-size: 20px;">🤖 AI MARKET DECISION</h2>
+                <h2 style="color: {color}; margin: 0; font-size: 20px;">🦅 SMI-v1 COGNITIVE SIGNAL</h2>
                 <div style="display: flex; align-items: center;">
-                    <span style="font-size: 10px; color: #8b949e; margin-right: 8px;">POWERED BY GEMINI 1.5</span>
+                    <span style="font-size: 10px; color: #8b949e; margin-right: 8px;">POWERED BY GROQ (Llama-3.3-70b)</span>
                     <span style="background: {color}20; color: {color}; padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid {color};">
                         {summary_data['strategy']}
                     </span>

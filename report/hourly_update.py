@@ -66,7 +66,8 @@ def generate_hourly_update_html(
     top_movers: Optional[Dict] = None,
     alerts: List[str] = None,
     active_stocks: List[Dict] = None,
-    synthesis_data: Dict = None
+    synthesis_data: Dict = None,
+    cognitive_decisions: List[Dict] = None
 ) -> str:
     """Generate HTML for hourly surveillance email"""
     
@@ -331,6 +332,9 @@ async def async_run_hourly_update() -> Dict:
     print(f"⏰ ASYNC FULL MARKET SURVEILLANCE - {datetime.now().strftime('%I:%M %p')}")
     print("=" * 60)
     
+    from ai_engine.ai_decision import GroqBrain
+    groq_brain = GroqBrain()
+    
     # 1. Parallel Task Execution
     print("\n[1/5] Launching Parallel Tasks (News, Prices, Macro)...")
     
@@ -393,6 +397,42 @@ async def async_run_hourly_update() -> Dict:
     if smart_signals:
         alerts = smart_signals + alerts
 
+    # 3.5. SMI-v1 Cognitive Ticker Analysis (Groq)
+    print("\n[3.5/5] Deep Ticker Analysis via Groq (Llama-3.3-70b)...")
+    cognitive_decisions = []
+    # Analyze Top 5 Volume Spikes
+    top_candidates = sorted(volume_spikes, key=lambda x: x['volume'], reverse=True)[:5]
+    
+    async def analyze_ticker(s):
+        sym = s['symbol']
+        # Gather context
+        ticker_news = news_map.get(sym, [])
+        news_summary = "Neutral"
+        if ticker_news:
+            avg_sent = sum(n['sentiment'] for n in ticker_news) / len(ticker_news)
+            news_summary = "Positive" if avg_sent > 0.1 else "Negative" if avg_sent < -0.1 else "Neutral"
+            
+        context = {
+            "Symbol": sym,
+            "Close_Price": s['price'],
+            "Volume": s['volume'],
+            "Volume_Ratio": round(s['volume'] / (sum(v['volume'] for v in volume_spikes)/len(volume_spikes) if volume_spikes else 1), 2),
+            "Change_Percent": s['change'],
+            "News_Sentiment": news_summary,
+            "RSI_14": 50, # Placeholder if not available in hourly
+            "MACD_Signal": "Neutral" # Placeholder
+        }
+        return await groq_brain.get_decision(context), sym
+
+    if top_candidates:
+        decision_results = await asyncio.gather(*[analyze_ticker(c) for c in top_candidates])
+        for dec, sym in decision_results:
+            if dec['decision'] != 'HOLD' or dec['confidence'] > 70:
+                signal_emoji = "🟢" if dec['decision'] == 'BUY' else "🔴" if dec['decision'] == 'SELL' else "🟡"
+                alert_text = f"{signal_emoji} **AI {dec['decision']} ({sym})**: {dec['smi_commentary']} (Conf: {dec['confidence']}%)"
+                alerts = [alert_text] + alerts
+                cognitive_decisions.append({**dec, 'symbol': sym})
+
     # 4. Generate Reports
     print("\n[4/5] Generating Intelligence Reports...")
     csv_path = generate_hourly_news_csv(news_data)
@@ -400,7 +440,7 @@ async def async_run_hourly_update() -> Dict:
     gainers = sorted([m for m in price_movers if m['change'] > 0], key=lambda x: x['change'], reverse=True)
     losers = sorted([m for m in price_movers if m['change'] < 0], key=lambda x: x['change'])
     
-    synthesis = market_brain.generate_synthesis(
+    synthesis = await market_brain.generate_synthesis(
         news_data=news_data,
         market_status={},
         macro_data=macro_data,
@@ -412,9 +452,10 @@ async def async_run_hourly_update() -> Dict:
     html = generate_hourly_update_html(
         news_data, market_moving, 
         top_movers={'gainers': gainers[:5], 'losers': losers[:5]},
-        alerts=alerts[:10],
+        alerts=alerts[:12],  # Slightly more for AI signals
         active_stocks=volume_spikes[:5],
-        synthesis_data=synthesis
+        synthesis_data=synthesis,
+        cognitive_decisions=cognitive_decisions
     )
     
     import pytz

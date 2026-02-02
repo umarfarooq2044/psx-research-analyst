@@ -162,6 +162,12 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 TELEGRAM_ENABLED = False  # Email-only mode
 
 # ============================================================================
+# GROQ AI ENGINE CONFIGURATION (SMI-v1)
+# ============================================================================
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# ============================================================================
 # SCRAPING SETTINGS
 # ============================================================================
 REQUEST_DELAY = 0.5
