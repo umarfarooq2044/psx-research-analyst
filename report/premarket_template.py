@@ -14,31 +14,31 @@ def get_premarket_css() -> str:
     """CSS styles for pre-market email"""
     return """
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1419; color: #e7e9ea; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #1d9bf0, #7856ff); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
-        .header h1 { margin: 0; color: white; font-size: 24px; }
-        .header .subtitle { color: rgba(255,255,255,0.9); font-size: 14px; margin-top: 8px; }
-        .section { background: #1e2732; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #38444d; }
-        .section-title { color: #1d9bf0; font-size: 16px; font-weight: 600; margin-bottom: 15px; border-bottom: 1px solid #38444d; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .metric { background: #15202b; padding: 12px; border-radius: 8px; }
-        .metric-label { color: #8899a6; font-size: 12px; }
-        .metric-value { color: #e7e9ea; font-size: 18px; font-weight: 600; margin-top: 4px; }
-        .positive { color: #00ba7c; }
-        .negative { color: #f91880; }
-        .neutral { color: #8899a6; }
-        .stock-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #38444d; }
-        .stock-symbol { font-weight: 600; color: #1d9bf0; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .badge-buy { background: rgba(0,186,124,0.2); color: #00ba7c; }
-        .badge-sell { background: rgba(249,24,128,0.2); color: #f91880; }
-        .badge-hold { background: rgba(136,153,166,0.2); color: #8899a6; }
-        .alert-box { background: rgba(249,24,128,0.1); border: 1px solid #f91880; border-radius: 8px; padding: 12px; margin-top: 15px; }
-        .strategy-box { background: rgba(0,186,124,0.1); border: 1px solid #00ba7c; border-radius: 8px; padding: 15px; }
-        ul { padding-left: 20px; margin: 10px 0; }
-        li { margin: 8px 0; color: #e7e9ea; }
-        .footer { text-align: center; color: #8899a6; font-size: 12px; margin-top: 20px; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #010409; color: #c9d1d9; margin: 0; padding: 20px; }
+        .container { max-width: 850px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 35px; border-radius: 16px; margin-bottom: 25px; text-align: center; border: 1px solid rgba(212,175,55,0.3); }
+        .header h1 { margin: 0; color: #010409; font-size: 30px; letter-spacing: 1.5px; font-weight: 800; }
+        .header .subtitle { color: #1a1a1a; font-size: 15px; margin-top: 10px; font-weight: 600; }
+        .section { background: #0d1117; border-radius: 16px; padding: 25px; margin-bottom: 20px; border: 1px solid #30363d; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .section-title { color: #d4af37; font-size: 18px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid #30363d; padding-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .metric { background: #161b22; padding: 15px; border-radius: 12px; border: 1px solid #21262d; }
+        .metric-label { color: #8b949e; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { color: #ffffff; font-size: 20px; font-weight: 700; margin-top: 6px; }
+        .positive { color: #3fb950; }
+        .negative { color: #f85149; }
+        .neutral { color: #8b949e; }
+        .stock-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #21262d; }
+        .stock-symbol { font-weight: 700; color: #58a6ff; font-size: 17px; }
+        .badge { padding: 6px 14px; border-radius: 30px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-buy { background: rgba(63,185,80,0.15); color: #3fb950; border: 1px solid rgba(63,185,80,0.3); }
+        .badge-sell { background: rgba(248,81,73,0.15); color: #f85149; border: 1px solid rgba(248,81,73,0.3); }
+        .badge-hold { background: rgba(139,148,158,0.15); color: #8b949e; border: 1px solid rgba(139,148,158,0.3); }
+        .alert-box { background: rgba(248,81,73,0.05); border: 1px solid #f85149; border-radius: 12px; padding: 15px; margin-top: 20px; }
+        .strategy-box { background: rgba(212,175,55,0.05); border: 1px solid #d4af37; border-radius: 12px; padding: 20px; }
+        ul { padding-left: 20px; margin: 12px 0; }
+        li { margin: 10px 0; color: #c9d1d9; font-size: 14px; }
+        .footer { text-align: center; color: #8b949e; font-size: 13px; margin-top: 30px; padding: 25px; border-top: 1px solid #30363d; }
     </style>
     """
 
@@ -82,16 +82,19 @@ def generate_premarket_report(
                 <div class="subtitle">{now.strftime('%A, %B %d, %Y')} | Generated at {now.strftime('%I:%M %p')} PKT</div>
             </div>
 
-            <!-- SMI-v1 Cognitive Briefing -->
+            <!-- SMI-v2 Alpha Engine Briefing -->
             {f'''
-            <div style="padding: 20px; background: #1e2732; border-left: 4px solid #7856ff; margin: 15px 0; border: 1px solid #38444d; border-radius: 8px;">
-                <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
-                <div style="color: #e7e9ea; font-size: 16px; font-weight: 600; line-height: 1.4;">
+            <div style="padding: 25px; background: #0d1117; border-left: 5px solid #d4af37; margin: 15px 0; border: 1px solid #30363d; border-radius: 12px;">
+                <div style="color: #d4af37; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">👑 SMI-v2 ALPHA ENGINE BRIEFING</div>
+                <div style="color: #ffffff; font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 10px;">
                     {trading_strategy.get('synthesis', {}).get('strategy', 'Neutral')} Outlook: {trading_strategy.get('synthesis', {}).get('commentary', 'Awaiting Market Open')}
                 </div>
-                <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
-                    <div style="color: #00ba7c;">🛡️ Risk: {trading_strategy.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
-                    <div style="color: #7856ff;">💎 Confidence: {trading_strategy.get('synthesis', {}).get('score', 50)}%</div>
+                <div style="color: #8b949e; font-size: 13px; font-style: italic;">
+                    Expert Chorus Consensus confirms {trading_strategy.get('bias', 'neutral')} opening bias.
+                </div>
+                <div style="display: flex; gap: 20px; margin-top: 15px; font-size: 13px; font-weight: 600;">
+                    <div style="color: #f85149;">⚠️ RISK: {trading_strategy.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
+                    <div style="color: #d4af37;">💎 CONFIDENCE: {trading_strategy.get('synthesis', {}).get('score', 50)}%</div>
                 </div>
             </div>
             ''' if trading_strategy.get('synthesis') else ''}
@@ -198,36 +201,37 @@ def generate_premarket_report(
                 ''' for event in corporate_events[:5]]) if corporate_events else '<p style="color: #8899a6;">No major corporate events scheduled today.</p>'}
             </div>
             
-            <!-- SMI-v1 Recursive Intelligence -->
-            <div class="section">
-                <div class="section-title">🦅 SMI-v1 RECURSIVE SIGNALS (T+7 PROBABILITY TUNNELS)</div>
+            <!-- SMI-v2 Alpha Engine (Chorus Consensus) -->
+            <div class="section" style="border-top: 4px solid #d4af37;">
+                <div class="section-title" style="color: #d4af37;">👑 ALPHA ENGINE (CHORUS CONSENSUS)</div>
                 {''.join([f'''
-                <div class="stock-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; width: 100%;">
-                        <span class="stock-symbol" style="font-size: 18px;">{stock['symbol']}</span>
-                        <span class="badge badge-{stock.get('action', 'hold').lower()}">{stock.get('conviction', '50%')} CONVICTION</span>
+                <div class="stock-row" style="flex-direction: column; align-items: flex-start; gap: 10px; background: #161b22; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #21262d;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                        <span class="stock-symbol" style="font-size: 20px;">{stock['symbol']}</span>
+                        <span class="badge badge-{stock.get('action', 'hold').lower()}">{stock.get('action', 'HOLD')}</span>
                     </div>
-                    <div style="display: flex; gap: 10px; width: 100%;">
-                        <div style="flex: 1; background: #15202b; padding: 10px; border-radius: 6px; border-left: 3px solid #1d9bf0;">
-                            <div style="font-size: 10px; color: #8899a6; text-transform: uppercase;">Signal</div>
-                            <div style="font-size: 14px; font-weight: 600; color: {'#00ba7c' if stock.get('action') == 'BUY' else '#f91880' if stock.get('action') == 'SELL' else '#e7e9ea'}">
-                                {stock.get('action', 'WAIT')}
-                            </div>
+                    
+                    <div style="color: #e7e9ea; font-size: 14px; font-weight: 500; line-height: 1.5;">
+                        "{stock.get('reason', 'Consensus-driven reasoning')}"
+                    </div>
+
+                    <div style="display: flex; gap: 10px; width: 100%; margin-top: 5px;">
+                        <div style="flex: 1; background: #0d1117; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
+                            <div style="font-size: 10px; color: #8b949e; text-transform: uppercase;">Confidence</div>
+                            <div style="font-size: 15px; font-weight: 700; color: #d4af37;">{stock.get('conviction', '50%')}</div>
                         </div>
-                        <div style="flex: 2; background: #15202b; padding: 10px; border-radius: 6px; border-left: 3px solid #7856ff;">
-                            <div style="font-size: 10px; color: #8899a6; text-transform: uppercase;">Probability Tunnel (T+7)</div>
-                            <div style="font-size: 13px; font-weight: 600;">{stock.get('future_path', 'Stochastic Range: N/A')}</div>
+                        <div style="flex: 2; background: #0d1117; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
+                            <div style="font-size: 10px; color: #8b949e; text-transform: uppercase;">Strategic Path</div>
+                            <div style="font-size: 13px; font-weight: 600;">{stock.get('future_path', 'Monitoring catalysts...')}</div>
                         </div>
                     </div>
-                    <div style="width: 100%; background: rgba(249,24,128,0.05); padding: 8px; border-radius: 4px; border: 1px dashed rgba(249,24,128,0.3); font-size: 11px;">
-                        <span style="color: #f91880; font-weight: 700;">BLACK SWAN:</span> {stock.get('black_swan', 'Unknown catalyst breakpoint')}
+
+                    <div style="width: 100%; background: rgba(248,81,73,0.1); padding: 10px; border-radius: 8px; font-size: 12px; display: flex; justify-content: space-between;">
+                        <span><strong style="color: #f85149;">RISK:</strong> {stock.get('black_swan', 'Standard Volatility')}</span>
+                        <span style="color: #d4af37; font-weight: 700;">ATR STOP: Rs. {stock.get('atr_stop', 'N/A')}</span>
                     </div>
-                    <div style="color: #8899a6; font-size: 12px; margin-top: 4px;">
-                        <strong>Logic:</strong> {stock.get('reason', 'Consensus-driven reasoning')}
-                    </div>
-                    <div style="height: 10px; width: 100%; border-bottom: 1px solid #38444d;"></div>
                 </div>
-                ''' for stock in stocks_to_watch[:8]])}
+                ''' for stock in stocks_to_watch[:10]])}
             </div>
             
             <!-- Risk Warnings -->

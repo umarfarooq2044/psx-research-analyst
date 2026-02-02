@@ -20,42 +20,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import requests
 from config import FOREX_API_URL, OIL_API_URL
 
-async def fetch_global_macro_data(session: Optional[aiohttp.ClientSession] = None) -> Dict:
-    """Fetch live Global Macro Data (USD/PKR, Oil) asynchronously"""
-    data = {'usd_pkr': 0, 'oil': 0, 'usd_change': 0, 'oil_change': 0}
-    
-    # helper for async fetch
-    async def get_url(s, url):
-        try:
-            async with s.get(url, timeout=10) as resp:
-                if resp.status == 200:
-                    return await resp.json()
-        except:
-            return None
-            
-    is_internal_session = False
-    if session is None:
-        session = aiohttp.ClientSession()
-        is_internal_session = True
-        
-    try:
-        # 1. USD/PKR (Free API)
-        resp_json = await get_url(session, FOREX_API_URL)
-        if resp_json:
-            rates = resp_json.get('rates', {})
-            usd_pkr = rates.get('PKR', 0)
-            data['usd_pkr'] = round(usd_pkr, 2)
-            
-        # 2. Oil Check
-        # Omit specific oil API complexity for now, fallback logic
-            
-    except Exception as e:
-        print(f"Macro async fetch warning: {e}")
-    finally:
-        if is_internal_session:
-            await session.close()
-            
-    return data
+from analysis.macro_observer import macro_observer
+from analysis.leverage_radar import leverage_radar
 
 from news.comprehensive_news import get_all_news, get_market_moving_news
 
@@ -82,18 +48,21 @@ def generate_hourly_update_html(
     hour = current_time.strftime("%I:%M %p")
     date = current_time.strftime("%B %d, %Y")
     
-    # Build SMI-v1 Cognitive Briefing
+    # Build SMI-v2 Alpha Engine Briefing
     smi_briefing_html = ""
     if synthesis_data and synthesis_data.get('strategy'):
         smi_briefing_html = f"""
-        <div style="padding: 20px; background: #0d1117; border-left: 4px solid #7856ff; margin: 15px 0;">
-            <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
-            <div style="color: #e7e9ea; font-size: 15px; font-weight: 600; line-height: 1.4;">
+        <div style="padding: 25px; background: #010409; border-left: 4px solid #d4af37; margin: 15px 0; border: 1px solid #30363d; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+            <div style="color: #d4af37; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">👑 SMI-v2 ALPHA ENGINE BRIEFING</div>
+            <div style="color: #ffffff; font-size: 17px; font-weight: 700; line-height: 1.4; margin-bottom: 12px;">
                 {synthesis_data.get('strategy')}
             </div>
-            <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
-                <div style="color: #00d26a;">↑ {synthesis_data.get('best_news', 'Bullish Catalysts Stable')}</div>
-                <div style="color: #f85149;">↓ {synthesis_data.get('bad_news', 'Risk Factors Monitored')}</div>
+            <div style="color: #c9d1d9; font-size: 14px; line-height: 1.5; font-style: italic; margin-bottom: 15px;">
+                "{synthesis_data.get('narrative', 'Scanning market volatility...')}"
+            </div>
+            <div style="display: flex; gap: 20px; font-size: 12px; font-weight: 600;">
+                <div style="color: #3fb950; display: flex; align-items: center; gap: 5px;">🛡️ RISK: {synthesis_data.get('risk_flag', 'Safe')}</div>
+                <div style="color: #d4af37; display: flex; align-items: center; gap: 5px;">💎 CONFIDENCE: {synthesis_data.get('score', 50)}%</div>
             </div>
         </div>
         """
@@ -187,11 +156,11 @@ def generate_hourly_update_html(
         <div style="max-width: 700px; margin: 0 auto; background: #161b22; border-radius: 12px; overflow: hidden;">
             
             <!-- Header -->
-            <div style="background: linear-gradient(135deg, #238636 0%, #1f6feb 100%); padding: 25px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 24px;">
-                    ⏰ PSX HOURLY UPDATE
+            <div style="background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); padding: 30px; text-align: center; border-bottom: 1px solid #30363d;">
+                <h1 style="color: #010409; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 1px;">
+                    ⚡ ALPHA ENGINE HOURLY
                 </h1>
-                <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
+                <p style="color: #1a1a1a; margin: 10px 0 0 0; font-size: 15px; font-weight: 600;">
                     {date} • {hour}
                 </p>
             </div>
@@ -342,11 +311,12 @@ async def async_run_hourly_update() -> Dict:
     price_scraper = AsyncPriceScraper()
     
     # Stage 1: Parallel Fetching
-    news_data, price_results, macro_data = await asyncio.gather(
+    news_data, price_results, macro_packet = await asyncio.gather(
         news_scraper.async_collect_all_news(),
         price_scraper.fetch_all_prices_async(priority_symbols),
-        fetch_global_macro_data()
+        asyncio.to_thread(macro_observer.get_full_macro_packet)
     )
+    macro_data = macro_packet
     
     # Stage 2: Deep Analysis (Sequential but already optimized for its own async fetching)
     print("\n[1.5/5] Deep Analysis of Market-Moving News...")
@@ -397,8 +367,8 @@ async def async_run_hourly_update() -> Dict:
     if smart_signals:
         alerts = smart_signals + alerts
 
-    # 3.5. SMI-v1 Cognitive Ticker Analysis (Groq)
-    print("\n[3.5/5] Deep Ticker Analysis via Groq (Llama-3.3-70b)...")
+    # 3.5. SMI-v2 Alpha Engine (Chorus of Agents)
+    print("\n[3.5/5] Deep Ticker Analysis via SMI-v2 Chorus of Agents...")
     cognitive_decisions = []
     # Analyze Top 5 Volume Spikes
     top_candidates = sorted(volume_spikes, key=lambda x: x['volume'], reverse=True)[:5]
@@ -412,15 +382,28 @@ async def async_run_hourly_update() -> Dict:
             avg_sent = sum(n['sentiment'] for n in ticker_news) / len(ticker_news)
             news_summary = "Positive" if avg_sent > 0.1 else "Negative" if avg_sent < -0.1 else "Neutral"
             
+        # Gather SMI-v2 Context
+        tech = db.get_technical_indicators(sym) or {}
+        lev = db.get_latest_leverage(sym) or {}
+        news_headlines = db.get_recent_news_for_ticker(sym, days=7)
+        
         context = {
             "Symbol": sym,
-            "Close_Price": s['price'],
-            "Volume": s['volume'],
-            "Volume_Ratio": round(s['volume'] / (sum(v['volume'] for v in volume_spikes)/len(volume_spikes) if volume_spikes else 1), 2),
-            "Change_Percent": s['change'],
-            "News_Sentiment": news_summary,
-            "RSI_14": 50, # Placeholder if not available in hourly
-            "MACD_Signal": "Neutral" # Placeholder
+            "Price_Data": {
+                "Close": s['price'],
+                "Volume": s['volume']
+            },
+            "Technical_Indicators": {
+                "RSI": tech.get('rsi'),
+                "OBV": tech.get('obv'),
+                "AD": tech.get('ad'),
+                "Volume_Accel": tech.get('volume_accel')
+            },
+            "Settlement_Data": {
+                "MTS_Volume": lev.get('mts_volume'),
+                "Risk_Level": lev.get('risk_level')
+            },
+            "Narrative_Context": news_headlines[:3]
         }
         return await groq_brain.get_decision(context), sym
 

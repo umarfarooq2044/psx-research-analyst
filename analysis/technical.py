@@ -179,51 +179,103 @@ def calculate_bollinger_bands(prices: List[float], period: int = BOLLINGER_PERIO
 
 
 # ============================================================================
-# VOLUME ANALYSIS
+# VOLUME QUALITY (OBV & A/D)
 # ============================================================================
 
-def detect_volume_spike(current_volume: int, avg_volume: float,
-                        multiplier: float = VOLUME_SPIKE_MULTIPLIER) -> bool:
-    """Detect if current volume is a spike compared to average"""
-    if not avg_volume or avg_volume == 0:
-        return False
-    return current_volume > (avg_volume * multiplier)
-
-
-def calculate_volume_ratio(current_volume: int, avg_volume: float) -> float:
-    """Calculate ratio of current volume to average volume"""
-    if not avg_volume or avg_volume == 0:
+def calculate_obv(prices: List[float], volumes: List[int]) -> float:
+    """Calculate On-Balance Volume (OBV)"""
+    if not prices or not volumes or len(prices) != len(volumes):
         return 0
-    return round(current_volume / avg_volume, 2)
+    
+    # Chronological order
+    p = prices[::-1]
+    v = volumes[::-1]
+    
+    obv = [0]
+    for i in range(1, len(p)):
+        if p[i] > p[i-1]:
+            obv.append(obv[-1] + v[i])
+        elif p[i] < p[i-1]:
+            obv.append(obv[-1] - v[i])
+        else:
+            obv.append(obv[-1])
+    
+    return obv[-1]
 
+def calculate_ad_indicator(prices_high: List[float], prices_low: List[float], 
+                          prices_close: List[float], volumes: List[int]) -> float:
+    """Calculate Accumulation/Distribution (A/D) Indicator"""
+    if len(prices_close) < 2: return 0
+    
+    # Chronological
+    h = prices_high[::-1]
+    l = prices_low[::-1]
+    c = prices_close[::-1]
+    v = volumes[::-1]
+    
+    ad = 0
+    for i in range(len(c)):
+        money_flow_multiplier = ((c[i] - l[i]) - (h[i] - c[i])) / (h[i] - l[i]) if h[i] != l[i] else 0
+        ad += money_flow_multiplier * v[i]
+        
+    return ad
+
+# ============================================================================
+# VOLATILITY (ATR)
+# ============================================================================
+
+def calculate_atr(prices_high: List[float], prices_low: List[float], 
+                  prices_close: List[float], period: int = 14) -> float:
+    """Calculate Average True Range (ATR)"""
+    if len(prices_close) < period + 1: return 0
+    
+    h = prices_high[::-1]
+    l = prices_low[::-1]
+    c = prices_close[::-1]
+    
+    true_ranges = []
+    for i in range(1, len(c)):
+        tr = max(h[i] - l[i], abs(h[i] - c[i-1]), abs(l[i] - c[i-1]))
+        true_ranges.append(tr)
+        
+    series = pd.Series(true_ranges)
+    atr = series.rolling(window=period).mean().iloc[-1]
+    return round(float(atr), 2) if not pd.isna(atr) else 0
 
 def analyze_volume(volumes: List[int], current_volume: int) -> Dict:
-    """Comprehensive volume analysis"""
-    if not volumes:
-        return {'avg_volume': 0, 'volume_ratio': 0, 'volume_trend': 'unknown', 'spike': False}
+    """Analyze volume trends and detect spikes"""
+    if not volumes or len(volumes) < VOLUME_AVERAGE_DAYS:
+        return {
+            'avg_volume': 0, 'volume_ratio': 1, 'volume_trend': 'stable', 
+            'spike': False, 'volume_acceleration': 0
+        }
     
-    avg_volume = sum(volumes[:VOLUME_AVERAGE_DAYS]) / min(len(volumes), VOLUME_AVERAGE_DAYS)
-    volume_ratio = calculate_volume_ratio(current_volume, avg_volume)
-    spike = detect_volume_spike(current_volume, avg_volume)
+    avg_volume = sum(volumes[:VOLUME_AVERAGE_DAYS]) / VOLUME_AVERAGE_DAYS
+    volume_ratio = round(current_volume / avg_volume, 2) if avg_volume > 0 else 0
+    spike = current_volume > (avg_volume * VOLUME_SPIKE_MULTIPLIER) if avg_volume > 0 else False
     
-    # Volume trend
+    # Determine volume trend
     if len(volumes) >= 5:
         recent_avg = sum(volumes[:5]) / 5
-        older_avg = sum(volumes[5:10]) / min(len(volumes[5:10]), 5) if len(volumes) > 5 else recent_avg
-        if recent_avg > older_avg * 1.2:
-            trend = 'increasing'
-        elif recent_avg < older_avg * 0.8:
-            trend = 'decreasing'
-        else:
-            trend = 'stable'
+        prev_avg = sum(volumes[5:10]) / 5 if len(volumes) >= 10 else recent_avg
+        if recent_avg > prev_avg * 1.2: trend = 'increasing'
+        elif recent_avg < prev_avg * 0.8: trend = 'decreasing'
+        else: trend = 'stable'
     else:
-        trend = 'unknown'
+        trend = 'stable'
+        
+    # Volume Acceleration (SMI-v2)
+    vol_accel = 0
+    if len(volumes) >= 10:
+        v_series = pd.Series(volumes[:10][::-1])
+        vol_accel = v_series.pct_change().mean()
     
     return {
-        'avg_volume': avg_volume,
+        'avg_volume': round(avg_volume, 0),
         'volume_ratio': volume_ratio,
         'volume_trend': trend,
-        'spike': spike
+        'spike': spike,
+        'volume_acceleration': round(float(vol_accel), 4) if not pd.isna(vol_accel) else 0
     }
 
 
@@ -446,7 +498,20 @@ def analyze_ticker_technical(symbol: str) -> Optional[Dict]:
         'bollinger_lower': bollinger.get('lower'),
         'support_level': low_52w,
         'resistance_level': high_52w,
-        'trend': trend.get('trend')
+        'trend': trend.get('trend'),
+        'obv': calculate_obv(closing_prices, volumes),
+        'accumulation_distribution': calculate_ad_indicator(
+            [h['high_price'] for h in history if h.get('high_price')],
+            [h['low_price'] for h in history if h.get('low_price')],
+            closing_prices, 
+            volumes
+        ),
+        'atr': calculate_atr(
+            [h['high_price'] for h in history if h.get('high_price')],
+            [h['low_price'] for h in history if h.get('low_price')],
+            closing_prices
+        ),
+        'volume_acceleration': volume_analysis.get('volume_acceleration', 0)
     })
     
     return {

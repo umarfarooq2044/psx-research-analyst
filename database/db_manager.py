@@ -14,7 +14,7 @@ from database.models import (
     get_db_session, init_database,
     Ticker, PriceHistory, Announcement, AnalysisResult, GlobalMarket,
     KSE100Index, SectorIndex, NewsHeadline, StockScore, TechnicalIndicator,
-    ReportHistory, AlertHistory, Fundamentals, AIDecision
+    ReportHistory, AlertHistory, Fundamentals, AIDecision, LeverageData
 )
 
 class DBManager:
@@ -495,9 +495,54 @@ class DBManager:
                     bollinger_lower=indicators.get('bollinger_lower'),
                     support_level=indicators.get('support_level'),
                     resistance_level=indicators.get('resistance_level'),
-                    trend=indicators.get('trend')
+                    trend=indicators.get('trend'),
+                    obv=indicators.get('obv'),
+                    accumulation_distribution=indicators.get('accumulation_distribution'),
+                    atr=indicators.get('atr'),
+                    volume_acceleration=indicators.get('volume_acceleration')
                 )
                 session.add(tech)
+
+    def save_leverage_data(self, symbol: str, data: Dict):
+        """Save MTS and Futures Open Interest data"""
+        with get_db_session() as session:
+            self._ensure_ticker_exists(session, symbol)
+            today = datetime.now().date()
+            leverage = session.query(LeverageData).filter_by(symbol=symbol, date=today).first()
+            
+            if leverage:
+                leverage.mts_volume = data.get('mts_volume')
+                leverage.mts_amount = data.get('mts_amount')
+                leverage.futures_oi = data.get('futures_oi')
+                leverage.futures_oi_change = data.get('futures_oi_change')
+                leverage.leverage_ratio = data.get('leverage_ratio')
+                leverage.risk_level = data.get('risk_level')
+            else:
+                leverage = LeverageData(
+                    symbol=symbol, date=today,
+                    mts_volume=data.get('mts_volume'),
+                    mts_amount=data.get('mts_amount'),
+                    futures_oi=data.get('futures_oi'),
+                    futures_oi_change=data.get('futures_oi_change'),
+                    leverage_ratio=data.get('leverage_ratio'),
+                    risk_level=data.get('risk_level')
+                )
+                session.add(leverage)
+
+    def get_latest_leverage(self, symbol: str) -> Optional[Dict]:
+        """Get latest leverage data for a ticker"""
+        with get_db_session() as session:
+            leverage = session.query(LeverageData).filter_by(symbol=symbol)\
+                .order_by(desc(LeverageData.date)).first()
+            
+            if leverage:
+                return {
+                    'mts_volume': leverage.mts_volume,
+                    'futures_oi': leverage.futures_oi,
+                    'leverage_ratio': leverage.leverage_ratio,
+                    'risk_level': leverage.risk_level
+                }
+            return None
 
     def get_technical_indicators(self, symbol: str) -> Optional[Dict]:
         """Get latest technical indicators"""
@@ -513,7 +558,11 @@ class DBManager:
                     'macd': tech.macd,
                     'macd_signal': tech.macd_signal,
                     'support': tech.support_level,
-                    'resistance': tech.resistance_level
+                    'resistance': tech.resistance_level,
+                    'obv': tech.obv,
+                    'ad': tech.accumulation_distribution,
+                    'atr': tech.atr,
+                    'volume_accel': tech.volume_acceleration
                 }
             return None
 
@@ -741,6 +790,18 @@ class DBManager:
             ann = session.query(Announcement).get(announcement_id)
             if ann:
                 ann.sentiment_score = sentiment
+
+    def get_recent_news_for_ticker(self, symbol: str, days: int = 7) -> List[str]:
+        """Get the last 7 days of news headlines for narrative clustering"""
+        with get_db_session() as session:
+            since = datetime.now() - timedelta(days=days)
+            # Find news where the symbol is mentioned in related_symbols
+            headlines = session.query(NewsHeadline).filter(
+                NewsHeadline.date >= since,
+                NewsHeadline.related_symbols.contains(symbol)
+            ).order_by(desc(NewsHeadline.date)).all()
+            
+            return [h.headline for h in headlines]
 
 # Singleton instance
 db = DBManager()

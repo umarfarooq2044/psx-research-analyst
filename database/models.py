@@ -214,6 +214,10 @@ class TechnicalIndicator(Base):
     support_level = Column(Float)
     resistance_level = Column(Float)
     trend = Column(String)
+    obv = Column(Float) # On-Balance Volume
+    accumulation_distribution = Column(Float) # A/D Indicator
+    atr = Column(Float) # Average True Range
+    volume_acceleration = Column(Float) # Change in volume momentum
     created_at = Column(DateTime, default=datetime.utcnow)
     
     __table_args__ = (UniqueConstraint('symbol', 'date', name='uq_tech_symbol_date'),)
@@ -260,6 +264,22 @@ class AIDecision(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     __table_args__ = (UniqueConstraint('symbol', 'date', name='uq_ai_decision_date'),)
+
+class LeverageData(Base):
+    __tablename__ = 'leverage_data'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    symbol = Column(String, ForeignKey('tickers.symbol'), nullable=False)
+    date = Column(Date, nullable=False)
+    mts_volume = Column(Float) # Margin Trading System volume
+    mts_amount = Column(Float)
+    futures_oi = Column(Float) # Open Interest in contracts
+    futures_oi_change = Column(Float) # Change vs previous day
+    leverage_ratio = Column(Float) # MTS / Free Float (approx)
+    risk_level = Column(String) # low, medium, high
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (UniqueConstraint('symbol', 'date', name='uq_leverage_symbol_date'),)
 
 # ============================================================================
 # DATABASE CONNECTION MANAGEMENT

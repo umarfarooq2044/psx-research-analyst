@@ -4,6 +4,7 @@ Fetches financial ratios and data from PSX Company Pages (HTML)
 """
 import aiohttp
 import asyncio
+import nest_asyncio
 from bs4 import BeautifulSoup
 import re
 import sys
@@ -137,11 +138,15 @@ def run_fundamentals_scraper(limit=None):
     
     symbols = [t['symbol'] for t in tickers]
     
-    # Run async
-    if sys.platform == 'win32':
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-        
-    asyncio.run(scraper.scrape_all(symbols))
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            nest_asyncio.apply()
+            return loop.run_until_complete(scraper.scrape_all(symbols))
+        else:
+            return loop.run_until_complete(scraper.scrape_all(symbols))
+    except Exception:
+        return asyncio.run(scraper.scrape_all(symbols))
 
 if __name__ == "__main__":
     # Test on a few

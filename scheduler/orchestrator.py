@@ -6,6 +6,8 @@ import os
 import sys
 import schedule
 import time
+import nest_asyncio
+import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Callable
 
@@ -13,6 +15,30 @@ from typing import Dict, List, Optional, Callable
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+def _safe_run(coro):
+    """Helper to run async code from sync context safely"""
+    try:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+        if loop.is_running():
+            nest_asyncio.apply()
+            # ALWAYS wrap in a Task to provide a context for timeout managers
+            task = loop.create_task(coro)
+            return loop.run_until_complete(task)
+        else:
+            task = loop.create_task(coro)
+            return loop.run_until_complete(task)
+    except Exception as e:
+        print(f"  ⚠️ _safe_run fallback: {e}")
+        try:
+            return asyncio.run(coro)
+        except:
+            return None
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -40,6 +66,8 @@ from analysis.stock_scoring import calculate_stock_score, score_all_stocks
 from analysis.sentiment import analyze_all_announcements
 from analysis.market_synthesis import market_brain
 from global_data.sovereign_yields import sovereign_heartbeat
+from analysis.leverage_radar import leverage_radar
+from analysis.macro_observer import macro_observer
 
 # Import reports
 from report.premarket_template import generate_premarket_report
@@ -68,15 +96,19 @@ class ScheduleOrchestrator:
         print("="*60)
         
         try:
-            # 1. Fetch overnight global markets
-            print("\n[1/5] Fetching global markets...")
-            global_markets = save_global_markets_data()
-            us_markets = get_us_markets_summary()
-            asian_markets = get_asian_markets_summary()
+            # 1. Fetch overnight global markets (SMI-v2 resilient)
+            print("\n[1/5] Fetching global markets (MacroObserver)...")
+            macro_packet = macro_observer.get_full_macro_packet()
+            us_markets = get_us_markets_summary() # Still useful for deep US sentiment
             
             # Combine for report
             global_summary = {
-                **global_markets,
+                'sp500': us_markets.get('sp500', 0),
+                'sp500_change': us_markets.get('sp500_change', 0),
+                'nasdaq': us_markets.get('nasdaq', 0),
+                'nasdaq_change': us_markets.get('nasdaq_change', 0),
+                'wti_oil': macro_packet.get('oil_brent', 0),
+                'usd_pkr': macro_packet.get('usd_pkr', 0),
                 'sentiment': us_markets.get('sentiment', 'mixed'),
                 'impact': us_markets.get('impact', 'neutral')
             }
@@ -131,7 +163,8 @@ class ScheduleOrchestrator:
                     'conviction': d['conviction'],
                     'future_path': d['future_path'],
                     'black_swan': d['black_swan'],
-                    'reason': d['reasoning']
+                    'reason': d['reasoning'],
+                    'atr_stop': d.get('atr_stop', 'N/A')
                 })
             
             # Fallback if no AI decisions exist yet
@@ -163,13 +196,12 @@ class ScheduleOrchestrator:
                 'bearish' if us_markets.get('sentiment') == 'negative' else 'neutral'
             )
             
-            # AI synthesis for pre-market
-            import asyncio
+            # AI synthesis for pre-market (SMI-v2)
             news_data = get_all_news()
-            synthesis = asyncio.run(market_brain.generate_synthesis(
+            synthesis = _safe_run(market_brain.generate_synthesis(
                 news_data=news_data,
                 market_status=previous_day,
-                macro_data=forex or {},
+                macro_data=macro_packet,
                 top_movers={}
             ))
             
@@ -221,82 +253,10 @@ class ScheduleOrchestrator:
     
     def run_midday_analysis(self) -> Dict:
         """
-        Run mid-day market update
-        Quick pulse check during trading hours
+        Run mid-day market update (Delegated to Hourly Update SMI-v2)
         """
-        print("\n" + "="*60)
-        print("☀️ RUNNING MID-DAY ANALYSIS")
-        print("="*60)
-        
-        try:
-            # 1. Fetch current prices
-            print("\n[1/4] Fetching current prices...")
-            tickers = db.get_all_tickers()
-            
-            # Cloud Fallback: If DB is empty, discover tickers
-            if not tickers:
-                print("  ⚠️ No tickers found in DB. Discovering now...")
-                discover_and_save_tickers()
-                tickers = db.get_all_tickers()
-                
-            fetch_all_prices([t['symbol'] for t in tickers])  # Analyze ALL
-            
-            # 2. Get KSE-100 status
-            # 2. Get KSE-100 status
-            print("[2/4] Getting market status...")
-            _kse = get_kse100_summary()
-            kse100 = _kse if _kse else {
-                'close_value': 0, 'change_percent': 0, 'volume': 0, 
-                'advancing': 0, 'declining': 0, 'sentiment': 'Neutral'
-            }
-            
-            # 3. Quick sector scan
-            print("[3/4] Scanning sectors...")
-            sector_indices = db.get_sector_indices()
-            
-            # 4. Check for alerts
-            print("[4/4] Checking alert conditions...")
-            for ticker in tickers: # Analyze ALL
-                analysis = analyze_ticker_technical(ticker['symbol'])
-                if analysis:
-                    check_and_send_alerts({
-                        'symbol': ticker['symbol'],
-                        'price': analysis['current_price'],
-                        'change_percent': 0,  # Would need to calculate
-                        'volume': analysis['current_volume'],
-                        'volume_ratio': analysis['volume_analysis']['volume_ratio'],
-                        'support_resistance': analysis['support_resistance']
-                    })
-            
-            # Generate simple update email
-            subject = f"☀️ PSX Mid-Day Update - KSE-100: {kse100.get('close_value', 'N/A'):,.0f} ({kse100.get('change_percent', 0):.2f}%)"
-            
-            body = f"""
-            <h2>Mid-Day Market Pulse</h2>
-            <p><strong>KSE-100:</strong> {kse100.get('close_value', 'N/A'):,.0f} ({'+' if (kse100.get('change_percent', 0) or 0) > 0 else ''}{kse100.get('change_percent', 0):.2f}%)</p>
-            <p><strong>Market Sentiment:</strong> {kse100.get('sentiment', 'N/A')}</p>
-            <p><strong>Volume:</strong> {kse100.get('volume', 0):,} shares</p>
-            <p><strong>Breadth:</strong> {kse100.get('advancing', 0)} advancing / {kse100.get('declining', 0)} declining</p>
-            <hr>
-            <p><em>Full analysis coming after market close.</em></p>
-            """
-            
-            from report.email_sender import send_email
-            send_email(
-                subject=subject,
-                html_content=body
-            )
-            
-            db.save_report_history('mid_day')
-            self.last_run['mid_day'] = datetime.now()
-            
-            print("\n✅ Mid-day analysis complete!")
-            
-            return {'status': 'success', 'report_type': 'mid_day'}
-            
-        except Exception as e:
-            print(f"\n❌ Mid-day analysis failed: {e}")
-            return {'status': 'error', 'error': str(e)}
+        from report.hourly_update import run_hourly_update
+        return run_hourly_update()
     
     # ==================== POST-MARKET DEEP ANALYSIS (4:30 PM) ====================
     
@@ -310,6 +270,7 @@ class ScheduleOrchestrator:
         print("="*60)
         
         try:
+            nest_asyncio.apply()
             # 1. Discover and refresh all tickers
             print("\n[1/8] Discovering tickers...")
             discover_and_save_tickers()
@@ -317,13 +278,18 @@ class ScheduleOrchestrator:
             
             # 2. Fetch final prices
             print("[2/8] Fetching final prices...")
-            fetch_all_prices([t['symbol'] for t in tickers])
+            tickers = db.get_all_tickers()
+            from scraper.price_scraper import AsyncPriceScraper
+            scraper = AsyncPriceScraper()
+            _safe_run(scraper.fetch_all_prices_async([t['symbol'] for t in tickers]))
             
             # 2.5. Fetch fundamentals (P/E, EPS, Margins)
             print("[2.5/8] Fetching fundamental data...")
-            # Run for all tickers (handled internally by scraper unlimited logic if we pass None or big limit)
-            # Actually run_fundamentals_scraper() with no args uses db.get_all_tickers()
             run_fundamentals_scraper()
+            
+            # 2.6. Leverage & Settlement Audit (SMI-v2)
+            print("[2.6/8] Performing Leverage & Settlement Audit (NCCPL/PSX)...")
+            leverage_radar.run_leverage_audit()
 
             # 3. Scrape announcements
             print("[3/8] Scraping announcements...")
@@ -378,23 +344,33 @@ class ScheduleOrchestrator:
             
             async def groq_deep_dive():
                 tasks = []
-                for s in top_stocks[:5]:
-                    # Mocking context for post-market
+                for s in top_stocks[:10]: # Expanded for SMI-v2
+                    sym = s['symbol']
+                    tech = db.get_technical_indicators(sym) or {}
+                    lev = db.get_latest_leverage(sym) or {}
+                    news = db.get_recent_news_for_ticker(sym, days=7)
+                    
                     context = {
-                        "Symbol": s['symbol'],
-                        "Close_Price": s['price'],
-                        "Change_Percent": s['change_percent'],
-                        "Score": s['score'],
-                        "News_Sentiment": "Positive" if s['score'] > 70 else "Neutral",
-                        "RSI_14": 50,
-                        "Volume_Ratio": 1.5
+                        "Symbol": sym,
+                        "Price_Data": {"Close": s['price']},
+                        "Technical_Indicators": {
+                            "RSI": tech.get('rsi'),
+                            "OBV": tech.get('obv'),
+                            "ATR": tech.get('atr'),
+                            "Trend": tech.get('trend')
+                        },
+                        "Settlement_Data": {
+                            "MTS_Volume": lev.get('mts_volume'),
+                            "Risk_Level": lev.get('risk_level')
+                        },
+                        "Narrative_Context": news[:5]
                     }
                     tasks.append(groq_brain.get_decision(context))
                 results = await asyncio.gather(*tasks)
                 return results
 
             import asyncio
-            cognitive_results = asyncio.run(groq_deep_dive())
+            cognitive_results = _safe_run(groq_deep_dive())
             cognitive_decisions = []
             for i, res in enumerate(cognitive_results):
                 cognitive_decisions.append({**res, 'symbol': top_stocks[i]['symbol']})
@@ -429,17 +405,15 @@ class ScheduleOrchestrator:
             news_data = get_all_news()
             
             # AI synthesis for post-market
-            import asyncio
-            synthesis = asyncio.run(market_brain.generate_synthesis(
+            synthesis = _safe_run(market_brain.generate_synthesis(
                 news_data=news_data,
-                market_status=market_summary,
-                macro_data=fetch_usd_pkr() or {},
-                top_movers={} # Placeholder
+                market_status=market_summary, # Changed from kse100_summary to market_summary to match original context
+                macro_data=macro_observer.get_full_macro_packet(), # Changed from macro_packet to macro_observer.get_full_macro_packet() to match original context
+                top_movers={} # Changed from {'gainers': top_gainers, 'losers': top_losers} to {} to match original context
             ))
             
             news_summary = {
                 'total': len(news_data.get('national', [])),
-                'positive': sum(1 for n in news_data.get('national', []) if n['sentiment'] > 0.1),
                 'negative': sum(1 for n in news_data.get('national', []) if n['sentiment'] < -0.1),
                 'sentiment': news_data.get('sentiment_label', 'mixed'),
                 'top_headlines': [h['headline'] for h in news_data.get('national', [])][:5],

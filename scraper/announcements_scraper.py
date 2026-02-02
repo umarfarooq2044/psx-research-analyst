@@ -4,6 +4,7 @@ Scrapes company announcements from PSX company pages concurrently.
 """
 import aiohttp
 import asyncio
+import nest_asyncio
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime
@@ -158,7 +159,15 @@ async def scrape_all_announcements_async(symbols: List[str], concurrency: int = 
 
 def scrape_all_announcements(symbols: List[str], show_progress: bool = True) -> Dict:
     """Synchronous wrapper for orchestrator"""
-    return asyncio.run(scrape_all_announcements_async(symbols, show_progress=show_progress))
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            nest_asyncio.apply()
+            return loop.run_until_complete(scrape_all_announcements_async(symbols, show_progress=show_progress))
+        else:
+            return loop.run_until_complete(scrape_all_announcements_async(symbols, show_progress=show_progress))
+    except Exception:
+        return asyncio.run(scrape_all_announcements_async(symbols, show_progress=show_progress))
 
 if __name__ == "__main__":
     test_symbols = ["MARI", "OGDC", "HBL", "ENGRO", "LUCK"]

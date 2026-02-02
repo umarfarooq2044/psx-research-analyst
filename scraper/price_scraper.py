@@ -5,6 +5,7 @@ Up to 50x faster than synchronous scraping.
 """
 import aiohttp
 import asyncio
+import nest_asyncio
 import time
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
@@ -137,11 +138,15 @@ def fetch_all_prices(symbols: List[str], show_progress: bool = True) -> List[Dic
     """
     scraper = AsyncPriceScraper()
     
-    # Run async loop
-    if sys.platform == 'win32':
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-        
-    return asyncio.run(scraper.fetch_all_prices_async(symbols))
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            nest_asyncio.apply()
+            return loop.run_until_complete(scraper.fetch_all_prices_async(symbols))
+        else:
+            return loop.run_until_complete(scraper.fetch_all_prices_async(symbols))
+    except Exception:
+        return asyncio.run(scraper.fetch_all_prices_async(symbols))
 
 if __name__ == "__main__":
     # Test

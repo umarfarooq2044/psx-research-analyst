@@ -14,40 +14,35 @@ def get_postmarket_css() -> str:
     """CSS styles for post-market email"""
     return """
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #238636, #1f6feb); padding: 30px; border-radius: 12px; margin-bottom: 20px; }
-        .header h1 { margin: 0; color: white; font-size: 26px; }
-        .header .subtitle { color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 10px; }
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-        .summary-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; text-align: center; }
-        .summary-value { font-size: 24px; font-weight: 700; }
-        .summary-label { font-size: 11px; color: #8b949e; margin-top: 4px; text-transform: uppercase; }
-        .section { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-        .section-title { color: #58a6ff; font-size: 18px; font-weight: 600; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #30363d; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #010409; color: #c9d1d9; margin: 0; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 40px; border-radius: 16px; margin-bottom: 25px; text-align: center; border: 1px solid rgba(212, 175, 55, 0.3); }
+        .header h1 { margin: 0; color: #010409; font-size: 32px; letter-spacing: 1px; }
+        .header .subtitle { color: #1a1a1a; font-size: 15px; margin-top: 10px; font-weight: 500; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 25px; }
+        .summary-card { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; transition: transform 0.2s; }
+        .summary-card:hover { transform: translateY(-5px); border-color: #d4af37; }
+        .summary-value { font-size: 28px; font-weight: 800; }
+        .summary-label { font-size: 12px; color: #8b949e; margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .section { background: #0d1117; border: 1px solid #30363d; border-radius: 16px; padding: 28px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .section-title { color: #d4af37; font-size: 20px; font-weight: 700; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid #30363d; display: flex; align-items: center; gap: 10px; }
         .positive { color: #3fb950; }
         .negative { color: #f85149; }
         .neutral { color: #8b949e; }
         .stock-table { width: 100%; border-collapse: collapse; }
-        .stock-table th { text-align: left; padding: 10px; color: #8b949e; font-size: 12px; border-bottom: 1px solid #30363d; }
-        .stock-table td { padding: 12px 10px; border-bottom: 1px solid #21262d; }
-        .stock-symbol { font-weight: 600; color: #58a6ff; }
-        .score-bar { background: #21262d; height: 8px; border-radius: 4px; overflow: hidden; width: 100px; display: inline-block; vertical-align: middle; }
-        .score-fill { height: 100%; border-radius: 4px; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .badge-strong-buy { background: rgba(63,185,80,0.2); color: #3fb950; }
-        .badge-buy { background: rgba(88,166,255,0.2); color: #58a6ff; }
-        .badge-hold { background: rgba(139,148,158,0.2); color: #8b949e; }
-        .badge-reduce { background: rgba(210,153,34,0.2); color: #d29922; }
-        .badge-sell { background: rgba(248,81,73,0.2); color: #f85149; }
-        .sector-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #21262d; }
-        .indicator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-        .indicator { background: #0d1117; border-radius: 8px; padding: 14px; }
-        .indicator-label { font-size: 11px; color: #8b949e; }
-        .indicator-value { font-size: 18px; font-weight: 600; margin-top: 4px; }
-        .tomorrow-box { background: linear-gradient(135deg, rgba(88,166,255,0.1), rgba(35,134,54,0.1)); border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
-        .action-item { background: #0d1117; border-left: 3px solid #58a6ff; padding: 10px 15px; margin: 8px 0; border-radius: 0 8px 8px 0; }
-        .footer { text-align: center; color: #8b949e; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #30363d; }
+        .stock-table th { text-align: left; padding: 12px; color: #8b949e; font-size: 13px; border-bottom: 1px solid #30363d; text-transform: uppercase; }
+        .stock-table td { padding: 15px 12px; border-bottom: 1px solid #21262d; }
+        .stock-symbol { font-weight: 700; color: #58a6ff; font-size: 16px; }
+        .badge { padding: 6px 14px; border-radius: 30px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-strong-buy { background: rgba(63,185,80,0.15); color: #3fb950; border: 1px solid rgba(63,185,80,0.3); }
+        .badge-buy { background: rgba(88,166,255,0.15); color: #58a6ff; border: 1px solid rgba(88,166,255,0.3); }
+        .badge-hold { background: rgba(139,148,158,0.15); color: #8b949e; border: 1px solid rgba(139,148,158,0.3); }
+        .badge-reduce { background: rgba(210,153,34,0.15); color: #d29922; border: 1px solid rgba(210,153,34,0.3); }
+        .badge-sell { background: rgba(248,81,73,0.15); color: #f85149; border: 1px solid rgba(248,81,73,0.3); }
+        .chorus-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: #161b22; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px dashed #30363d; }
+        .expert-pill { font-size: 11px; color: #8b949e; display: flex; flex-direction: column; }
+        .expert-opinion { color: #c9d1d9; font-weight: 500; font-size: 12px; margin-top: 2px; }
+        .footer { text-align: center; color: #8b949e; font-size: 13px; margin-top: 40px; padding: 30px; border-top: 1px solid #30363d; }
     </style>
     """
 
@@ -228,27 +223,41 @@ def generate_postmarket_report(
                 </table>
             </div>
             
-            <!-- SMI-v1 Cognitive Deep Dive -->
+            <!-- SMI-v2 Alpha Engine (Chorus of Agents) -->
             {f'''
-            <div class="section" style="border-top: 3px solid #7856ff;">
-                <div class="section-title" style="color: #7856ff;">🦅 SMI-v1 COGNITIVE DEEP DIVE (Llama-3.3-70b)</div>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+            <div class="section" style="border-top: 4px solid #d4af37;">
+                <div class="section-title" style="color: #d4af37;">👑 SMI-v2 ALPHA ENGINE (CHORUS OF AGENTS)</div>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
                     {''.join([f"""
-                    <div style="background: #0d1117; padding: 15px; border-radius: 8px; border: 1px solid #30363d;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span class="stock-symbol" style="font-size: 18px;">{d['symbol']}</span>
-                            <span class="badge" style="background: {'rgba(63,185,80,0.2)' if d['decision']=='BUY' else 'rgba(248,81,73,0.2)'}; color: {'#3fb950' if d['decision']=='BUY' else '#f85149'};">
-                                {d['decision']} (Conf: {d['confidence']}%)
+                    <div style="background: #0d1117; padding: 20px; border-radius: 16px; border: 1px solid #30363d; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span class="stock-symbol" style="font-size: 22px;">{d['symbol']}</span>
+                            <span class="badge {get_rating_badge(d['decision'])}">
+                                {d['decision']} (Confidence: {d['confidence']}%)
                             </span>
                         </div>
-                        <div style="color: #e7e9ea; font-size: 14px; line-height: 1.4; font-style: italic;">
+                        <div style="color: #e7e9ea; font-size: 15px; line-height: 1.5; font-weight: 500; margin-bottom: 15px;">
                             "{d['smi_commentary']}"
                         </div>
-                        <div style="margin-top: 10px; font-size: 11px; color: #8b949e;">
-                            <span style="color: #f85149; font-weight: bold;">RISK FLAG:</span> {d['psx_risk_flag']} | SMI-v1 Veteran Insight
+                        
+                        <!-- Chorus Opinions -->
+                        <div class="chorus-grid">
+                            <div class="expert-pill">🧠 FUND: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Fundamental', 'Stable')}</span></div>
+                            <div class="expert-pill">📈 QUANT: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Technical', 'Scanned')}</span></div>
+                            <div class="expert-pill">⚖️ SETTLEMENT: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Settlement', 'Safe')}</span></div>
+                            <div class="expert-pill">🌍 MACRO: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Macro', 'Neutral')}</span></div>
+                        </div>
+
+                        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 11px; color: #8b949e;">
+                                <span style="color: #f85149; font-weight: bold;">RISK:</span> {d['psx_risk_flag']}
+                            </div>
+                            <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); padding: 4px 10px; border-radius: 8px; font-size: 12px; color: #d4af37; font-weight: 700;">
+                                STOP-LOSS (ATR): Rs. {d.get('suggested_exit_atr', 0)}
+                            </div>
                         </div>
                     </div>
-                    """ for d in cognitive_decisions[:5]])}
+                    """ for d in (cognitive_decisions if isinstance(cognitive_decisions, list) else [])[:8]])}
                 </div>
             </div>
             ''' if cognitive_decisions else ''}
