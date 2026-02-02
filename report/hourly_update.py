@@ -11,6 +11,8 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import sys
 import os
+import asyncio
+import aiohttp
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -18,32 +20,41 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import requests
 from config import FOREX_API_URL, OIL_API_URL
 
-def fetch_global_macro_data() -> Dict:
-    """Fetch live Global Macro Data (USD/PKR, Oil)"""
+async def fetch_global_macro_data(session: Optional[aiohttp.ClientSession] = None) -> Dict:
+    """Fetch live Global Macro Data (USD/PKR, Oil) asynchronously"""
     data = {'usd_pkr': 0, 'oil': 0, 'usd_change': 0, 'oil_change': 0}
+    
+    # helper for async fetch
+    async def get_url(s, url):
+        try:
+            async with s.get(url, timeout=10) as resp:
+                if resp.status == 200:
+                    return await resp.json()
+        except:
+            return None
+            
+    is_internal_session = False
+    if session is None:
+        session = aiohttp.ClientSession()
+        is_internal_session = True
+        
     try:
         # 1. USD/PKR (Free API)
-        resp = requests.get(FOREX_API_URL, timeout=5)
-        if resp.status_code == 200:
-            rates = resp.json().get('rates', {})
+        resp_json = await get_url(session, FOREX_API_URL)
+        if resp_json:
+            rates = resp_json.get('rates', {})
             usd_pkr = rates.get('PKR', 0)
             data['usd_pkr'] = round(usd_pkr, 2)
-            # Calculate change if previous stored.. for now just current value
             
-        # 2. Oil (Simple/Free API or scrape)
-        # Using a simple requests attempt to an oil price API if valid
-        # If API fails, we might leave as 0
-        try:
-            resp_oil = requests.get(OIL_API_URL, headers={'Authorization': 'Token ...'}, timeout=5)
-            # Note: OIL_API_URL in config might need a real free endpoint or token.
-            # Fallback to simple scraping/hardcoded if API requires key not present.
-            pass 
-        except:
-            pass
+        # 2. Oil Check
+        # Omit specific oil API complexity for now, fallback logic
             
     except Exception as e:
-        print(f"Macro fetch warning: {e}")
-    
+        print(f"Macro async fetch warning: {e}")
+    finally:
+        if is_internal_session:
+            await session.close()
+            
     return data
 
 from news.comprehensive_news import get_all_news, get_market_moving_news
@@ -296,159 +307,125 @@ def generate_hourly_update_html(
 
 
 def run_hourly_update() -> Dict:
-    """Run hourly surveillance (Full Market Scan) and send email"""
+    """Synchronous wrapper for run_hourly_update"""
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            import nest_asyncio
+            nest_asyncio.apply()
+        return loop.run_until_complete(async_run_hourly_update())
+    except Exception:
+        return asyncio.run(async_run_hourly_update())
+
+async def async_run_hourly_update() -> Dict:
+    """Run hourly surveillance asynchronously in parallel"""
     from report.email_sender import send_email
     from report.csv_generator import generate_hourly_news_csv
-    from scraper.price_scraper import fetch_all_prices
+    from scraper.price_scraper import AsyncPriceScraper
     from database.db_manager import db
-    from analysis.technical import analyze_ticker_technical
+    from analysis.market_synthesis import market_brain
     from config import TOP_STOCKS, WATCHLIST
-    import asyncio
+    from news.comprehensive_news import news_scraper
     
     print("=" * 60)
-    print(f"⏰ FULL MARKET SURVEILLANCE - {datetime.now().strftime('%I:%M %p')}")
+    print(f"⏰ ASYNC FULL MARKET SURVEILLANCE - {datetime.now().strftime('%I:%M %p')}")
     print("=" * 60)
     
-    # 1. News & Sentiment
-    print("\n[1/5] Scanning News Sources (Official + Media)...")
-    news_data = get_all_news()
-    market_moving = get_market_moving_news()
+    # 1. Parallel Task Execution
+    print("\n[1/5] Launching Parallel Tasks (News, Prices, Macro)...")
     
-    # 2. Focused Market Scan
-    print("\n[2/5] Scanning Liquid Stocks & Watchlist for Volatility...")
-    
-    # Combined list of priority stocks
     priority_symbols = list(set(TOP_STOCKS + WATCHLIST))
+    price_scraper = AsyncPriceScraper()
     
-    # Verify symbols exist in DB or discover if empty
-    tickers = db.get_all_tickers()
-    if not tickers:
-        print("  ⚠️ No tickers found in DB. Discovering now...")
-        from scraper.ticker_discovery import discover_and_save_tickers
-        discover_and_save_tickers()
-        
-    symbols = priority_symbols
+    # Stage 1: Parallel Fetching
+    news_data, price_results, macro_data = await asyncio.gather(
+        news_scraper.async_collect_all_news(),
+        price_scraper.fetch_all_prices_async(priority_symbols),
+        fetch_global_macro_data()
+    )
     
-    # Fetch live prices (Now optimized with Bulk DB insertion)
-    fetch_all_prices(priority_symbols)
+    # Stage 2: Deep Analysis (Sequential but already optimized for its own async fetching)
+    print("\n[1.5/5] Deep Analysis of Market-Moving News...")
+    market_moving = await news_scraper.async_get_market_moving_news(pre_collected_news=news_data)
     
-    # Detect Anomalies
+    # 2. Analyze Anomalies
+    print("\n[2/5] Analyzing Anomalies & Volatility...")
     alerts = []
     volume_spikes = []
     price_movers = []
     
-    print(f"  → Analyzing {len(symbols)} tickers...")
-    
-    for symbol in symbols:
-        price_data = db.get_latest_price(symbol)
-        if not price_data: continue
+    for item in price_results:
+        symbol = item['symbol']
+        change = item.get('change_percent', 0)
+        close = item.get('close_price', 0)
+        vol = item.get('volume', 0)
         
-        # Check Price Volatility
-        change = price_data.get('change_percent', 0)
         if abs(change) > 5.0:
-            price_movers.append({
-                'symbol': symbol,
-                'change': change,
-                'price': price_data.get('close_price'),
-                'volume': price_data.get('volume', 0)
-            })
+            price_movers.append({'symbol': symbol, 'change': change, 'price': close, 'volume': vol})
             alerts.append(f"⚠️ {symbol}: High Volatility ({change:+.2f}%)")
             
-        # Check Volume Spikes
-        # Simple check: Current Vol > 20-Day Avg Vol (if available) * 2.5
-        # For lightweight, we can check if volume > 1M and change is small (Accumulation?)
-        vol = price_data.get('volume', 0)
-        if vol > 1_000_000: # Significant volume
-            volume_spikes.append({
-                'symbol': symbol,
-                'volume': vol,
-                'change': change,
-                'price': price_data.get('close_price')
-            })
-            if change > 0:
-                alerts.append(f"🟢 {symbol}: High Volume Buying ({vol:,.0f})")
-            else:
-                alerts.append(f"🔴 {symbol}: High Volume Selling ({vol:,.0f})")
+        if vol > 1_000_000:
+            volume_spikes.append({'symbol': symbol, 'volume': vol, 'change': change, 'price': close})
+            alerts.append(f"{'🟢' if change > 0 else '🔴'} {symbol}: High Volume ({vol:,.0f})")
 
-    # 3. Macro Check
-    print("\n[3/5] Fetching Global Macro Data...")
-    global_data = fetch_global_macro_data()
-    if global_data.get('usd_pkr'):
-        alerts.append(f"💵 USD/PKR Rate: {global_data['usd_pkr']}") 
-    
-    # 4. Generate Reports
-    print("\n[4/5] Generating Intelligence Reports...")
-    csv_path = generate_hourly_news_csv(news_data)
-    
-    # === MARKET SYNTHESIS & RECOMMENDATION ===
-    from analysis.market_synthesis import market_brain
-    
-    # Prepare data for synthesis
-    # Calculate simple breadth from active movers as proxy
-    gainers = [m for m in price_movers if m['change'] > 0]
-    losers = [m for m in price_movers if m['change'] < 0]
-    
-    top_movers_dict = {'gainers': gainers, 'losers': losers}
-    
-    synthesis = market_brain.generate_synthesis(
-        news_data=news_data,
-        market_status={}, # Future: get from Index trend
-        macro_data=global_data,
-        top_movers=top_movers_dict
-    )
-    
-    print(f"\n🧠 ANALYST BRAIN SAYS: {synthesis['strategy']}")
-    
-    # Prepare High Risk / Opportunity List (News + Technical Correlation)
+    # 3. Smart Signal Correlation
+    print("\n[3/5] Correlating News with Price Action...")
+    if macro_data.get('usd_pkr'):
+        alerts.append(f"💵 USD/PKR Rate: {macro_data['usd_pkr']}")
+
     smart_signals = []
-    
-    # Create lookup for market moving news by ticker
     news_map = {}
     for item in market_moving:
         for t in item.get('tickers', []):
             if t not in news_map: news_map[t] = []
             news_map[t].append(item)
             
-    # Check for correlation
     for spike in volume_spikes:
         sym = spike['symbol']
         if sym in news_map:
-            # We have a Match! Volume Spike + News
             news_items = news_map[sym]
             avg_sent = sum(n['sentiment'] for n in news_items) / len(news_items)
-            
             if avg_sent > 0.1 and spike['change'] > 0:
                 smart_signals.append(f"🚀 **{sym} (Strong Buy)**: Volume Breakout confirmed by Positive News")
             elif avg_sent < -0.1 and spike['change'] < 0:
                 smart_signals.append(f"🔻 **{sym} (Strong Sell)**: Panic Selling confirmed by Negative News")
-            else:
-                smart_signals.append(f"⚠️ **{sym} (Watch)**: High Volume on Mixed News")
 
-    # Add these smart signals to alerts
     if smart_signals:
         alerts = smart_signals + alerts
-            
-    # 5. Send Email
+
+    # 4. Generate Reports
+    print("\n[4/5] Generating Intelligence Reports...")
+    csv_path = generate_hourly_news_csv(news_data)
+    
+    gainers = sorted([m for m in price_movers if m['change'] > 0], key=lambda x: x['change'], reverse=True)
+    losers = sorted([m for m in price_movers if m['change'] < 0], key=lambda x: x['change'])
+    
+    synthesis = market_brain.generate_synthesis(
+        news_data=news_data,
+        market_status={},
+        macro_data=macro_data,
+        top_movers={'gainers': gainers, 'losers': losers}
+    )
+    
+    # 5. Send Alert
     print("\n[5/5] Sending Executive Summary...")
     html = generate_hourly_update_html(
-        news_data, 
-        market_moving, 
+        news_data, market_moving, 
         top_movers={'gainers': gainers[:5], 'losers': losers[:5]},
         alerts=alerts[:10],
         active_stocks=volume_spikes[:5],
-        synthesis_data=synthesis # Pass synthesis
+        synthesis_data=synthesis
     )
     
     import pytz
     pkt = pytz.timezone('Asia/Karachi')
     current_time = datetime.now(pkt)
     sentiment_label = news_data.get('sentiment_label', 'Neutral')
-    
     subject = f"🚨 HOURLY ALERT: {sentiment_label} | {len(alerts)} Risk Signals | {current_time.strftime('%I:%M %p')}"
     
     try:
         send_email(subject=subject, html_content=html, attachments=[csv_path])
-        print(f"\n✅ Surveillance Complete. Alert Sent.")
+        print(f"\n✅ Async Surveillance Complete. Alert Sent.")
     except Exception as e:
         print(f"\n❌ Email Error: {e}")
         

@@ -19,6 +19,9 @@ from datetime import datetime
 from typing import List, Dict
 import feedparser
 import time
+import asyncio
+import aiohttp
+import re
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # Fix Windows console encoding for emoji support
@@ -71,6 +74,98 @@ class ComprehensiveNewsScraper:
         except Exception as e:
             print(f"RSS Error ({source}): {e}")
         return news[:limit]
+
+    async def _async_parse_feed(self, session: aiohttp.ClientSession, url: str, source: str, category: str = 'national', limit: int = 100) -> List[Dict]:
+        """Helper to parse RSS feeds asynchronously"""
+        try:
+            async with session.get(url, timeout=15) as response:
+                if response.status == 200:
+                    text = await response.text()
+                    feed = feedparser.parse(text)
+                    news = []
+                    for entry in feed.entries:
+                        title = getattr(entry, 'title', '')
+                        link = getattr(entry, 'link', '')
+                        if not title: continue
+                        
+                        sentiment = sentiment_analyzer.polarity_scores(title)
+                        news.append({
+                            'headline': title,
+                            'source': source,
+                            'url': link,
+                            'sentiment': sentiment['compound'],
+                            'category': category,
+                            'timestamp': datetime.now().isoformat(),
+                            'tickers': []
+                        })
+                    return news[:limit]
+        except Exception as e:
+            print(f"Async RSS Error ({source}): {e}")
+        return []
+
+    async def _async_scrape_reuters(self, session: aiohttp.ClientSession) -> List[Dict]:
+        """Async version of Reuters scraping"""
+        url = "https://www.reuters.com/markets/"
+        try:
+            async with session.get(url, timeout=15) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, 'html.parser')
+                    articles = soup.select('h3[data-testid="Heading"], h3 a') 
+                    news = []
+                    for article in articles[:50]:
+                        title = article.get_text(strip=True)
+                        if not title: continue
+                        if article.name == 'a':
+                            href = article.get('href', '')
+                        else:
+                            link = article.find_parent('a')
+                            href = link.get('href', '') if link else ''
+                        if not href: continue
+                        sentiment = sentiment_analyzer.polarity_scores(title)
+                        news.append({
+                            'headline': title,
+                            'source': 'Reuters',
+                            'url': f"https://www.reuters.com{href}" if not href.startswith('http') else href,
+                            'sentiment': sentiment['compound'],
+                            'category': 'international',
+                            'timestamp': datetime.now().isoformat()
+                        })
+                    return news
+        except Exception as e:
+            print(f"Async Reuters error: {e}")
+        return []
+
+    async def _async_scrape_psx_notices(self, session: aiohttp.ClientSession) -> List[Dict]:
+        """Async version of PSX notices scraping"""
+        url = "https://www.psx.com.pk/psx/exchange/market/company-notices"
+        try:
+            async with session.get(url, timeout=15) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, 'html.parser')
+                    rows = soup.find_all('tr', limit=20)
+                    news = []
+                    for row in rows[1:]:
+                        cols = row.find_all('td')
+                        if len(cols) >= 3:
+                            company = cols[0].get_text(strip=True)
+                            subject = cols[2].get_text(strip=True) if len(cols) > 2 else ''
+                            headline = f"{company}: {subject}"
+                            sentiment = sentiment_analyzer.polarity_scores(headline)
+                            news.append({
+                                'headline': headline,
+                                'source': 'PSX Official',
+                                'url': 'https://www.psx.com.pk/psx/exchange/market/company-notices',
+                                'sentiment': sentiment['compound'],
+                                'category': 'announcement',
+                                'company': company,
+                                'timestamp': datetime.now().isoformat()
+                            })
+                    return news
+        except Exception as e:
+            print(f"Async PSX Notices error: {e}")
+        return []
 
     # =========================================================================
     # PAKISTANI NEWS SOURCES (RSS)
@@ -182,6 +277,63 @@ class ComprehensiveNewsScraper:
     # This block is just to ensure clean file state if needed.
     pass
     
+    async def async_get_market_moving_news(self, pre_collected_news: Optional[Dict] = None) -> List[Dict]:
+        """
+        Filter news that's likely to move the market.
+        Asynchronously fetches full text and analyzes impact.
+        """
+        from news.article_fetcher import ArticleFetcher
+        fetcher = ArticleFetcher()
+        
+        all_news = pre_collected_news if pre_collected_news else await self.async_collect_all_news()
+        
+        market_moving = []
+        keywords = [
+            'interest rate', 'sbp', 'imf', 'budget', 'tax', 'energy', 'oil',
+            'gas', 'electricity', 'rupee', 'dollar', 'inflation', 'gdp',
+            'export', 'import', 'trade deficit', 'remittances', 'privatization',
+            'ipo', 'dividend', 'profit', 'loss', 'result', 'quarterly',
+            'merger', 'acquisition', 'investment', 'foreign', 'fdi',
+            'political', 'election', 'court', 'circular debt', 'capacity payment'
+        ]
+        
+        candidates = []
+        for category in ['national', 'international', 'announcements']:
+            for item in all_news.get(category, []):
+                headline = item.get('headline', '').lower()
+                if any(kw in headline for kw in keywords) or abs(item.get('sentiment', 0)) > 0.2:
+                    candidates.append(item)
+        
+        if not candidates:
+            return []
+
+        print(f"\n🧠 Async Deep Learning: Reading full text of {len(candidates)} potential market movers...")
+        
+        urls = [c['url'] for c in candidates if c.get('url')]
+        contents = await fetcher.fetch_all(urls)
+        
+        for item in candidates:
+            url = item.get('url')
+            full_text = contents.get(url, "")
+            
+            if full_text:
+                item['body'] = full_text
+                deep_sent = sentiment_analyzer.polarity_scores(full_text[:2000])
+                item['sentiment'] = deep_sent['compound']
+                self._map_tickers_in_text(item, full_text)
+                
+            is_high_impact = False
+            if abs(item.get('sentiment', 0)) > 0.4:
+                is_high_impact = True
+            if item.get('tickers') and abs(item.get('sentiment', 0)) > 0.2:
+                is_high_impact = True
+                
+            if is_high_impact:
+                item['market_impact'] = 'high' if abs(item.get('sentiment', 0)) > 0.5 else 'medium'
+                market_moving.append(item)
+        
+        return sorted(market_moving, key=lambda x: abs(x.get('sentiment', 0)), reverse=True)
+
     def get_market_moving_news(self) -> List[Dict]:
         """
         Filter news that's likely to move the market.
@@ -281,31 +433,29 @@ class ComprehensiveNewsScraper:
         """
         Map news headlines to company tickers.
         E.g. "OGDC discovers oil" -> tickers=['OGDC']
+        OPTIMIZED: Uses pre-compiled regex for all symbols.
         """
-        try:
-            # Import here to avoid circular dependencies at module level
-            from database.db_manager import db
-            all_tickers = db.get_all_tickers() # [{'symbol': 'OGDC', 'name': 'Oil & Gas...'}]
+        if not news_items:
+            return []
             
-            # create lookup dicts
-            symbol_map = {t['symbol']: t['symbol'] for t in all_tickers}
-            # Simple name mapping: first word of name if unique? Too risky.
-            # Best is to match Symbol directly or full company name
+        try:
+            # Import here to avoid circular dependencies
+            from database.db_manager import db
+            all_tickers = db.get_all_tickers()
+            
+            if not all_tickers:
+                return news_items
+                
+            # Create a single pre-compiled regex pattern for all symbols
+            # We sort symbols by length descending to match longest possible string first (e.g. HUBC vs HUB)
+            symbols = sorted([t['symbol'] for t in all_tickers], key=len, reverse=True)
+            pattern = re.compile(r'\b(' + '|'.join(re.escape(s) for s in symbols) + r')\b', re.IGNORECASE)
             
             for item in news_items:
-                headline = item['headline'].upper()
-                found_tickers = []
-                
-                # Check for direct symbol match (e.g. "OGDC")
-                # Use word boundaries to avoid matching "AND" inside "SAND"
-                import re
-                
-                for symbol in symbol_map:
-                    # Look for symbol as a whole word
-                    if re.search(r'\b' + re.escape(symbol) + r'\b', headline):
-                        found_tickers.append(symbol)
-                
-                item['tickers'] = list(set(found_tickers))
+                headline = item.get('headline', '')
+                # Find all unique matches in the headline
+                matches = set(pattern.findall(headline.upper()))
+                item['tickers'] = list(matches)
                 
         except Exception as e:
             print(f"Ticker mapping error: {e}")
@@ -313,78 +463,93 @@ class ComprehensiveNewsScraper:
         return news_items
 
     def collect_all_news(self) -> Dict:
-        """Collect news from all sources (with simple 5-min caching)"""
+        """Synchronous wrapper for collect_all_news"""
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # This is tricky if already in a loop. For orchestrator this is fine.
+                import nest_asyncio
+                nest_asyncio.apply()
+            return loop.run_until_complete(self.async_collect_all_news())
+        except Exception:
+            # Fallback to simple run if loop issues
+            return asyncio.run(self.async_collect_all_news())
+
+    async def async_collect_all_news(self) -> Dict:
+        """Collect news from all sources asynchronously parallel"""
         now = time.time()
         if self._cache and (now - self._cache_time < self._cache_duration):
-            print("🕒 Using cached news data (collected less than 5 mins ago)")
+            print("🕒 Using cached news data")
             return self._cache
 
-        print("📰 Collecting news from RSS & Scrapers...")
+        print("📰 Collecting news from RSS & Scrapers (Async)...")
         
-        all_news = {
-            'national': [],
-            'international': [],
-            'announcements': [],
-            'timestamp': datetime.now().isoformat()
-        }
+        sources = [
+            ("https://www.dawn.com/feeds/business", "DAWN Business", "national"),
+            ("https://www.brecorder.com/feeds/business-economy", "Business Recorder", "national"),
+            ("https://tribune.com.pk/feed/business", "Express Tribune", "national"),
+            ("https://www.thenews.com.pk/rss/1/10", "The News", "national"),
+            ("https://profit.pakistantoday.com.pk/feed/", "Profit PK", "national"),
+            ("https://mettisglobal.news/feed/", "Mettis Global", "national"),
+            ("http://feeds.marketwatch.com/marketwatch/topstories/", "MarketWatch", "international"),
+            ("https://www.investing.com/rss/news.rss", "Investing.com", "international")
+        ]
         
-        # Pakistani sources
-        print("  → DAWN Business...")
-        all_news['national'].extend(self.scrape_dawn_business())
-        
-        print("  → Business Recorder...")
-        all_news['national'].extend(self.scrape_business_recorder())
-        
-        print("  → Express Tribune...")
-        all_news['national'].extend(self.scrape_express_tribune())
-        
-        print("  → The News...")
-        all_news['national'].extend(self.scrape_the_news())
-        
-        print("  → Profit PK...")
-        all_news['national'].extend(self.scrape_profit_pk())
-        
-        print("  → Mettis Global...")
-        all_news['national'].extend(self.scrape_mettis_global())
-        
-        # International sources
-        print("  → Reuters Markets...")
-        all_news['international'].extend(self.scrape_reuters_markets())
-        
-        print("  → MarketWatch...")
-        all_news['international'].extend(self.scrape_marketwatch())
-        
-        print("  → Investing.com...")
-        all_news['international'].extend(self.scrape_investing_com())
-        
-        # PSX Official
-        print("  → PSX Official Notices...")
-        all_news['announcements'].extend(self.scrape_psx_notices())
-        
-        # MAP TICKERS
-        print("  🔗 Mapping news to tickers...")
-        all_news['national'] = self.map_tickers_to_news(all_news['national'])
-        all_news['announcements'] = self.map_tickers_to_news(all_news['announcements'])
-        # International usually doesn't match PSX tickers directly unless cross-listed
-        
-        # Calculate sentiment summary
-        all_headlines = all_news['national'] + all_news['international']
-        if all_headlines:
-            avg_sentiment = sum(h['sentiment'] for h in all_headlines) / len(all_headlines)
-            all_news['overall_sentiment'] = avg_sentiment
-            all_news['sentiment_label'] = (
-                'Bullish' if avg_sentiment > 0.1 else
-                'Bearish' if avg_sentiment < -0.1 else
-                'Neutral'
-            )
-        
-        print(f"✓ Collected {len(all_news['national'])} national + {len(all_news['international'])} international news")
-        
-        # Save to cache
-        self._cache = all_news
-        self._cache_time = time.time()
-        
-        return all_news
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            # Parallel tasks for RSS
+            rss_tasks = [self._async_parse_feed(session, url, name, cat) for url, name, cat in sources]
+            
+            # Additional Scraping tasks
+            scraping_tasks = [
+                self._async_scrape_reuters(session),
+                self._async_scrape_psx_notices(session)
+            ]
+            
+            all_results = await asyncio.gather(*(rss_tasks + scraping_tasks))
+            
+            all_news = {
+                'national': [],
+                'international': [],
+                'announcements': [],
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            # Categorize results
+            # First 6 are national RSS
+            for i in range(6):
+                all_news['national'].extend(all_results[i])
+            
+            # Next 2 are international RSS
+            for i in range(6, 8):
+                all_news['international'].extend(all_results[i])
+            
+            # Next is Reuters (International)
+            all_news['international'].extend(all_results[8])
+            
+            # Last is PSX notices
+            all_news['announcements'].extend(all_results[9])
+            
+            # MAP TICKERS (Optimized)
+            print("  🔗 Mapping news to tickers (Optimized)...")
+            all_news['national'] = self.map_tickers_to_news(all_news['national'])
+            all_news['announcements'] = self.map_tickers_to_news(all_news['announcements'])
+            
+            # Calculate sentiment summary
+            all_headlines = all_news['national'] + all_news['international']
+            if all_headlines:
+                avg_sentiment = sum(h['sentiment'] for h in all_headlines) / len(all_headlines)
+                all_news['overall_sentiment'] = avg_sentiment
+                all_news['sentiment_label'] = (
+                    'Bullish' if avg_sentiment > 0.1 else
+                    'Bearish' if avg_sentiment < -0.1 else
+                    'Neutral'
+                )
+            
+            print(f"✓ Collected {len(all_news['national'])} national + {len(all_news['international'])} international news")
+            
+            self._cache = all_news
+            self._cache_time = time.time()
+            return all_news
 
 # Singleton instance
 news_scraper = ComprehensiveNewsScraper()
