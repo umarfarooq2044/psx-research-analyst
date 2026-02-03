@@ -65,12 +65,14 @@ jobs:
           else
             # Determine based on schedule time (UTC)
             HOUR=$(date -u +%H)
-            MINUTE=$(date -u +%M)
             
-            if [ "$HOUR" -eq "3" ] && [ "$MINUTE" -eq "30" ]; then
+            # 3:30 AM UTC is Pre-Market
+            if [ "$HOUR" -lt "5" ]; then
               echo "type=pre_market" >> $GITHUB_OUTPUT
-            elif [ "$HOUR" -ge "5" ] && [ "$HOUR" -le "10" ]; then
+            # 5 AM to 10 AM UTC is Hourly
+            elif [ "$HOUR" -lt "11" ]; then
               echo "type=hourly" >> $GITHUB_OUTPUT
+            # Remaining is Post-Market
             else
               echo "type=post_market" >> $GITHUB_OUTPUT
             fi
