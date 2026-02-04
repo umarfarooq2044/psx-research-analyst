@@ -9,6 +9,9 @@ import time
 import nest_asyncio
 import asyncio
 from datetime import datetime, timedelta
+
+# Apply nest_asyncio globally to solve timeout manager issues in nested loops
+nest_asyncio.apply()
 from typing import Dict, List, Optional, Callable
 
 # Fix Windows console encoding for emoji support
@@ -25,14 +28,12 @@ def _safe_run(coro):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             
+        # Ensure we always run inside a Task context for timeout stability
         if loop.is_running():
-            nest_asyncio.apply()
-            # ALWAYS wrap in a Task to provide a context for timeout managers
             task = loop.create_task(coro)
             return loop.run_until_complete(task)
         else:
-            task = loop.create_task(coro)
-            return loop.run_until_complete(task)
+            return loop.run_until_complete(coro)
     except Exception as e:
         print(f"  ⚠️ _safe_run fallback: {e}")
         try:
@@ -151,31 +152,46 @@ class ScheduleOrchestrator:
                 for ann in announcements[:10]
             ]
             
-            # 5. Identify stocks to watch (SMI-v1 Intelligence)
-            print("[5/5] Identifying stocks to watch (SMI-v1 Intelligence)...")
-            ai_decisions = db.get_recent_ai_decisions(limit=10)
+            # 5. SMI-v3 Ultra: Institutional Deep Research (Pre-Market Picks)
+            print("[5/5] Identifying High-Conviction Long-Term Picks (SMI-v3 Ultra)...")
+            from ai_engine.deep_research_engine import DeepResearchEngine
+            deep_engine = DeepResearchEngine()
             
+            # Fetch top scoring stocks for potential deep research
+            scores = db.get_stock_scores(limit=25)
+            stocks_for_analysis = []
+            for s in scores:
+                sym = s['symbol']
+                tech = db.get_technical_indicators(sym) or {}
+                fund = db.get_latest_fundamentals(sym) or {}
+                news = db.get_recent_news_for_ticker(sym, days=7)
+                
+                context = {
+                    "Symbol": sym,
+                    "Price": s.get('components', {}).get('technical', {}).get('details', {}).get('price', 0),
+                    "Fundamentals": fund,
+                    "Technicals": tech,
+                    "Sector": fund.get('sector', 'N/A'),
+                    "Recent_News": [n.get('headline', '')[:100] for n in (news or [])[:3]]
+                }
+                stocks_for_analysis.append(context)
+            
+            # Generate Wealth Generation Top 10
+            wealth_picks = deep_engine.find_wealth_generation_picks(stocks_for_analysis)
+            
+            # Map picks to the format expected by the template (or update template to match)
+            # For backward compatibility with existing templates until they are updated:
             stocks_to_watch = []
-            for d in ai_decisions:
+            for p in wealth_picks:
                 stocks_to_watch.append({
-                    'symbol': d['symbol'],
-                    'action': d['action'],
-                    'conviction': d['conviction'],
-                    'future_path': d['future_path'],
-                    'black_swan': d['black_swan'],
-                    'reason': d['reasoning'],
-                    'atr_stop': d.get('atr_stop', 'N/A')
+                    'symbol': p['symbol'],
+                    'action': p['action'],
+                    'conviction': f"{p['conviction']}%",
+                    'future_path': f"Target 1Y: Rs. {p.get('target_price_1y', 'N/A')}",
+                    'black_swan': f"Long-Term Pillar: {p.get('key_investment_pillar', 'N/A')}",
+                    'reason': p['long_term_rational'],
+                    'atr_stop': f"Stop (Long): {p.get('stop_loss_long', 'N/A')}"
                 })
-            
-            # Fallback if no AI decisions exist yet
-            if not stocks_to_watch:
-                scores = db.get_stock_scores(limit=10)
-                stocks_to_watch = [
-                    {'symbol': s['symbol'], 'action': 'WATCH', 'conviction': '50%', 
-                     'future_path': 'Scanning...', 'black_swan': 'Market Volatility', 
-                     'reason': f"Consensus score {s['total_score']}/100"} 
-                    for s in scores
-                ]
             
             # Risk warnings
             risk_warnings = []
@@ -291,6 +307,10 @@ class ScheduleOrchestrator:
             print("[2.6/8] Performing Leverage & Settlement Audit (NCCPL/PSX)...")
             leverage_radar.run_leverage_audit()
 
+            # 2.5 Fetch Macro Context
+            print("[2.5/8] Fetching Global Macro Context...")
+            macro_packet = macro_observer.get_full_macro_packet()
+            
             # 3. Scrape announcements
             print("[3/8] Scraping announcements...")
             symbols = [t['symbol'] for t in tickers]  # Analyze ALL
@@ -337,45 +357,49 @@ class ScheduleOrchestrator:
                 for s in scores[:15]
             ]
             
-            # 5.5. SMI-v1 Cognitive Deep Dive (Groq)
-            print("[5.5/8] Requesting SMI-v1 Strategic Analysis for Top Tickers...")
-            from ai_engine.ai_decision import GroqBrain
-            groq_brain = GroqBrain()
+            # 5.5. SMI-v3 Ultra: Institutional Deep Research (Post-Market Verdicts)
+            print("[5.5/8] Analyzing Top Tickers for Wealth Generation (SMI-v3 Ultra)...")
+            # Reuse the high-speed engine
+            from ai_engine.deep_research_engine import DeepResearchEngine
+            deep_engine = DeepResearchEngine()
             
-            async def groq_deep_dive():
-                tasks = []
-                for s in top_stocks[:10]: # Expanded for SMI-v2
-                    sym = s['symbol']
-                    tech = db.get_technical_indicators(sym) or {}
-                    lev = db.get_latest_leverage(sym) or {}
-                    news = db.get_recent_news_for_ticker(sym, days=7)
-                    
-                    context = {
-                        "Symbol": sym,
-                        "Price_Data": {"Close": s['price']},
-                        "Technical_Indicators": {
-                            "RSI": tech.get('rsi'),
-                            "OBV": tech.get('obv'),
-                            "ATR": tech.get('atr'),
-                            "Trend": tech.get('trend')
-                        },
-                        "Settlement_Data": {
-                            "MTS_Volume": lev.get('mts_volume'),
-                            "Risk_Level": lev.get('risk_level')
-                        },
-                        "Narrative_Context": news[:5]
-                    }
-                    tasks.append(groq_brain.get_decision(context))
-                results = await asyncio.gather(*tasks)
-                return results
-
-            import asyncio
-            cognitive_results = _safe_run(groq_deep_dive())
-            cognitive_decisions = []
-            for i, res in enumerate(cognitive_results):
-                cognitive_decisions.append({**res, 'symbol': top_stocks[i]['symbol']})
+            stocks_for_post_analysis = []
+            for s in top_stocks[:25]:
+                sym = s['symbol']
+                tech = db.get_technical_indicators(sym) or {}
+                lev = db.get_latest_leverage(sym) or {}
+                fund = db.get_latest_fundamentals(sym) or {}
+                news = db.get_recent_news_for_ticker(sym, days=7)
+                
+                context = {
+                    "Symbol": sym,
+                    "Price": s['price'],
+                    "Change_Percent": s.get('change_percent', 0),
+                    "Fundamentals": fund,
+                    "Technicals": tech,
+                    "Settlement": lev,
+                    "Sector": fund.get('sector', 'N/A'),
+                    "Macro": macro_packet,
+                    "Recent_News": [n.get('headline', '')[:100] for n in (news or [])[:3]]
+                }
+                stocks_for_post_analysis.append(context)
             
-            print(f"  → Received {len(cognitive_decisions)} high-conviction signals.")
+            # Generate Top 10 Institutional Picks
+            cognitive_decisions = deep_engine.find_wealth_generation_picks(stocks_for_post_analysis)
+            
+            # Save for record (using original AIDecision table but enriched context)
+            db.save_ai_decisions([
+                {
+                    'ticker': d['symbol'],
+                    'action': d['action'],
+                    'conviction': f"{d['conviction']}%",
+                    'reasoning': d['long_term_rational'],
+                    'future_path': f"Target 1Y: {d.get('target_price_1y')}",
+                    'black_swan': d.get('key_investment_pillar')
+                } for d in cognitive_decisions
+            ])
+            
+            print(f"  → Received {len(cognitive_decisions)} institutional verdicts.")
             
             # 6. Get sector performance
             print("[6/8] Analyzing sectors...")
@@ -391,13 +415,15 @@ class ScheduleOrchestrator:
             # 7. Compile technical analysis
             print("[7/8] Compiling technical analysis...")
             sr_levels = get_kse100_support_resistance()
+            kse100_tech = db.get_technical_indicators('KSE100') or {}
+            
             technical_analysis = {
-                'rsi': 55,  # Would calculate from index data
-                'macd_trend': 'neutral',
-                'trend': kse100.get('sentiment', 'Neutral'),
+                'rsi': kse100_tech.get('rsi', 55),
+                'macd_trend': kse100_tech.get('macd_signal', 'Neutral').lower(),
+                'trend': kse100_tech.get('trend', kse100.get('sentiment', 'Neutral')),
                 'support': sr_levels.get('support_1', 0),
                 'resistance': sr_levels.get('resistance_1', 0),
-                'bollinger_signal': 'Neutral'
+                'bollinger_signal': kse100_tech.get('bollinger_signal', 'Neutral')
             }
             
             # 8. Get news summary (Comprehensive)

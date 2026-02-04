@@ -142,9 +142,11 @@ def run_fundamentals_scraper(limit=None):
         loop = asyncio.get_event_loop()
         if loop.is_running():
             nest_asyncio.apply()
-            return loop.run_until_complete(scraper.scrape_all(symbols))
+            task = loop.create_task(scraper.scrape_all(symbols))
+            return loop.run_until_complete(task)
         else:
-            return loop.run_until_complete(scraper.scrape_all(symbols))
+            task = loop.create_task(scraper.scrape_all(symbols))
+            return loop.run_until_complete(task)
     except Exception:
         return asyncio.run(scraper.scrape_all(symbols))
 

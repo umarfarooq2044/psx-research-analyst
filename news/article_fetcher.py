@@ -69,7 +69,7 @@ class ArticleFetcher:
         """Fetch multiple URLs concurrently"""
         results = {}
         async with aiohttp.ClientSession(headers=self.headers) as session:
-            tasks = [self.fetch_text(session, url) for url in urls]
+            tasks = [asyncio.create_task(self.fetch_text(session, url)) for url in urls]
             contents = await asyncio.gather(*tasks)
             
             for url, content in zip(urls, contents):

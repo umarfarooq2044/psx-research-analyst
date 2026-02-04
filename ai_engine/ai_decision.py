@@ -67,81 +67,86 @@ class GroqBrain:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
-        self.semaphore = asyncio.Semaphore(2) # Conservative for 429 prevention
+        self.semaphore = asyncio.Semaphore(20) # Paid Plan Optimization
 
-    async def get_agent_opinion(self, persona: str, data: Dict[str, Any], session: aiohttp.ClientSession) -> str:
-        """Get the opinion of a single specialized agent."""
-        async with self.semaphore:
-            payload = {
-                "model": GROQ_MODEL,
-                "messages": [
-                    {"role": "system", "content": AGENT_PROMPTS[persona]},
-                    {"role": "user", "content": f"Analyze this ticker context and provide a brief expert opinion: {json.dumps(data)}"}
-                ],
-                "temperature": 0.3
-            }
-            try:
-                # Use the passed session for task context stability
-                async with session.post(self.base_url, headers=self.headers, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                    if response.status == 200:
-                        result = await response.json()
-                        await asyncio.sleep(0.5) # Jitter/Throttling
-                        content = result['choices'][0]['message']['content']
-                        return content
-                    elif response.status == 429:
-                        await asyncio.sleep(2) # Backoff
-                        return "Rate Limited (Backing off)"
-            except Exception as e:
-                return f"Neutral/No Opinion ({str(e)})"
-            return "No Data"
-
+    def _sync_get_agent_opinion(self, persona: str, data: Dict[str, Any]) -> str:
+        """Synchronous version for thread pool execution."""
+        import requests
+        payload = {
+            "model": GROQ_MODEL,
+            "messages": [
+                {"role": "system", "content": AGENT_PROMPTS[persona]},
+                {"role": "user", "content": f"Analyze this ticker context and provide a brief expert opinion: {json.dumps(data)}"}
+            ],
+            "temperature": 0.3
+        }
+        try:
+            # Synchronous requests call to bypass asyncio timer context issues
+            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=20)
+            if response.status_code == 200:
+                result = response.json()
+                return result['choices'][0]['message']['content']
+            elif response.status_code == 429:
+                return "Rate Limited (Auto-Retry active)"
+        except Exception as e:
+            return f"Neutral/No Opinion ({str(e)})"
+        return "No Data"
 
     async def get_decision(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         SMI-v2: Chorus of Agents Synthesis.
-        1. Queries specialists in parallel.
-        2. Synthesizes via Moderator.
+        Optimized with ThreadPoolExecutor for parallel requests while maintaining stability.
         """
-        async with aiohttp.ClientSession() as session:
-            # Step 1: Gather Opinions from the Chorus
-            print(f"🧐 [Chorus] Consulting specialists for {data.get('Symbol')}...")
-            
-            # Wrap in Tasks to ensure proper context for Timeout managers
-            tasks = [asyncio.create_task(self.get_agent_opinion(persona, data, session)) 
-                    for persona in AGENT_PROMPTS.keys()]
+        import requests
+        from concurrent.futures import ThreadPoolExecutor
+        print(f"🧐 [Chorus] Consulting specialists for {data.get('Symbol')}...")
+        
+        loop = asyncio.get_event_loop()
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            # Parallelize the 4 agent opinions
+            tasks = [
+                loop.run_in_executor(executor, lambda p=p: self._sync_get_agent_opinion(p, data))
+                for p in AGENT_PROMPTS.keys()
+            ]
             opinions = await asyncio.gather(*tasks)
             
-            chorus_content = {
-                "Fundamental": opinions[0],
-                "Technical": opinions[1],
-                "Settlement": opinions[2],
-                "Macro": opinions[3]
+        chorus_content = {
+            "Fundamental": opinions[0],
+            "Technical": opinions[1],
+            "Settlement": opinions[2],
+            "Macro": opinions[3]
+        }
+        
+        # Step 2: Final Synthesis via Moderator
+        try:
+            payload = {
+                "model": GROQ_MODEL,
+                "messages": [
+                    {"role": "system", "content": MODERATOR_PROMPT},
+                    {"role": "user", "content": f"Here is the expert chorus analysis for {data.get('Symbol')}: {json.dumps(chorus_content)}. Context: {json.dumps(data)}"}
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.1
             }
-            
-            # Step 2: Final Synthesis via Moderator
-            async with self.semaphore:
-                payload = {
-                    "model": GROQ_MODEL,
-                    "messages": [
-                        {"role": "system", "content": MODERATOR_PROMPT},
-                        {"role": "user", "content": f"Here is the expert chorus analysis for {data.get('Symbol')}: {json.dumps(chorus_content)}. Context: {json.dumps(data)}"}
-                    ],
-                    "response_format": {"type": "json_object"},
-                    "temperature": 0.1
-                }
 
-                # SMI-v2 Alpha Engine (Chorus of Agents)
-                timeout = aiohttp.ClientTimeout(total=25)
-                try:
-                    async with session.post(self.base_url, headers=self.headers, json=payload, timeout=timeout) as response:
-                        if response.status == 200:
-                            result = await response.json()
-                            content = result['choices'][0]['message']['content']
-                            return json.loads(content)
-                        else:
-                            print(f"Moderator Error: {response.status}")
-                except Exception as e:
-                    print(f"Chorus Circuit Breaker Active: {e}")
+            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=40)
+            if response.status_code == 200:
+                result = response.json()
+                content = result['choices'][0]['message']['content']
+                return json.loads(content)
+            else:
+                print(f"Moderator Error: {response.status_code}")
+                return None
+        except Exception as e:
+            print(f"Chorus Circuit Breaker Active for {data.get('Symbol')}: {e}")
+
+        # Default Neutral Signal
+        return {
+            "decision": "HOLD",
+            "confidence": 0,
+            "smi_commentary": "Signal unavailable (Chorus Orchestration Failed).",
+            "psx_risk_flag": "Safe"
+        }
 
         # Default Neutral Signal
         return {

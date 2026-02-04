@@ -16,9 +16,9 @@ def get_premarket_css() -> str:
     <style>
         body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #010409; color: #c9d1d9; margin: 0; padding: 20px; }
         .container { max-width: 850px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 35px; border-radius: 16px; margin-bottom: 25px; text-align: center; border: 1px solid rgba(212,175,55,0.3); }
-        .header h1 { margin: 0; color: #010409; font-size: 30px; letter-spacing: 1.5px; font-weight: 800; }
-        .header .subtitle { color: #1a1a1a; font-size: 15px; margin-top: 10px; font-weight: 600; }
+        .header { background: linear-gradient(135deg, #d4af37, #b8860b, #966919); padding: 40px; border-radius: 20px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(212,175,55,0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header h1 { margin: 0; color: #010409; font-size: 32px; letter-spacing: 2px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .header .subtitle { color: #010409; font-size: 16px; margin-top: 12px; font-weight: 700; opacity: 0.9; }
         .section { background: #0d1117; border-radius: 16px; padding: 25px; margin-bottom: 20px; border: 1px solid #30363d; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         .section-title { color: #d4af37; font-size: 18px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid #30363d; padding-bottom: 12px; display: flex; align-items: center; gap: 10px; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -82,19 +82,19 @@ def generate_premarket_report(
                 <div class="subtitle">{now.strftime('%A, %B %d, %Y')} | Generated at {now.strftime('%I:%M %p')} PKT</div>
             </div>
 
-            <!-- SMI-v2 Alpha Engine Briefing -->
+            <!-- SMI-v3 Ultra Institutional Strategy -->
             {f'''
-            <div style="padding: 25px; background: #0d1117; border-left: 5px solid #d4af37; margin: 15px 0; border: 1px solid #30363d; border-radius: 12px;">
-                <div style="color: #d4af37; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">👑 SMI-v2 ALPHA ENGINE BRIEFING</div>
-                <div style="color: #ffffff; font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 10px;">
-                    {trading_strategy.get('synthesis', {}).get('strategy', 'Neutral')} Outlook: {trading_strategy.get('synthesis', {}).get('commentary', 'Awaiting Market Open')}
+            <div style="padding: 30px; background: #0d1117; border-left: 6px solid #d4af37; margin: 20px 0; border: 1px solid #30363d; border-radius: 16px; box-shadow: 0 8px 32px rgba(212,175,55,0.15);">
+                <div style="color: #d4af37; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">👑 SMI-v3 ULTRA INSTITUTIONAL STRATEGY</div>
+                <div style="color: #ffffff; font-size: 22px; font-weight: 800; line-height: 1.4; margin-bottom: 15px;">
+                    {trading_strategy.get('synthesis', {}).get('strategy', 'Neutral')} Outlook: {trading_strategy.get('synthesis', {}).get('commentary', 'Awaiting Institutional Opening')}
                 </div>
-                <div style="color: #8b949e; font-size: 13px; font-style: italic;">
-                    Expert Chorus Consensus confirms {trading_strategy.get('bias', 'neutral')} opening bias.
+                <div style="color: #c9d1d9; font-size: 15px; line-height: 1.6; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    <strong style="color: #d4af37;">25-Year Expert Verdict:</strong> {trading_strategy.get('bias', 'neutral').upper()} bias confirmed. Market dynamics suggest a focus on long-term compounders.
                 </div>
-                <div style="display: flex; gap: 20px; margin-top: 15px; font-size: 13px; font-weight: 600;">
-                    <div style="color: #f85149;">⚠️ RISK: {trading_strategy.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
-                    <div style="color: #d4af37;">💎 CONFIDENCE: {trading_strategy.get('synthesis', {}).get('score', 50)}%</div>
+                <div style="display: flex; gap: 20px; margin-top: 20px; font-size: 14px; font-weight: 700;">
+                    <div style="color: #f85149; background: rgba(248,81,73,0.15); padding: 6px 16px; border-radius: 8px; border: 1px solid rgba(248,81,73,0.3);">⚠️ SYSTEM RISK: {trading_strategy.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
+                    <div style="color: #3fb950; background: rgba(63,185,80,0.15); padding: 6px 16px; border-radius: 8px; border: 1px solid rgba(63,185,80,0.3);">💎 CONVICTION: {trading_strategy.get('synthesis', {}).get('score', 50)}%</div>
                 </div>
             </div>
             ''' if trading_strategy.get('synthesis') else ''}
@@ -201,37 +201,38 @@ def generate_premarket_report(
                 ''' for event in corporate_events[:5]]) if corporate_events else '<p style="color: #8899a6;">No major corporate events scheduled today.</p>'}
             </div>
             
-            <!-- SMI-v2 Alpha Engine (Chorus Consensus) -->
-            <div class="section" style="border-top: 4px solid #d4af37;">
-                <div class="section-title" style="color: #d4af37;">👑 ALPHA ENGINE (CHORUS CONSENSUS)</div>
+            <!-- Wealth Generation Picks -->
+            <div class="section" style="border: 2px solid #d4af37; box-shadow: 0 0 40px rgba(212,175,55,0.1);">
+                <div class="section-title" style="color: #d4af37; border-bottom-color: #d4af37;">💎 WEALTH GENERATION PICKS (SMI-v3 Ultra)</div>
+                <div style="font-size: 13px; color: #8b949e; margin-bottom: 25px; font-style: italic; background: rgba(212,175,55,0.05); padding: 10px; border-radius: 8px;">
+                    Institutional grade deep research identifies "Forever Compounders" with high ROE, low debt, and dominant economic moats. Focus on a 1-3 year horizon.
+                </div>
                 {''.join([f'''
-                <div class="stock-row" style="flex-direction: column; align-items: flex-start; gap: 10px; background: #161b22; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #21262d;">
-                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                        <span class="stock-symbol" style="font-size: 20px;">{stock['symbol']}</span>
-                        <span class="badge badge-{stock.get('action', 'hold').lower()}">{stock.get('action', 'HOLD')}</span>
+                <div style="background: #161b22; padding: 25px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #30363d; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; right: 0; background: rgba(212,175,55,0.1); padding: 5px 15px; border-bottom-left-radius: 12px; font-size: 11px; color: #d4af37; font-weight: 800;">INSTITUTIONAL GRADE</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="font-size: 22px; font-weight: 900; color: #58a6ff; letter-spacing: -0.5px;">{s['symbol']}</span>
+                        <span class="badge {'badge-buy' if 'BUY' in s['action'] else 'badge-hold'}" style="font-size: 12px; padding: 6px 16px;">{s['action']} ({s['conviction']})</span>
                     </div>
-                    
-                    <div style="color: #e7e9ea; font-size: 14px; font-weight: 500; line-height: 1.5;">
-                        "{stock.get('reason', 'Consensus-driven reasoning')}"
+                    <div style="color: #e7e9ea; font-size: 16px; line-height: 1.6; margin-bottom: 18px; font-weight: 500;">
+                        "{s['reason']}"
                     </div>
-
-                    <div style="display: flex; gap: 10px; width: 100%; margin-top: 5px;">
-                        <div style="flex: 1; background: #0d1117; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
-                            <div style="font-size: 10px; color: #8b949e; text-transform: uppercase;">Confidence</div>
-                            <div style="font-size: 15px; font-weight: 700; color: #d4af37;">{stock.get('conviction', '50%')}</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div style="background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.2); padding: 12px; border-radius: 10px;">
+                            <div style="font-size: 10px; color: #8b949e; text-transform: uppercase; margin-bottom: 4px;">Target Horizon</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #58a6ff;">{s['future_path']}</div>
                         </div>
-                        <div style="flex: 2; background: #0d1117; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
-                            <div style="font-size: 10px; color: #8b949e; text-transform: uppercase;">Strategic Path</div>
-                            <div style="font-size: 13px; font-weight: 600;">{stock.get('future_path', 'Monitoring catalysts...')}</div>
+                        <div style="background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.2); padding: 12px; border-radius: 10px;">
+                            <div style="font-size: 10px; color: #8b949e; text-transform: uppercase; margin-bottom: 4px;">Margin of Safety</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #f85149;">{s['atr_stop']}</div>
                         </div>
                     </div>
-
-                    <div style="width: 100%; background: rgba(248,81,73,0.1); padding: 10px; border-radius: 8px; font-size: 12px; display: flex; justify-content: space-between;">
-                        <span><strong style="color: #f85149;">RISK:</strong> {stock.get('black_swan', 'Standard Volatility')}</span>
-                        <span style="color: #d4af37; font-weight: 700;">ATR STOP: Rs. {stock.get('atr_stop', 'N/A')}</span>
+                    <div style="margin-top: 18px; font-size: 13px; color: #c9d1d9; border-top: 1px solid #21262d; padding-top: 15px; display: flex; align-items: center; gap: 8px;">
+                        <span style="background: #d4af37; color: #010409; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900;">PILLAR</span>
+                        <span>{s['black_swan']}</span>
                     </div>
                 </div>
-                ''' for stock in stocks_to_watch[:10]])}
+                ''' for s in stocks_to_watch[:10]])}
             </div>
             
             <!-- Risk Warnings -->

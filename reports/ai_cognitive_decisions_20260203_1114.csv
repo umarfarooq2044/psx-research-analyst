@@ -1,0 +1,2 @@
+﻿Date,Symbol,Signal,Conviction,Commentary,Risk_Flag,Future_Path,Model
+2026-02-03,KEL,WAIT-TO-BUY,40%,"Insufficient data for a comprehensive analysis, but high volume suggests interest. Waiting for more data to confirm a buy signal.",Speculative,Real-time Deployment,Groq Llama-3.3-70b (SMI-v1)

@@ -76,95 +76,102 @@ class ComprehensiveNewsScraper:
         return news[:limit]
 
     async def _async_parse_feed(self, session: aiohttp.ClientSession, url: str, source: str, category: str = 'national', limit: int = 100) -> List[Dict]:
-        """Helper to parse RSS feeds asynchronously"""
+        """Helper to parse RSS feeds. Using requests for absolute stability in complex async loops."""
+        import requests
         try:
-            async with session.get(url, timeout=15) as response:
-                if response.status == 200:
-                    text = await response.text()
-                    feed = feedparser.parse(text)
-                    news = []
-                    for entry in feed.entries:
-                        title = getattr(entry, 'title', '')
-                        link = getattr(entry, 'link', '')
-                        if not title: continue
-                        
-                        sentiment = sentiment_analyzer.polarity_scores(title)
-                        news.append({
-                            'headline': title,
-                            'source': source,
-                            'url': link,
-                            'sentiment': sentiment['compound'],
-                            'category': category,
-                            'timestamp': datetime.now().isoformat(),
-                            'tickers': []
-                        })
-                    return news[:limit]
+            loop = asyncio.get_event_loop()
+            # Synchronous requests call to bypass asyncio timer context issues
+            response = await loop.run_in_executor(None, lambda: requests.get(url, headers=self.headers, timeout=15))
+            
+            if response.status_code == 200:
+                feed = feedparser.parse(response.text)
+                news = []
+                for entry in feed.entries:
+                    title = getattr(entry, 'title', '')
+                    link = getattr(entry, 'link', '')
+                    if not title: continue
+                    
+                    sentiment = sentiment_analyzer.polarity_scores(title)
+                    news.append({
+                        'headline': title,
+                        'source': source,
+                        'url': link,
+                        'sentiment': sentiment['compound'],
+                        'category': category,
+                        'timestamp': datetime.now().isoformat(),
+                        'tickers': []
+                    })
+                return news[:limit]
         except Exception as e:
-            print(f"Async RSS Error ({source}): {e}")
+            print(f"RSS Error ({source}): {e}")
         return []
 
     async def _async_scrape_reuters(self, session: aiohttp.ClientSession) -> List[Dict]:
-        """Async version of Reuters scraping"""
+        """Reuters scraping using requests for stability."""
         url = "https://www.reuters.com/markets/"
+        import requests
         try:
-            async with session.get(url, timeout=15) as response:
-                if response.status == 200:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, 'html.parser')
-                    articles = soup.select('h3[data-testid="Heading"], h3 a') 
-                    news = []
-                    for article in articles[:50]:
-                        title = article.get_text(strip=True)
-                        if not title: continue
-                        if article.name == 'a':
-                            href = article.get('href', '')
-                        else:
-                            link = article.find_parent('a')
-                            href = link.get('href', '') if link else ''
-                        if not href: continue
-                        sentiment = sentiment_analyzer.polarity_scores(title)
-                        news.append({
-                            'headline': title,
-                            'source': 'Reuters',
-                            'url': f"https://www.reuters.com{href}" if not href.startswith('http') else href,
-                            'sentiment': sentiment['compound'],
-                            'category': 'international',
-                            'timestamp': datetime.now().isoformat()
-                        })
-                    return news
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(None, lambda: requests.get(url, headers=self.headers, timeout=15))
+            if response.status_code == 200:
+                html = response.text
+                soup = BeautifulSoup(html, 'html.parser')
+                articles = soup.select('h3[data-testid="Heading"], h3 a') 
+                news = []
+                for article in articles[:50]:
+                    title = article.get_text(strip=True)
+                    if not title: continue
+                    if article.name == 'a':
+                        href = article.get('href', '')
+                    else:
+                        link = article.find_parent('a')
+                        href = link.get('href', '') if link else ''
+                    if not href: continue
+                    sentiment = sentiment_analyzer.polarity_scores(title)
+                    news.append({
+                        'headline': title,
+                        'source': 'Reuters',
+                        'url': f"https://www.reuters.com{href}" if not href.startswith('http') else href,
+                        'sentiment': sentiment['compound'],
+                        'category': 'international',
+                        'timestamp': datetime.now().isoformat()
+                    })
+                return news
         except Exception as e:
-            print(f"Async Reuters error: {e}")
+            print(f"Reuters error: {e}")
         return []
 
     async def _async_scrape_psx_notices(self, session: aiohttp.ClientSession) -> List[Dict]:
-        """Async version of PSX notices scraping"""
+        """PSX Notices scraping using requests for stability."""
         url = "https://www.psx.com.pk/psx/exchange/market/company-notices"
+        import requests
         try:
-            async with session.get(url, timeout=15) as response:
-                if response.status == 200:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, 'html.parser')
-                    rows = soup.find_all('tr', limit=20)
-                    news = []
-                    for row in rows[1:]:
-                        cols = row.find_all('td')
-                        if len(cols) >= 3:
-                            company = cols[0].get_text(strip=True)
-                            subject = cols[2].get_text(strip=True) if len(cols) > 2 else ''
-                            headline = f"{company}: {subject}"
-                            sentiment = sentiment_analyzer.polarity_scores(headline)
-                            news.append({
-                                'headline': headline,
-                                'source': 'PSX Official',
-                                'url': 'https://www.psx.com.pk/psx/exchange/market/company-notices',
-                                'sentiment': sentiment['compound'],
-                                'category': 'announcement',
-                                'company': company,
-                                'timestamp': datetime.now().isoformat()
-                            })
-                    return news
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(None, lambda: requests.get(url, headers=self.headers, timeout=15))
+            if response.status_code == 200:
+                html = response.text
+                soup = BeautifulSoup(html, 'html.parser')
+                rows = soup.find_all('tr', limit=20)
+                news = []
+                for row in rows[1:]:
+                    cols = row.find_all('td')
+                    if len(cols) >= 3:
+                        company = cols[0].get_text(strip=True)
+                        subject = cols[2].get_text(strip=True) if len(cols) > 2 else ''
+                        headline = f"{company}: {subject}"
+                        sentiment = sentiment_analyzer.polarity_scores(headline)
+                        news.append({
+                            'headline': headline,
+                            'source': 'PSX Official',
+                            'url': 'https://www.psx.com.pk/psx/exchange/market/company-notices',
+                            'sentiment': sentiment['compound'],
+                            'category': 'announcement',
+                            'company': company,
+                            'timestamp': datetime.now().isoformat()
+                        })
+                return news
         except Exception as e:
-            print(f"Async PSX Notices error: {e}")
+            print(f"PSX Notices error: {e}")
         return []
 
     # =========================================================================
@@ -467,12 +474,14 @@ class ComprehensiveNewsScraper:
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
-                # This is tricky if already in a loop. For orchestrator this is fine.
                 import nest_asyncio
                 nest_asyncio.apply()
-            return loop.run_until_complete(self.async_collect_all_news())
+                task = loop.create_task(self.async_collect_all_news())
+                return loop.run_until_complete(task)
+            else:
+                task = loop.create_task(self.async_collect_all_news())
+                return loop.run_until_complete(task)
         except Exception:
-            # Fallback to simple run if loop issues
             return asyncio.run(self.async_collect_all_news())
 
     async def async_collect_all_news(self) -> Dict:
@@ -496,16 +505,14 @@ class ComprehensiveNewsScraper:
         ]
         
         async with aiohttp.ClientSession(headers=self.headers) as session:
-            # Parallel tasks for RSS
-            rss_tasks = [self._async_parse_feed(session, url, name, cat) for url, name, cat in sources]
+            # Parallel tasks for RSS - Wrap in Tasks for stable timeout context
+            tasks = [asyncio.create_task(self._async_parse_feed(session, url, name, cat)) for url, name, cat in sources]
             
             # Additional Scraping tasks
-            scraping_tasks = [
-                self._async_scrape_reuters(session),
-                self._async_scrape_psx_notices(session)
-            ]
+            tasks.append(asyncio.create_task(self._async_scrape_reuters(session)))
+            tasks.append(asyncio.create_task(self._async_scrape_psx_notices(session)))
             
-            all_results = await asyncio.gather(*(rss_tasks + scraping_tasks))
+            all_results = await asyncio.gather(*tasks)
             
             all_news = {
                 'national': [],

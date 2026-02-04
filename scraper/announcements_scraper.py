@@ -163,9 +163,11 @@ def scrape_all_announcements(symbols: List[str], show_progress: bool = True) -> 
         loop = asyncio.get_event_loop()
         if loop.is_running():
             nest_asyncio.apply()
-            return loop.run_until_complete(scrape_all_announcements_async(symbols, show_progress=show_progress))
+            task = loop.create_task(scrape_all_announcements_async(symbols, show_progress=show_progress))
+            return loop.run_until_complete(task)
         else:
-            return loop.run_until_complete(scrape_all_announcements_async(symbols, show_progress=show_progress))
+            task = loop.create_task(scrape_all_announcements_async(symbols, show_progress=show_progress))
+            return loop.run_until_complete(task)
     except Exception:
         return asyncio.run(scrape_all_announcements_async(symbols, show_progress=show_progress))
 

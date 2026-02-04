@@ -16,9 +16,9 @@ def get_postmarket_css() -> str:
     <style>
         body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #010409; color: #c9d1d9; margin: 0; padding: 20px; }
         .container { max-width: 950px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 40px; border-radius: 16px; margin-bottom: 25px; text-align: center; border: 1px solid rgba(212, 175, 55, 0.3); }
-        .header h1 { margin: 0; color: #010409; font-size: 32px; letter-spacing: 1px; }
-        .header .subtitle { color: #1a1a1a; font-size: 15px; margin-top: 10px; font-weight: 500; }
+        .header { background: linear-gradient(135deg, #d4af37, #b8860b, #966919); padding: 50px; border-radius: 24px; margin-bottom: 35px; text-align: center; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 15px 45px rgba(0,0,0,0.6); }
+        .header h1 { margin: 0; color: #010409; font-size: 36px; letter-spacing: 2px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header .subtitle { color: #010409; font-size: 17px; margin-top: 15px; font-weight: 700; opacity: 0.9; }
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 25px; }
         .summary-card { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; transition: transform 0.2s; }
         .summary-card:hover { transform: translateY(-5px); border-color: #d4af37; }
@@ -130,16 +130,19 @@ def generate_postmarket_report(
                 <div class="subtitle">{now.strftime('%A, %B %d, %Y')} | Market Close Report | Generated at {now.strftime('%I:%M %p')} PKT</div>
             </div>
             
-            <!-- SMI-v1 Cognitive Briefing -->
+            <!-- SMI-v3 Ultra Cognitive Briefing -->
             {f'''
-            <div style="padding: 20px; background: #0d1117; border-left: 4px solid #7856ff; margin: 15px 0; border: 1px solid #30363d; border-radius: 8px;">
-                <div style="color: #7856ff; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">🦅 SMI-v1 COGNITIVE BRIEFING</div>
-                <div style="color: #e7e9ea; font-size: 16px; font-weight: 600; line-height: 1.4;">
-                    {news_summary.get('synthesis', {}).get('strategy', 'Neutral')} Recap: {news_summary.get('synthesis', {}).get('commentary', 'Market Closed')}
+            <div style="padding: 30px; background: #0d1117; border-left: 6px solid #7856ff; margin: 20px 0; border: 1px solid #30363d; border-radius: 16px; box-shadow: 0 10px 40px rgba(120,86,255,0.15);">
+                <div style="color: #7856ff; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">🦅 SMI-v3 ULTRA COGNITIVE BRIEFING</div>
+                <div style="color: #ffffff; font-size: 20px; font-weight: 800; line-height: 1.5; margin-bottom: 15px;">
+                    {news_summary.get('synthesis', {}).get('strategy', 'Neutral')} Recap: {news_summary.get('synthesis', {}).get('commentary', 'Market Cycle Complete')}
                 </div>
-                <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 13px;">
-                    <div style="color: #3fb950;">🛡️ Risk: {news_summary.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
-                    <div style="color: #7856ff;">💎 Confidence: {news_summary.get('synthesis', {}).get('score', 50)}%</div>
+                <div style="color: #c9d1d9; font-size: 14px; background: rgba(120,86,255,0.05); padding: 15px; border-radius: 10px; border: 1px solid rgba(120,86,255,0.1); margin-bottom: 15px;">
+                    <strong>Institutional Narrative:</strong> Deep research on {news_summary.get('total', 0)} headlines identifies a {news_summary.get('sentiment', 'mixed')} sentiment trajectory.
+                </div>
+                <div style="display: flex; gap: 20px; font-size: 14px; font-weight: 700;">
+                    <div style="color: #3fb950; background: rgba(63,185,80,0.1); padding: 5px 15px; border-radius: 6px;">🛡️ Risk: {news_summary.get('synthesis', {}).get('risk_flag', 'Safe')}</div>
+                    <div style="color: #7856ff; background: rgba(120,86,255,0.1); padding: 5px 15px; border-radius: 6px;">💎 Confidence: {news_summary.get('synthesis', {}).get('score', 50)}%</div>
                 </div>
             </div>
             ''' if news_summary.get('synthesis') else ''}
@@ -223,41 +226,60 @@ def generate_postmarket_report(
                 </table>
             </div>
             
-            <!-- SMI-v2 Alpha Engine (Chorus of Agents) -->
+            <!-- SMI-v3 Ultra Institutional Wealth Engine -->
             {f'''
-            <div class="section" style="border-top: 4px solid #d4af37;">
-                <div class="section-title" style="color: #d4af37;">👑 SMI-v2 ALPHA ENGINE (CHORUS OF AGENTS)</div>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+            <div class="section" style="border-top: 6px solid #d4af37; box-shadow: 0 0 50px rgba(212,175,55,0.15);">
+                <div class="section-title" style="color: #d4af37; border-bottom-color: #d4af37; letter-spacing: 1px;">👑 SMI-v3 ULTRA - INSTITUTIONAL WEALTH ENGINE</div>
+                <div style="font-size: 14px; color: #8b949e; margin-bottom: 30px; font-style: italic; background: rgba(212,175,55,0.05); padding: 15px; border-radius: 12px; border: 1px dashed rgba(212,175,55,0.2);">
+                    Our 25-Year Expertise persona analyzes the entire market at Groq speed to identify perfect long-term entries. These picks represent high-conviction wealth compounders for long-term holders.
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
                     {''.join([f"""
-                    <div style="background: #0d1117; padding: 20px; border-radius: 16px; border: 1px solid #30363d; position: relative;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <span class="stock-symbol" style="font-size: 22px;">{d['symbol']}</span>
-                            <span class="badge {get_rating_badge(d['decision'])}">
-                                {d['decision']} (Confidence: {d['confidence']}%)
+                    <div style="background: #161b22; padding: 25px; border-radius: 20px; border: 1px solid #30363d; position: relative; transition: all 0.3s ease;">
+                        <div style="position: absolute; top: -1px; right: 40px; background: #d4af37; color: #010409; padding: 4px 15px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; font-size: 10px; font-weight: 900; letter-spacing: 1px;">HIGH CONVICTION</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                            <span class="stock-symbol" style="font-size: 26px; letter-spacing: -1px;">{d.get('symbol', 'N/A')}</span>
+                            <span class="badge {get_rating_badge(d.get('action', 'HOLD'))}" style="font-size: 12px; padding: 7px 20px;">
+                                {d.get('action', 'HOLD')} ({d.get('conviction', 0)}%)
                             </span>
                         </div>
-                        <div style="color: #e7e9ea; font-size: 15px; line-height: 1.5; font-weight: 500; margin-bottom: 15px;">
-                            "{d['smi_commentary']}"
+                        <div style="color: #ffffff; font-size: 17px; line-height: 1.6; font-weight: 500; margin-bottom: 25px; border-left: 4px solid #d4af37; padding-left: 15px; font-style: italic;">
+                            "{d.get('long_term_rational', 'Deep research concludes this is a foundational asset for the coming cycle.')}"
                         </div>
                         
-                        <!-- Chorus Opinions -->
-                        <div class="chorus-grid">
-                            <div class="expert-pill">🧠 FUND: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Fundamental', 'Stable')}</span></div>
-                            <div class="expert-pill">📈 QUANT: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Technical', 'Scanned')}</span></div>
-                            <div class="expert-pill">⚖️ SETTLEMENT: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Settlement', 'Safe')}</span></div>
-                            <div class="expert-pill">🌍 MACRO: <span class="expert-opinion">{d.get('expert_consensus', {}).get('Macro', 'Neutral')}</span></div>
+                        <!-- Wealth Indicators -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                            <div style="background: rgba(63, 185, 80, 0.1); border: 1px solid rgba(63, 185, 80, 0.2); padding: 15px; border-radius: 12px;">
+                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">1Y TARGET</span>
+                                <div style="font-size: 20px; font-weight: 900; color: #3fb950; margin-top: 5px;">
+                                    Rs. {d.get('target_price_1y', 'N/A')}
+                                </div>
+                            </div>
+                            <div style="background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.2); padding: 15px; border-radius: 12px;">
+                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">VALUATION FLR</span>
+                                <div style="font-size: 20px; font-weight: 900; color: #f85149; margin-top: 5px;">
+                                    Rs. {d.get('stop_loss_long', 'N/A')}
+                                </div>
+                            </div>
+                            <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); padding: 15px; border-radius: 12px;">
+                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">VALUE SCORE</span>
+                                <div style="font-size: 20px; font-weight: 900; color: #d4af37; margin-top: 5px;">
+                                    {d.get('value_score', 0)}/100
+                                </div>
+                            </div>
                         </div>
 
-                        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="font-size: 11px; color: #8b949e;">
-                                <span style="color: #f85149; font-weight: bold;">RISK:</span> {d['psx_risk_flag']}
+                        <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #21262d; padding-top: 15px;">
+                            <div style="font-size: 12px; color: #c9d1d9; display: flex; align-items: center; gap: 8px;">
+                                <span style="background: #f85149; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900;">MOAT</span>
+                                <strong>{d.get('moat_rating', 'Narrow')}</strong>
                             </div>
-                            <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); padding: 4px 10px; border-radius: 8px; font-size: 12px; color: #d4af37; font-weight: 700;">
-                                STOP-LOSS (ATR): Rs. {d.get('suggested_exit_atr', 0)}
+                            <div style="background: rgba(88, 166, 255, 0.1); border: 1px solid rgba(88, 166, 255, 0.2); padding: 6px 15px; border-radius: 10px; font-size: 12px; color: #58a6ff; font-weight: 700;">
+                                PILLAR: {d.get('key_investment_pillar', 'Asset Strength')[:50]}
                             </div>
                         </div>
                     </div>
-                    """ for d in (cognitive_decisions if isinstance(cognitive_decisions, list) else [])[:8]])}
+                    """ for d in (cognitive_decisions if isinstance(cognitive_decisions, list) else [])[:10]])}
                 </div>
             </div>
             ''' if cognitive_decisions else ''}

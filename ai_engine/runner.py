@@ -5,6 +5,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from database.db_manager import db
 import json
 import asyncio
+import nest_asyncio
+
+# Global apply for stability across sync/async boundaries
+nest_asyncio.apply()
 
 async def async_run_cognitive_engine():
     """
@@ -50,7 +54,7 @@ async def async_run_cognitive_engine():
             },
             "Narrative_Context": news[:5]
         }
-        tasks.append(brain.get_decision(context))
+        tasks.append(asyncio.create_task(brain.get_decision(context)))
     
     results = await asyncio.gather(*tasks)
     
@@ -80,10 +84,13 @@ def run_cognitive_engine():
     try:
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            return asyncio.ensure_future(async_run_cognitive_engine())
+            task = loop.create_task(async_run_cognitive_engine())
+            return loop.run_until_complete(task)
         else:
-            return loop.run_until_complete(async_run_cognitive_engine())
-    except RuntimeError:
+            task = loop.create_task(async_run_cognitive_engine())
+            return loop.run_until_complete(task)
+    except Exception as e:
+        print(f"  ⚠️ run_cognitive_engine fallback: {e}")
         return asyncio.run(async_run_cognitive_engine())
 
 if __name__ == "__main__":
