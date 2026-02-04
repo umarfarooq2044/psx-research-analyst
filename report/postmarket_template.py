@@ -250,7 +250,7 @@ def generate_postmarket_report(
                         <!-- Wealth Indicators -->
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
                             <div style="background: rgba(63, 185, 80, 0.1); border: 1px solid rgba(63, 185, 80, 0.2); padding: 15px; border-radius: 12px;">
-                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">1Y TARGET</span>
+                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">TARGET (1Y)</span>
                                 <div style="font-size: 20px; font-weight: 900; color: #3fb950; margin-top: 5px;">
                                     Rs. {d.get('target_price_1y', 'N/A')}
                                 </div>
