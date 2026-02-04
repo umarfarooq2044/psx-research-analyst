@@ -358,13 +358,13 @@ class ScheduleOrchestrator:
             ]
             
             # 5.5. SMI-v3 Ultra: Institutional Deep Research (Post-Market Verdicts)
-            print("[5.5/8] Analyzing Top Tickers for Wealth Generation (SMI-v3 Ultra)...")
-            # Reuse the high-speed engine
+            print("[5.5/8] Analyzing Top 50 Tickers for Wealth Generation (SMI-v3 Ultra)...")
+            # Reuse the high-speed engine - Unlimited Groq allows 50+ parallel analyses
             from ai_engine.deep_research_engine import DeepResearchEngine
             deep_engine = DeepResearchEngine()
             
             stocks_for_post_analysis = []
-            for s in top_stocks[:25]:
+            for s in top_stocks[:50]:  # Increased from 25 to 50 with unlimited Groq
                 sym = s['symbol']
                 tech = db.get_technical_indicators(sym) or {}
                 lev = db.get_latest_leverage(sym) or {}

@@ -13,24 +13,40 @@ from config import GROQ_API_KEY, GROQ_MODEL
 
 AGENT_PROMPTS = {
     "FUND_ANALYST": """
-    ROLE: Defensive Fundamental Analyst. 
+    ROLE: Defensive Fundamental Analyst for Pakistan Stock Exchange.
     FOCUS: Value, Dividends, Sector Beta, and Fair Value.
-    CRITERIA: If PE > 15 and ROE < 10, be extremely cautious. Look for 'Value Traps'.
+    CRITERIA: 
+    - If PE > 15 and ROE < 10, be extremely cautious. Look for 'Value Traps'.
+    - In Pakistan's high-inflation environment (20%+), dividend yield must beat T-bills (15%+).
+    - Be wary of high debt in companies due to KIBOR at 17-20%.
+    - Preferred sectors for value: Fertilizer (EFERT, FFC), Banks (HBL, MCB), Cement (LUCK).
     """,
     "QUANT_SNIPER": """
-    ROLE: High-Frequency Technical Sniper.
+    ROLE: High-Frequency Technical Sniper for PSX.
     FOCUS: RSI, MACD, Bollinger position, OBV (Volume Quality), and ATR (Volatility).
-    CRITERIA: Only signal Buy if OBV is rising and price > 200DMA. Identify 'Momentum Ignition'.
+    CRITERIA: 
+    - Only signal Buy if OBV is rising and price > 200DMA. Identify 'Momentum Ignition'.
+    - PSX has T+2 settlement - factor this into short-term moves.
+    - Watch for 3:15 PM power hour manipulation (last 15 mins of trading).
+    - Volume spikes without price follow-through = institutional distribution.
     """,
     "SETTLEMENT_WATCHER": """
-    ROLE: Risk & Settlement Officer (NCCPL Expert).
-    FOCUS: MTS (Leverage) and Futures Open Interest (OI).
-    CRITERIA: If MTS (Leverage) is high, signal SELL/REDUCE regardless of technicals. Danger of Margin Calls.
+    ROLE: Risk & Settlement Officer (NCCPL/CDC Expert) for PSX.
+    FOCUS: MTS (Margin Trading System), Futures Open Interest (OI), and Leverage.
+    CRITERIA: 
+    - If MTS (Leverage) is high, signal SELL/REDUCE regardless of technicals. Danger of Margin Calls.
+    - Monday/Tuesday after settlement = high volatility due to T+2 cycle.
+    - Watch NCCPL data for institutional delivery patterns.
+    - High OI at resistance = likely rejection.
     """,
     "MACRO_GENERAL": """
-    ROLE: Sovereign & Geopolitical Strategist.
-    FOCUS: IMF news, USD/PKR, Oil, and Political stability.
-    CRITERIA: If IMF status is 'Uncertain', override all bullish signals. Market risk is systemic.
+    ROLE: Sovereign & Geopolitical Strategist for Pakistan.
+    FOCUS: IMF program status, USD/PKR, Oil prices, Political stability, Inflation.
+    CRITERIA: 
+    - If IMF status is 'Uncertain', override all bullish signals. Market risk is systemic.
+    - Oil above $90 = serious pressure on PKR and CAD.
+    - Political uncertainty in Punjab = cement/textile weakness.
+    - KIBOR cuts = banks underperform, growth stocks outperform.
     """
 }
 
@@ -139,14 +155,6 @@ class GroqBrain:
                 return None
         except Exception as e:
             print(f"Chorus Circuit Breaker Active for {data.get('Symbol')}: {e}")
-
-        # Default Neutral Signal
-        return {
-            "decision": "HOLD",
-            "confidence": 0,
-            "smi_commentary": "Signal unavailable (Chorus Orchestration Failed).",
-            "psx_risk_flag": "Safe"
-        }
 
         # Default Neutral Signal
         return {
