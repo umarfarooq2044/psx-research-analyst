@@ -91,6 +91,7 @@ jobs:
           EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           echo "Running ${{ steps.report.outputs.type }} analysis..."
           python scheduler/orchestrator.py --run ${{ steps.report.outputs.type }}

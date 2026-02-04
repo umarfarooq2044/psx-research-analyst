@@ -410,9 +410,13 @@ async def async_run_hourly_update() -> Dict:
     if top_candidates:
         decision_results = await asyncio.gather(*[analyze_ticker(c) for c in top_candidates])
         for dec, sym in decision_results:
-            if dec['decision'] != 'HOLD' or dec['confidence'] > 70:
-                signal_emoji = "🟢" if dec['decision'] == 'BUY' else "🔴" if dec['decision'] == 'SELL' else "🟡"
-                alert_text = f"{signal_emoji} **AI {dec['decision']} ({sym})**: {dec['smi_commentary']} (Conf: {dec['confidence']}%)"
+            # Skip if API failed (returned None)
+            if dec is None:
+                print(f"  ⚠️ Skipping {sym}: AI analysis returned None (API error)")
+                continue
+            if dec.get('decision') != 'HOLD' or dec.get('confidence', 0) > 70:
+                signal_emoji = "🟢" if dec.get('decision') == 'BUY' else "🔴" if dec.get('decision') == 'SELL' else "🟡"
+                alert_text = f"{signal_emoji} **AI {dec.get('decision', 'HOLD')} ({sym})**: {dec.get('smi_commentary', 'No comment')} (Conf: {dec.get('confidence', 0)}%)"
                 alerts = [alert_text] + alerts
                 cognitive_decisions.append({**dec, 'symbol': sym})
 
