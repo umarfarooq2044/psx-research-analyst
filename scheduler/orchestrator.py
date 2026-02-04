@@ -369,16 +369,18 @@ class ScheduleOrchestrator:
                 tech = db.get_technical_indicators(sym) or {}
                 lev = db.get_latest_leverage(sym) or {}
                 fund = db.get_latest_fundamentals(sym) or {}
+                # Remove non-JSON-serializable date field
+                fund_clean = {k: v for k, v in fund.items() if k != 'date'}
                 news = db.get_recent_news_for_ticker(sym, days=7)
                 
                 context = {
                     "Symbol": sym,
                     "Price": s['price'],
                     "Change_Percent": s.get('change_percent', 0),
-                    "Fundamentals": fund,
+                    "Fundamentals": fund_clean,
                     "Technicals": tech,
                     "Settlement": lev,
-                    "Sector": fund.get('sector', 'N/A'),
+                    "Sector": fund_clean.get('sector', 'N/A'),
                     "Macro": macro_packet,
                     "Recent_News": [n.get('headline', '')[:100] for n in (news or [])[:3]]
                 }
