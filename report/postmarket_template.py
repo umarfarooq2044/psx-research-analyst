@@ -115,6 +115,81 @@ def generate_postmarket_report(
             </div>
         '''
 
+    # Pre-generate SMI-v3 Ultra Wealth Engine HTML to avoid nested f-string issues
+    smi_ultra_html = ""
+    if cognitive_decisions and isinstance(cognitive_decisions, list) and len(cognitive_decisions) > 0:
+        cards_html = ""
+        for d in cognitive_decisions[:10]:
+            sym = d.get('symbol', 'N/A')
+            action = d.get('action', 'HOLD')
+            conviction = d.get('conviction', 0)
+            rational = d.get('long_term_rational', 'Deep research concludes this is a foundational asset.')
+            target_1y = d.get('target_price_1y', 'N/A')
+            stop_loss = d.get('stop_loss_long', 'N/A')
+            value_score = d.get('value_score', 0)
+            moat = d.get('moat_rating', 'Narrow')
+            pillar = str(d.get('key_investment_pillar', 'Asset Strength'))[:50]
+            badge_class = get_rating_badge(action)
+            
+            cards_html += f'''
+                    <div style="background: #161b22; padding: 25px; border-radius: 20px; border: 1px solid #30363d; position: relative; transition: all 0.3s ease;">
+                        <div style="position: absolute; top: -1px; right: 40px; background: #d4af37; color: #010409; padding: 4px 15px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; font-size: 10px; font-weight: 900; letter-spacing: 1px;">HIGH CONVICTION</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                            <span class="stock-symbol" style="font-size: 26px; letter-spacing: -1px;">{sym}</span>
+                            <span class="badge {badge_class}" style="font-size: 12px; padding: 7px 20px;">
+                                {action} ({conviction}%)
+                            </span>
+                        </div>
+                        <div style="color: #ffffff; font-size: 17px; line-height: 1.6; font-weight: 500; margin-bottom: 25px; border-left: 4px solid #d4af37; padding-left: 15px; font-style: italic;">
+                            "{rational}"
+                        </div>
+                        
+                        <!-- Wealth Indicators -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                            <div style="background: rgba(63, 185, 80, 0.1); border: 1px solid rgba(63, 185, 80, 0.2); padding: 15px; border-radius: 12px;">
+                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">TARGET PRICE</span>
+                                <div style="font-size: 20px; font-weight: 900; color: #3fb950; margin-top: 5px;">
+                                    Rs. {target_1y}
+                                </div>
+                            </div>
+                            <div style="background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.2); padding: 15px; border-radius: 12px;">
+                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">VALUATION FLR</span>
+                                <div style="font-size: 20px; font-weight: 900; color: #f85149; margin-top: 5px;">
+                                    Rs. {stop_loss}
+                                </div>
+                            </div>
+                            <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); padding: 15px; border-radius: 12px;">
+                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">VALUE SCORE</span>
+                                <div style="font-size: 20px; font-weight: 900; color: #d4af37; margin-top: 5px;">
+                                    {value_score}/100
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #21262d; padding-top: 15px;">
+                            <div style="font-size: 12px; color: #c9d1d9; display: flex; align-items: center; gap: 8px;">
+                                <span style="background: #f85149; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900;">MOAT</span>
+                                <strong>{moat}</strong>
+                            </div>
+                            <div style="background: rgba(88, 166, 255, 0.1); border: 1px solid rgba(88, 166, 255, 0.2); padding: 6px 15px; border-radius: 10px; font-size: 12px; color: #58a6ff; font-weight: 700;">
+                                PILLAR: {pillar}
+                            </div>
+                        </div>
+                    </div>
+            '''
+        
+        smi_ultra_html = f'''
+            <div class="section" style="border-top: 6px solid #d4af37; box-shadow: 0 0 50px rgba(212,175,55,0.15);">
+                <div class="section-title" style="color: #d4af37; border-bottom-color: #d4af37; letter-spacing: 1px;">👑 SMI-v3 ULTRA - INSTITUTIONAL WEALTH ENGINE</div>
+                <div style="font-size: 14px; color: #8b949e; margin-bottom: 30px; font-style: italic; background: rgba(212,175,55,0.05); padding: 15px; border-radius: 12px; border: 1px dashed rgba(212,175,55,0.2);">
+                    Our 25-Year Expertise persona analyzes the entire market at Groq speed to identify perfect long-term entries. These picks represent high-conviction wealth compounders for long-term holders.
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                    {cards_html}
+                </div>
+            </div>
+        '''
+
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -227,64 +302,8 @@ def generate_postmarket_report(
             </div>
             
             <!-- SMI-v3 Ultra Institutional Wealth Engine -->
-            {f'''
-            <div class="section" style="border-top: 6px solid #d4af37; box-shadow: 0 0 50px rgba(212,175,55,0.15);">
-                <div class="section-title" style="color: #d4af37; border-bottom-color: #d4af37; letter-spacing: 1px;">👑 SMI-v3 ULTRA - INSTITUTIONAL WEALTH ENGINE</div>
-                <div style="font-size: 14px; color: #8b949e; margin-bottom: 30px; font-style: italic; background: rgba(212,175,55,0.05); padding: 15px; border-radius: 12px; border: 1px dashed rgba(212,175,55,0.2);">
-                    Our 25-Year Expertise persona analyzes the entire market at Groq speed to identify perfect long-term entries. These picks represent high-conviction wealth compounders for long-term holders.
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
-                    {''.join([f"""
-                    <div style="background: #161b22; padding: 25px; border-radius: 20px; border: 1px solid #30363d; position: relative; transition: all 0.3s ease;">
-                        <div style="position: absolute; top: -1px; right: 40px; background: #d4af37; color: #010409; padding: 4px 15px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; font-size: 10px; font-weight: 900; letter-spacing: 1px;">HIGH CONVICTION</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-                            <span class="stock-symbol" style="font-size: 26px; letter-spacing: -1px;">{d.get('symbol', 'N/A')}</span>
-                            <span class="badge {get_rating_badge(d.get('action', 'HOLD'))}" style="font-size: 12px; padding: 7px 20px;">
-                                {d.get('action', 'HOLD')} ({d.get('conviction', 0)}%)
-                            </span>
-                        </div>
-                        <div style="color: #ffffff; font-size: 17px; line-height: 1.6; font-weight: 500; margin-bottom: 25px; border-left: 4px solid #d4af37; padding-left: 15px; font-style: italic;">
-                            "{d.get('long_term_rational', 'Deep research concludes this is a foundational asset for the coming cycle.')}"
-                        </div>
-                        
-                        <!-- Wealth Indicators -->
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
-                            <div style="background: rgba(63, 185, 80, 0.1); border: 1px solid rgba(63, 185, 80, 0.2); padding: 15px; border-radius: 12px;">
-                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">TARGET (1Y)</span>
-                                <div style="font-size: 20px; font-weight: 900; color: #3fb950; margin-top: 5px;">
-                                    Rs. {d.get('target_price_1y', 'N/A')}
-                                </div>
-                            </div>
-                            <div style="background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.2); padding: 15px; border-radius: 12px;">
-                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">VALUATION FLR</span>
-                                <div style="font-size: 20px; font-weight: 900; color: #f85149; margin-top: 5px;">
-                                    Rs. {d.get('stop_loss_long', 'N/A')}
-                                </div>
-                            </div>
-                            <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); padding: 15px; border-radius: 12px;">
-                                <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 700;">VALUE SCORE</span>
-                                <div style="font-size: 20px; font-weight: 900; color: #d4af37; margin-top: 5px;">
-                                    {d.get('value_score', 0)}/100
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #21262d; padding-top: 15px;">
-                            <div style="font-size: 12px; color: #c9d1d9; display: flex; align-items: center; gap: 8px;">
-                                <span style="background: #f85149; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900;">MOAT</span>
-                                <strong>{d.get('moat_rating', 'Narrow')}</strong>
-                            </div>
-                            <div style="background: rgba(88, 166, 255, 0.1); border: 1px solid rgba(88, 166, 255, 0.2); padding: 6px 15px; border-radius: 10px; font-size: 12px; color: #58a6ff; font-weight: 700;">
-                                PILLAR: {d.get('key_investment_pillar', 'Asset Strength')[:50]}
-                            </div>
-                        </div>
-                    </div>
-                    """ for d in (cognitive_decisions if isinstance(cognitive_decisions, list) else [])[:10]])}
-                </div>
-            </div>
-            ''' if cognitive_decisions else ''}
+            {smi_ultra_html}
             
-            <!-- Undervalued Gems -->
             <!-- Undervalued Gems -->
             {undervalued_gems_html}
             
