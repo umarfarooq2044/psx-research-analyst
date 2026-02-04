@@ -131,12 +131,33 @@ class FundamentalsScraper:
         print(f"✅ Saved fundamentals for {len(results)} companies")
         return results
 
-def run_fundamentals_scraper(limit=None):
-    scraper = FundamentalsScraper()
-    tickers = db.get_all_tickers()
-    if limit: tickers = tickers[:limit]
+def run_fundamentals_scraper(limit=None, force_all=False):
+    """
+    Run fundamentals scraper with smart caching.
+    Only scrapes symbols that need refresh (stale > 7 days or missing).
     
-    symbols = [t['symbol'] for t in tickers]
+    Args:
+        limit: Optional limit on number of symbols to scrape
+        force_all: If True, scrape all symbols regardless of freshness
+    """
+    scraper = FundamentalsScraper()
+    
+    if force_all:
+        # Legacy mode: scrape all
+        tickers = db.get_all_tickers()
+        symbols = [t['symbol'] for t in tickers]
+        print(f"🧬 [Force Mode] Scraping fundamentals for ALL {len(symbols)} companies...")
+    else:
+        # Smart mode: only stale/missing symbols
+        symbols = db.get_symbols_needing_fundamentals(days_threshold=7)
+        print(f"🧬 [Smart Mode] {len(symbols)} companies need fundamental refresh...")
+        
+        if len(symbols) == 0:
+            print("✅ All fundamentals are fresh (< 7 days old). Skipping scrape.")
+            return []
+    
+    if limit:
+        symbols = symbols[:limit]
     
     try:
         loop = asyncio.get_event_loop()

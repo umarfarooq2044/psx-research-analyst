@@ -453,9 +453,32 @@ class DBManager:
                     'roe': fund.roe,
                     'net_margin': fund.net_margin,
                     'market_cap': fund.market_cap,
-                    'dividend_yield': fund.dividend_yield
+                    'dividend_yield': fund.dividend_yield,
+                    'date': fund.date  # Added for freshness check
                 }
             return {}
+
+    def get_symbols_needing_fundamentals(self, days_threshold: int = 7) -> List[str]:
+        """Get list of symbols that need fundamental refresh (stale or missing)"""
+        with get_db_session() as session:
+            from database.models import Fundamentals, Ticker
+            from sqlalchemy import func
+            from datetime import timedelta
+            
+            cutoff_date = datetime.now().date() - timedelta(days=days_threshold)
+            
+            # Get all ticker symbols
+            all_symbols = [t.symbol for t in session.query(Ticker.symbol).all()]
+            
+            # Get symbols with recent fundamentals
+            recent_funds = session.query(Fundamentals.symbol).filter(
+                Fundamentals.date >= cutoff_date
+            ).distinct().all()
+            recent_symbols = {f.symbol for f in recent_funds}
+            
+            # Return symbols that need refresh
+            stale_symbols = [s for s in all_symbols if s not in recent_symbols]
+            return stale_symbols
 
     # ==================== TECHNICAL INDICATORS ====================
 

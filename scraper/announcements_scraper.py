@@ -157,19 +157,44 @@ async def scrape_all_announcements_async(symbols: List[str], concurrency: int = 
         'new_announcements': total_new
     }
 
-def scrape_all_announcements(symbols: List[str], show_progress: bool = True) -> Dict:
-    """Synchronous wrapper for orchestrator"""
+def scrape_all_announcements(symbols: List[str], show_progress: bool = True, smart_mode: bool = True) -> Dict:
+    """
+    Synchronous wrapper for orchestrator.
+    
+    Args:
+        symbols: List of ticker symbols to scrape
+        show_progress: Show progress bar
+        smart_mode: If True, prioritize active companies (reduces scraping by ~50%)
+    """
+    if smart_mode and len(symbols) > 150:
+        import random
+        # Priority list: first 100 symbols (typically sorted by market cap / KSE-100)
+        priority_symbols = symbols[:100]
+        # Sample 50 from the rest
+        remaining = symbols[100:]
+        sample_size = min(50, len(remaining))
+        sampled = random.sample(remaining, sample_size) if remaining else []
+        
+        symbols_to_scrape = priority_symbols + sampled
+        print(f"🎯 [Smart Mode] Scraping announcements for {len(symbols_to_scrape)} priority companies (skipping {len(symbols) - len(symbols_to_scrape)})")
+    else:
+        symbols_to_scrape = symbols
+    
     try:
         loop = asyncio.get_event_loop()
         if loop.is_running():
             nest_asyncio.apply()
-            task = loop.create_task(scrape_all_announcements_async(symbols, show_progress=show_progress))
+            task = loop.create_task(scrape_all_announcements_async(symbols_to_scrape, show_progress=show_progress))
             return loop.run_until_complete(task)
         else:
-            task = loop.create_task(scrape_all_announcements_async(symbols, show_progress=show_progress))
+            task = loop.create_task(scrape_all_announcements_async(symbols_to_scrape, show_progress=show_progress))
             return loop.run_until_complete(task)
     except Exception:
-        return asyncio.run(scrape_all_announcements_async(symbols, show_progress=show_progress))
+        return asyncio.run(scrape_all_announcements_async(symbols_to_scrape, show_progress=show_progress))
+
+def scrape_all_announcements_full(symbols: List[str], show_progress: bool = True) -> Dict:
+    """Force scrape ALL announcements (no smart filtering)"""
+    return scrape_all_announcements(symbols, show_progress=show_progress, smart_mode=False)
 
 if __name__ == "__main__":
     test_symbols = ["MARI", "OGDC", "HBL", "ENGRO", "LUCK"]
