@@ -414,9 +414,20 @@ async def async_run_hourly_update() -> Dict:
             if dec is None:
                 print(f"  ⚠️ Skipping {sym}: AI analysis returned None (API error)")
                 continue
-            if dec.get('decision') != 'HOLD' or dec.get('confidence', 0) > 70:
-                signal_emoji = "🟢" if dec.get('decision') == 'BUY' else "🔴" if dec.get('decision') == 'SELL' else "🟡"
-                alert_text = f"{signal_emoji} **AI {dec.get('decision', 'HOLD')} ({sym})**: {dec.get('smi_commentary', 'No comment')} (Conf: {dec.get('confidence', 0)}%)"
+            
+            # Show ALL actionable signals (not just non-HOLD)
+            decision = dec.get('decision', 'HOLD')
+            confidence = dec.get('confidence', 0)
+            
+            # Include any signal that suggests action
+            if decision in ['STRONG BUY', 'BUY', 'ACCUMULATE', 'WAIT-TO-BUY', 'SELL', 'REDUCE', 'STAY AWAY']:
+                signal_emoji = "🟢" if decision in ['STRONG BUY', 'BUY', 'ACCUMULATE'] else "🔴" if decision in ['SELL', 'REDUCE', 'STAY AWAY'] else "🟡"
+                alert_text = f"{signal_emoji} **{decision} ({sym})**: {dec.get('smi_commentary', 'No comment')} (Conf: {confidence}%)"
+                alerts = [alert_text] + alerts
+                cognitive_decisions.append({**dec, 'symbol': sym})
+            # Also show HOLD if high confidence (something notable)
+            elif decision == 'HOLD' and confidence >= 60:
+                alert_text = f"🟡 **HOLD ({sym})**: {dec.get('smi_commentary', 'No comment')} (Conf: {confidence}%)"
                 alerts = [alert_text] + alerts
                 cognitive_decisions.append({**dec, 'symbol': sym})
 
