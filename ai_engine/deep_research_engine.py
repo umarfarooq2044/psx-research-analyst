@@ -93,8 +93,8 @@ class DeepResearchEngine:
             "Content-Type": "application/json"
         }
         
-    def _call_groq(self, prompt: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Ultra-low latency call to Groq."""
+    def _call_groq(self, prompt: str, data: Dict[str, Any], max_retries: int = 3) -> Dict[str, Any]:
+        """Ultra-low latency call to Groq with rate-limit protection."""
         if not self.api_key:
             return None
 
@@ -108,18 +108,32 @@ class DeepResearchEngine:
             "temperature": 0.1 # Minimum variance for institutional consistency
         }
         
-        try:
-            # Short timeout because Groq is 100x faster than traditional LLMs
-            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=30)
-            if response.status_code == 200:
-                result = response.json()
-                content = result['choices'][0]['message']['content']
-                return json.loads(content)
-            else:
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=45)
+                if response.status_code == 200:
+                    result = response.json()
+                    content = result['choices'][0]['message']['content']
+                    return json.loads(content)
+                elif response.status_code == 429:
+                    # Rate limited — exponential backoff
+                    wait = (2 ** attempt) + 1
+                    print(f"  ⏳ Groq rate limit hit (attempt {attempt+1}/{max_retries}). Waiting {wait}s...")
+                    import time; time.sleep(wait)
+                    continue
+                else:
+                    print(f"  ⚠️ Groq returned status {response.status_code} for {data.get('Symbol', '?')}")
+                    return None
+            except requests.exceptions.Timeout:
+                print(f"  ⏳ Groq timeout for {data.get('Symbol', '?')} (attempt {attempt+1})")
+                import time; time.sleep(1)
+                continue
+            except Exception as e:
+                print(f"  ⚠️ SMI-v3 Ultra Error for {data.get('Symbol', '?')}: {e}")
                 return None
-        except Exception as e:
-            print(f"SMI-v3 Ultra Error: {e}")
-            return None
+        
+        print(f"  ❌ All retries exhausted for {data.get('Symbol', '?')}")
+        return None
 
     def analyze_stock_ultra(self, stock_data: Dict[str, Any]) -> Dict[str, Any]:
         """Deep research for long-term wealth."""
@@ -133,18 +147,30 @@ class DeepResearchEngine:
 
     def find_wealth_generation_picks(self, market_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        SMI-v3 Ultra: Analyze the entire market at 100x speed.
+        SMI-v3 Ultra: Analyze the entire market.
         Returns the TOP 10 Long-Term High-Conviction Compounders.
+        Rate-limit safe: uses 5 workers with delays between batches.
         """
         print(f"🚀 [SMI-v3 Ultra] Booting Institutional Engine... Analyzing {len(market_data)} companies for Wealth Generation...")
         
-        # Massive parallelization for 100x speed
-        # Groq's high rate limits allow for extreme concurrency
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            decisions = list(executor.map(self.analyze_stock_ultra, market_data))
+        # Reduced concurrency to avoid Groq rate limits (30 req/min)
+        # Process in small batches with delays between them
+        import time as _time
+        all_decisions = []
+        batch_size = 5
+        
+        for i in range(0, len(market_data), batch_size):
+            batch = market_data[i:i + batch_size]
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                batch_decisions = list(executor.map(self.analyze_stock_ultra, batch))
+            all_decisions.extend(batch_decisions)
+            
+            # Small delay between batches to stay under rate limits
+            if i + batch_size < len(market_data):
+                _time.sleep(1.0)
         
         # Filter successes and high-conviction BUYs
-        actionable = [d for d in decisions if d and d.get('action') in ['STRONG BUY', 'BUY']]
+        actionable = [d for d in all_decisions if d and d.get('action') in ['STRONG BUY', 'BUY']]
         
         # Institutional Ranking: Score = (Conviction * 0.4) + (ValueScore * 0.6)
         for pick in actionable:

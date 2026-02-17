@@ -91,18 +91,30 @@ class ScheduleOrchestrator:
         """
         Run pre-market analysis and generate briefing
         Scheduled for 6:00 AM before market opens
+        
+        Each step is isolated — failures in one step won't crash the report.
         """
         print("\n" + "="*60)
         print("🌅 RUNNING PRE-MARKET ANALYSIS")
         print("="*60)
+        import time as _time
+        overall_start = _time.time()
         
         try:
-            # 1. Fetch overnight global markets (SMI-v2 resilient)
+            # ── Step 1: Fetch overnight global markets ────────────────
             print("\n[1/5] Fetching global markets (MacroObserver)...")
-            macro_packet = macro_observer.get_full_macro_packet()
-            us_markets = get_us_markets_summary() # Still useful for deep US sentiment
+            macro_packet = {"usd_pkr": 280.0, "oil_brent": 80.0, "kibor_6m": 22.5}
+            us_markets = {}
+            try:
+                macro_packet = macro_observer.get_full_macro_packet()
+            except Exception as e:
+                print(f"  ⚠️ Macro fetch failed ({e}). Using defaults.")
             
-            # Combine for report
+            try:
+                us_markets = get_us_markets_summary()
+            except Exception as e:
+                print(f"  ⚠️ US markets fetch failed ({e}). Using defaults.")
+            
             global_summary = {
                 'sp500': us_markets.get('sp500', 0),
                 'sp500_change': us_markets.get('sp500_change', 0),
@@ -114,112 +126,148 @@ class ScheduleOrchestrator:
                 'impact': us_markets.get('impact', 'neutral')
             }
             
-            # 2. Get previous day KSE-100 data
+            # ── Step 2: Previous day KSE-100 data ─────────────────────
             print("[2/5] Getting previous day recap...")
-            _prev = db.get_latest_kse100()
-            previous_day = _prev if _prev else {
-                'close_value': 0, 'change_percent': 0, 'volume': 0, 
-                'advancing': 0, 'declining': 0
-            }
+            previous_day = {'close_value': 0, 'change_percent': 0, 'volume': 0, 
+                           'advancing': 0, 'declining': 0}
+            try:
+                _prev = db.get_latest_kse100()
+                if _prev:
+                    previous_day = _prev
+            except Exception as e:
+                print(f"  ⚠️ KSE-100 data failed ({e}). Using defaults.")
             
-            # 3. Calculate technical outlook
+            # ── Step 3: Technical outlook ─────────────────────────────
             print("[3/5] Calculating technical outlook...")
-            sr_levels = get_kse100_support_resistance()
-            technical_outlook = {
-                'support_1': sr_levels.get('support_1', 0),
-                'resistance_1': sr_levels.get('resistance_1', 0),
-                'expected_low': sr_levels.get('support_1', 0) * 0.995 if sr_levels.get('support_1') else 0,
-                'expected_high': sr_levels.get('resistance_1', 0) * 1.005 if sr_levels.get('resistance_1') else 0,
-                'trend': 'Awaiting market open'
-            }
+            sr_levels = {}
+            technical_outlook = {'support_1': 0, 'resistance_1': 0, 'expected_low': 0,
+                                'expected_high': 0, 'trend': 'Awaiting market open'}
+            try:
+                sr_levels = get_kse100_support_resistance()
+                technical_outlook = {
+                    'support_1': sr_levels.get('support_1', 0),
+                    'resistance_1': sr_levels.get('resistance_1', 0),
+                    'expected_low': sr_levels.get('support_1', 0) * 0.995 if sr_levels.get('support_1') else 0,
+                    'expected_high': sr_levels.get('resistance_1', 0) * 1.005 if sr_levels.get('resistance_1') else 0,
+                    'trend': 'Awaiting market open'
+                }
+            except Exception as e:
+                print(f"  ⚠️ Technical outlook failed ({e}). Using defaults.")
             
-            # 3.5. Ensure tickers exist (Cloud Fallback)
-            if not db.get_all_tickers():
-                print("  ⚠️ No tickers found in DB. Discovering now...")
-                discover_and_save_tickers()
+            # Ensure tickers exist
+            try:
+                if not db.get_all_tickers():
+                    print("  ⚠️ No tickers found in DB. Discovering now...")
+                    discover_and_save_tickers()
+            except Exception as e:
+                print(f"  ⚠️ Ticker check failed ({e}).")
 
-            # 4. Get corporate events (from announcements)
+            # ── Step 4: Corporate events ──────────────────────────────
             print("[4/5] Fetching corporate events...")
-            announcements = db.get_recent_announcements(days=1)
-            corporate_events = [
-                {
-                    'symbol': ann['symbol'],
-                    'event_type': ann.get('announcement_type', 'Announcement'),
-                    'impact': 'positive' if (ann.get('sentiment_score', 0) or 0) > 0.1 else (
-                        'negative' if (ann.get('sentiment_score', 0) or 0) < -0.1 else 'neutral'
-                    )
-                }
-                for ann in announcements[:10]
-            ]
+            corporate_events = []
+            try:
+                announcements = db.get_recent_announcements(days=1)
+                corporate_events = [
+                    {
+                        'symbol': ann['symbol'],
+                        'event_type': ann.get('announcement_type', 'Announcement'),
+                        'impact': 'positive' if (ann.get('sentiment_score', 0) or 0) > 0.1 else (
+                            'negative' if (ann.get('sentiment_score', 0) or 0) < -0.1 else 'neutral'
+                        )
+                    }
+                    for ann in announcements[:10]
+                ]
+            except Exception as e:
+                print(f"  ⚠️ Corporate events fetch failed ({e}).")
             
-            # 5. SMI-v3 Ultra: Institutional Deep Research (Pre-Market Picks)
-            print("[5/5] Identifying High-Conviction Long-Term Picks (SMI-v3 Ultra)...")
-            from ai_engine.deep_research_engine import DeepResearchEngine
-            deep_engine = DeepResearchEngine()
-            
-            # Fetch top scoring stocks for potential deep research
-            scores = db.get_stock_scores(limit=25)
-            stocks_for_analysis = []
-            for s in scores:
-                sym = s['symbol']
-                tech = db.get_technical_indicators(sym) or {}
-                fund = db.get_latest_fundamentals(sym) or {}
-                news = db.get_recent_news_for_ticker(sym, days=7)
-                
-                context = {
-                    "Symbol": sym,
-                    "Price": s.get('components', {}).get('technical', {}).get('details', {}).get('price', 0),
-                    "Fundamentals": fund,
-                    "Technicals": tech,
-                    "Sector": fund.get('sector', 'N/A'),
-                    "Recent_News": [n.get('headline', '')[:100] for n in (news or [])[:3]]
-                }
-                stocks_for_analysis.append(context)
-            
-            # Generate Wealth Generation Top 10
-            wealth_picks = deep_engine.find_wealth_generation_picks(stocks_for_analysis)
-            
-            # Map picks to the format expected by the template (or update template to match)
-            # For backward compatibility with existing templates until they are updated:
+            # ── Step 5: Deep Research (lighter — top 10 only) ─────────
+            print("[5/5] Identifying High-Conviction Picks (SMI-v3 Ultra)...")
             stocks_to_watch = []
-            for p in wealth_picks:
-                stocks_to_watch.append({
-                    'symbol': p['symbol'],
-                    'action': p['action'],
-                    'conviction': f"{p['conviction']}%",
-                    'future_path': f"Target 1Y: Rs. {p.get('target_price_1y', 'N/A')}",
-                    'black_swan': f"Long-Term Pillar: {p.get('key_investment_pillar', 'N/A')}",
-                    'reason': p['long_term_rational'],
-                    'atr_stop': f"Stop (Long): {p.get('stop_loss_long', 'N/A')}"
-                })
+            try:
+                step_start = _time.time()
+                from ai_engine.deep_research_engine import DeepResearchEngine
+                deep_engine = DeepResearchEngine()
+                
+                # Only analyze top 10 stocks for pre-market (lighter than post-market)
+                scores = db.get_stock_scores(limit=10)
+                stocks_for_analysis = []
+                for s in scores:
+                    sym = s['symbol']
+                    tech = db.get_technical_indicators(sym) or {}
+                    fund = db.get_latest_fundamentals(sym) or {}
+                    fund_clean = {k: v for k, v in fund.items() if k != 'date'}
+                    news = db.get_recent_news_for_ticker(sym, days=7)
+                    
+                    context = {
+                        "Symbol": sym,
+                        "Price": s.get('components', {}).get('technical', {}).get('details', {}).get('price', 0),
+                        "Fundamentals": fund_clean,
+                        "Technicals": tech,
+                        "Sector": fund_clean.get('sector', 'N/A'),
+                        "Recent_News": [n.get('headline', '')[:100] for n in (news or [])[:3]]
+                    }
+                    stocks_for_analysis.append(context)
+                
+                wealth_picks = deep_engine.find_wealth_generation_picks(stocks_for_analysis)
+                
+                for p in wealth_picks:
+                    stocks_to_watch.append({
+                        'symbol': p['symbol'],
+                        'action': p['action'],
+                        'conviction': f"{p['conviction']}%",
+                        'future_path': f"Target 1Y: Rs. {p.get('target_price_1y', 'N/A')}",
+                        'black_swan': f"Long-Term Pillar: {p.get('key_investment_pillar', 'N/A')}",
+                        'reason': p['long_term_rational'],
+                        'atr_stop': f"Stop (Long): {p.get('stop_loss_long', 'N/A')}"
+                    })
+                print(f"  ✅ Deep research done in {_time.time()-step_start:.1f}s → {len(stocks_to_watch)} picks")
+            except Exception as e:
+                print(f"  ⚠️ Deep research failed ({e}). Using cached scores as fallback.")
+                try:
+                    cached_scores = db.get_stock_scores(limit=5)
+                    for s in cached_scores:
+                        stocks_to_watch.append({
+                            'symbol': s['symbol'],
+                            'action': s.get('rating', 'HOLD'),
+                            'conviction': f"{s.get('total_score', 50)}%",
+                            'reason': f"Score {s.get('total_score', 0)}/100",
+                            'future_path': 'N/A', 'black_swan': 'N/A', 'atr_stop': 'N/A'
+                        })
+                except:
+                    pass
             
-            # Risk warnings
+            # ── Risk warnings ─────────────────────────────────────────
             risk_warnings = []
+            try:
+                if us_markets.get('sentiment') == 'negative':
+                    risk_warnings.append("US markets closed negative - caution advised")
+                
+                oil_summary = get_oil_summary()
+                if oil_summary.get('trend') == 'falling':
+                    risk_warnings.append("Oil prices declining - energy sector may be weak")
+                
+                forex = fetch_usd_pkr()
+                if forex and forex.get('usd_pkr', 0) > 280:
+                    risk_warnings.append("PKR weakness may impact import-heavy stocks")
+            except Exception as e:
+                print(f"  ⚠️ Risk warnings generation failed ({e}).")
             
-            if us_markets.get('sentiment') == 'negative':
-                risk_warnings.append("US markets closed negative - caution advised")
-            
-            oil_summary = get_oil_summary()
-            if oil_summary.get('trend') == 'falling':
-                risk_warnings.append("Oil prices declining - energy sector may be weak")
-            
-            forex = fetch_usd_pkr()
-            if forex and forex.get('usd_pkr', 0) > 280:
-                risk_warnings.append("PKR weakness may impact import-heavy stocks")
-            
-            # Trading strategy
+            # ── Trading strategy + AI synthesis ───────────────────────
             bias = 'bullish' if us_markets.get('sentiment') == 'positive' else (
                 'bearish' if us_markets.get('sentiment') == 'negative' else 'neutral'
             )
             
-            # AI synthesis for pre-market (SMI-v2)
-            news_data = get_all_news()
-            synthesis = _safe_run(market_brain.generate_synthesis(
-                news_data=news_data,
-                market_status=previous_day,
-                macro_data=macro_packet,
-                top_movers={}
-            ))
+            synthesis = None
+            try:
+                news_data = get_all_news()
+                synthesis = _safe_run(market_brain.generate_synthesis(
+                    news_data=news_data,
+                    market_status=previous_day,
+                    macro_data=macro_packet,
+                    top_movers={}
+                ))
+            except Exception as e:
+                print(f"  ⚠️ AI synthesis failed ({e}). Report will skip AI section.")
             
             trading_strategy = {
                 'bias': bias,
@@ -228,10 +276,10 @@ class ScheduleOrchestrator:
                 ),
                 'buy_level': sr_levels.get('support_1', 0),
                 'sell_level': sr_levels.get('resistance_1', 0),
-                'synthesis': synthesis # For template
+                'synthesis': synthesis
             }
             
-            # Generate report
+            # ── Generate report ───────────────────────────────────────
             html = generate_premarket_report(
                 global_markets=global_summary,
                 previous_day=previous_day,
@@ -242,27 +290,42 @@ class ScheduleOrchestrator:
                 trading_strategy=trading_strategy
             )
             
-            # Send email
-            from report.email_sender import send_email
-            send_email(
-                subject=f"🌅 PSX Pre-Market Briefing - {datetime.now().strftime('%B %d, %Y')}",
-                html_content=html
-            )
+            # ── Send email ────────────────────────────────────────────
+            try:
+                from report.email_sender import send_email
+                send_email(
+                    subject=f"🌅 PSX Pre-Market Briefing - {datetime.now().strftime('%B %d, %Y')}",
+                    html_content=html
+                )
+            except Exception as e:
+                print(f"  ⚠️ Email sending failed ({e}). Saving report locally.")
+                try:
+                    report_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                                               'reports', f"premarket_{datetime.now().strftime('%Y%m%d_%H%M')}.html")
+                    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+                    with open(report_path, 'w', encoding='utf-8') as f:
+                        f.write(html)
+                    print(f"  📄 Report saved to {report_path}")
+                except:
+                    pass
             
-            # Log
             db.save_report_history('pre_market')
             self.last_run['pre_market'] = datetime.now()
             
-            print("\n✅ Pre-market analysis complete!")
+            elapsed = _time.time() - overall_start
+            print(f"\n✅ Pre-market analysis complete in {elapsed:.0f}s ({elapsed/60:.1f} min)!")
             
             return {
                 'status': 'success',
                 'report_type': 'pre_market',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now().isoformat(),
+                'elapsed_seconds': round(elapsed, 1)
             }
             
         except Exception as e:
             print(f"\n❌ Pre-market analysis failed: {e}")
+            import traceback
+            traceback.print_exc()
             return {'status': 'error', 'error': str(e)}
     
     # ==================== MID-DAY UPDATE (1:00 PM) ====================
@@ -280,54 +343,98 @@ class ScheduleOrchestrator:
         """
         Run comprehensive post-market analysis
         The main daily deep scan after market close
+        
+        Each step is isolated — failures in one step won't crash the report.
         """
         print("\n" + "="*60)
         print("🌙 RUNNING POST-MARKET DEEP ANALYSIS")
         print("="*60)
+        import time as _time
+        overall_start = _time.time()
         
         try:
             nest_asyncio.apply()
-            # 1. Discover and refresh all tickers
+            
+            # Use TOP_STOCKS from config (50 tickers) instead of ALL discovered tickers (500+)
+            from config import TOP_STOCKS
+            
+            # ── Step 1: Discover tickers ──────────────────────────────
             print("\n[1/8] Discovering tickers...")
-            discover_and_save_tickers()
-            tickers = db.get_all_tickers()
+            try:
+                discover_and_save_tickers()
+                tickers = db.get_all_tickers()
+            except Exception as e:
+                print(f"  ⚠️ Ticker discovery failed ({e}). Using cached tickers.")
+                tickers = db.get_all_tickers() or []
             
-            # 2. Fetch final prices
+            # Use TOP_STOCKS for heavy operations, all tickers only for price fetching
+            analysis_symbols = TOP_STOCKS
+            all_symbols = [t['symbol'] for t in tickers] if tickers else TOP_STOCKS
+            
+            # ── Step 2: Fetch final prices ────────────────────────────
             print("[2/8] Fetching final prices...")
-            tickers = db.get_all_tickers()
-            from scraper.price_scraper import AsyncPriceScraper
-            scraper = AsyncPriceScraper()
-            _safe_run(scraper.fetch_all_prices_async([t['symbol'] for t in tickers]))
+            try:
+                step_start = _time.time()
+                from scraper.price_scraper import AsyncPriceScraper
+                scraper = AsyncPriceScraper()
+                _safe_run(scraper.fetch_all_prices_async(all_symbols))
+                print(f"  ✅ Prices fetched in {_time.time()-step_start:.1f}s")
+            except Exception as e:
+                print(f"  ⚠️ Price fetching failed ({e}). Using cached prices.")
             
-            # 2.5. Fetch fundamentals (P/E, EPS, Margins)
+            # ── Step 2.5: Fetch fundamentals ──────────────────────────
             print("[2.5/8] Fetching fundamental data...")
-            run_fundamentals_scraper()
+            try:
+                step_start = _time.time()
+                run_fundamentals_scraper()
+                print(f"  ✅ Fundamentals done in {_time.time()-step_start:.1f}s")
+            except Exception as e:
+                print(f"  ⚠️ Fundamentals fetch failed ({e}). Using cached data.")
             
-            # 2.6. Leverage & Settlement Audit (SMI-v2)
-            print("[2.6/8] Performing Leverage & Settlement Audit (NCCPL/PSX)...")
-            leverage_radar.run_leverage_audit()
+            # ── Step 2.6: Leverage Audit ──────────────────────────────
+            print("[2.6/8] Performing Leverage & Settlement Audit...")
+            try:
+                leverage_radar.run_leverage_audit()
+            except Exception as e:
+                print(f"  ⚠️ Leverage audit failed ({e}). Skipping.")
 
-            # 2.5 Fetch Macro Context
-            print("[2.5/8] Fetching Global Macro Context...")
-            macro_packet = macro_observer.get_full_macro_packet()
+            # ── Step 2.7: Fetch Macro Context (SINGLE call, reused later) ─
+            print("[2.7/8] Fetching Global Macro Context...")
+            macro_packet = {}
+            try:
+                macro_packet = macro_observer.get_full_macro_packet()
+            except Exception as e:
+                print(f"  ⚠️ Macro fetch failed ({e}). Using defaults.")
+                macro_packet = {"usd_pkr": 280.0, "oil_brent": 80.0, "kibor_6m": 22.5}
             
-            # 3. Scrape announcements
+            # ── Step 3: Scrape announcements (TOP_STOCKS only) ────────
             print("[3/8] Scraping announcements...")
-            symbols = [t['symbol'] for t in tickers]  # Analyze ALL
-            scrape_all_announcements(symbols, show_progress=True)
-            analyze_all_announcements()
+            try:
+                step_start = _time.time()
+                scrape_all_announcements(analysis_symbols, show_progress=True)
+                analyze_all_announcements()
+                print(f"  ✅ Announcements done in {_time.time()-step_start:.1f}s")
+            except Exception as e:
+                print(f"  ⚠️ Announcements failed ({e}). Using cached data.")
             
-            # 4. Get KSE-100 final data + Sovereign Yields
+            # ── Step 4: Get KSE-100 data + Sovereign Yields ──────────
             print("[4/8] Getting KSE-100 data & Sovereign Context...")
-            _kse = get_kse100_summary()
-            kse100 = _kse if _kse else {
-                'close_value': 0, 'change_percent': 0, 'volume': 0, 
-                'advancing': 0, 'declining': 0, 'sentiment': 'Neutral'
-            }
+            kse100 = {'close_value': 0, 'change_percent': 0, 'volume': 0, 
+                      'advancing': 0, 'declining': 0, 'sentiment': 'Neutral'}
+            kibor = {}
+            tbills = {}
+            try:
+                _kse = get_kse100_summary()
+                if _kse:
+                    kse100 = _kse
+            except Exception as e:
+                print(f"  ⚠️ KSE-100 fetch failed ({e}). Using defaults.")
             
-            # Fetch SMI Sovereign Context
-            kibor = sovereign_heartbeat.fetch_kibor_rates()
-            tbills = sovereign_heartbeat.fetch_tbill_yields()
+            try:
+                kibor = sovereign_heartbeat.fetch_kibor_rates()
+                tbills = sovereign_heartbeat.fetch_tbill_yields()
+            except Exception as e:
+                print(f"  ⚠️ Sovereign yields failed ({e}). Using defaults.")
             
             market_summary = {
                 'close_value': kse100.get('close_value', 0),
@@ -340,115 +447,136 @@ class ScheduleOrchestrator:
                 'liquidity': 'Positive' if kibor.get('trend') == 'receding' else 'Stable'
             }
             
-            # 5. Score all stocks
+            # ── Step 5: Score stocks (TOP_STOCKS only, not all 500+) ──
             print("[5/8] Running 100-point stock analysis...")
-            symbols = [t['symbol'] for t in tickers]  # Analyze ALL
-            scores = score_all_stocks(symbols, show_progress=True)
+            scores = []
+            try:
+                step_start = _time.time()
+                scores = score_all_stocks(analysis_symbols, show_progress=True)
+                print(f"  ✅ Scored {len(scores)} stocks in {_time.time()-step_start:.1f}s")
+            except Exception as e:
+                print(f"  ⚠️ Stock scoring failed ({e}). Report will have limited data.")
             
             # Top stocks for report
             top_stocks = [
                 {
                     'symbol': s['symbol'],
                     'price': s['components']['technical'].get('details', {}).get('price', 0),
-                    'change_percent': 0,  # Would calculate from price history
+                    'change_percent': 0,
                     'score': s['total_score'],
                     'rating': s['rating']
                 }
                 for s in scores[:15]
             ]
             
-            # 5.5. SMI-v3 Ultra: Institutional Deep Research (Post-Market Verdicts)
-            print("[5.5/8] Analyzing Top 25 Tickers for Wealth Generation (SMI-v3 Ultra)...")
-            # Fast mode for CI/CD: analyze 25 stocks in parallel
-            from ai_engine.deep_research_engine import DeepResearchEngine
-            deep_engine = DeepResearchEngine()
-            
-            stocks_for_post_analysis = []
-            for s in top_stocks[:25]:  # 25 stocks for fast CI/CD completion
-                sym = s['symbol']
-                tech = db.get_technical_indicators(sym) or {}
-                lev = db.get_latest_leverage(sym) or {}
-                fund = db.get_latest_fundamentals(sym) or {}
-                # Remove non-JSON-serializable date field
-                fund_clean = {k: v for k, v in fund.items() if k != 'date'}
-                news = db.get_recent_news_for_ticker(sym, days=7)
+            # ── Step 5.5: SMI-v3 Ultra Deep Research ──────────────────
+            print("[5.5/8] Analyzing Top Tickers for Wealth Generation (SMI-v3 Ultra)...")
+            cognitive_decisions = []
+            try:
+                step_start = _time.time()
+                from ai_engine.deep_research_engine import DeepResearchEngine
+                deep_engine = DeepResearchEngine()
                 
-                context = {
-                    "Symbol": sym,
-                    "Price": s['price'],
-                    "Change_Percent": s.get('change_percent', 0),
-                    "Fundamentals": fund_clean,
-                    "Technicals": tech,
-                    "Settlement": lev,
-                    "Sector": fund_clean.get('sector', 'N/A'),
-                    "Macro": macro_packet,
-                    "Recent_News": [n.get('headline', '')[:100] for n in (news or [])[:3]]
-                }
-                stocks_for_post_analysis.append(context)
+                # Limit to top 15 stocks for faster completion
+                stocks_for_post_analysis = []
+                for s in top_stocks[:15]:
+                    sym = s['symbol']
+                    tech = db.get_technical_indicators(sym) or {}
+                    lev = db.get_latest_leverage(sym) or {}
+                    fund = db.get_latest_fundamentals(sym) or {}
+                    fund_clean = {k: v for k, v in fund.items() if k != 'date'}
+                    news = db.get_recent_news_for_ticker(sym, days=7)
+                    
+                    context = {
+                        "Symbol": sym,
+                        "Price": s['price'],
+                        "Change_Percent": s.get('change_percent', 0),
+                        "Fundamentals": fund_clean,
+                        "Technicals": tech,
+                        "Settlement": lev,
+                        "Sector": fund_clean.get('sector', 'N/A'),
+                        "Macro": macro_packet,
+                        "Recent_News": [n.get('headline', '')[:100] for n in (news or [])[:3]]
+                    }
+                    stocks_for_post_analysis.append(context)
+                
+                cognitive_decisions = deep_engine.find_wealth_generation_picks(stocks_for_post_analysis)
+                print(f"  ✅ Deep research done in {_time.time()-step_start:.1f}s → {len(cognitive_decisions)} verdicts")
+                
+                # Save decisions to DB
+                db.save_ai_decisions([
+                    {
+                        'ticker': d['symbol'],
+                        'action': d['action'],
+                        'conviction': f"{d['conviction']}%",
+                        'reasoning': d['long_term_rational'],
+                        'future_path': f"Target 1Y: {d.get('target_price_1y')}",
+                        'black_swan': d.get('key_investment_pillar')
+                    } for d in cognitive_decisions
+                ])
+            except Exception as e:
+                print(f"  ⚠️ Deep research failed ({e}). Report will skip AI verdicts.")
             
-            # Generate Top 10 Institutional Picks
-            cognitive_decisions = deep_engine.find_wealth_generation_picks(stocks_for_post_analysis)
-            
-            # Save for record (using original AIDecision table but enriched context)
-            db.save_ai_decisions([
-                {
-                    'ticker': d['symbol'],
-                    'action': d['action'],
-                    'conviction': f"{d['conviction']}%",
-                    'reasoning': d['long_term_rational'],
-                    'future_path': f"Target 1Y: {d.get('target_price_1y')}",
-                    'black_swan': d.get('key_investment_pillar')
-                } for d in cognitive_decisions
-            ])
-            
-            print(f"  → Received {len(cognitive_decisions)} institutional verdicts.")
-            
-            # 6. Get sector performance
+            # ── Step 6: Sector performance ────────────────────────────
             print("[6/8] Analyzing sectors...")
-            sector_indices = db.get_sector_indices()
-            sector_performance = [
-                {
-                    'name': s['sector'],
-                    'change_percent': s.get('change_percent', 0)
-                }
-                for s in sector_indices
-            ]
+            sector_performance = []
+            try:
+                sector_indices = db.get_sector_indices()
+                sector_performance = [
+                    {'name': s['sector'], 'change_percent': s.get('change_percent', 0)}
+                    for s in sector_indices
+                ]
+            except Exception as e:
+                print(f"  ⚠️ Sector analysis failed ({e}).")
             
-            # 7. Compile technical analysis
+            # ── Step 7: Technical analysis ────────────────────────────
             print("[7/8] Compiling technical analysis...")
-            sr_levels = get_kse100_support_resistance()
-            kse100_tech = db.get_technical_indicators('KSE100') or {}
+            sr_levels = {}
+            technical_analysis = {'rsi': 55, 'macd_trend': 'neutral', 'trend': 'Neutral',
+                                  'support': 0, 'resistance': 0, 'bollinger_signal': 'Neutral'}
+            try:
+                sr_levels = get_kse100_support_resistance()
+                kse100_tech = db.get_technical_indicators('KSE100') or {}
+                technical_analysis = {
+                    'rsi': kse100_tech.get('rsi', 55),
+                    'macd_trend': kse100_tech.get('macd_signal', 'Neutral').lower(),
+                    'trend': kse100_tech.get('trend', kse100.get('sentiment', 'Neutral')),
+                    'support': sr_levels.get('support_1', 0),
+                    'resistance': sr_levels.get('resistance_1', 0),
+                    'bollinger_signal': kse100_tech.get('bollinger_signal', 'Neutral')
+                }
+            except Exception as e:
+                print(f"  ⚠️ Technical analysis failed ({e}). Using defaults.")
             
-            technical_analysis = {
-                'rsi': kse100_tech.get('rsi', 55),
-                'macd_trend': kse100_tech.get('macd_signal', 'Neutral').lower(),
-                'trend': kse100_tech.get('trend', kse100.get('sentiment', 'Neutral')),
-                'support': sr_levels.get('support_1', 0),
-                'resistance': sr_levels.get('resistance_1', 0),
-                'bollinger_signal': kse100_tech.get('bollinger_signal', 'Neutral')
-            }
-            
-            # 8. Get news summary (Comprehensive)
+            # ── Step 8: News + AI Synthesis ───────────────────────────
             print("[8/8] Analyzing news sentiment...")
-            news_data = get_all_news()
+            news_summary = {'total': 0, 'negative': 0, 'sentiment': 'mixed',
+                           'top_headlines': [], 'synthesis': None}
+            try:
+                step_start = _time.time()
+                news_data = get_all_news()
+                
+                # AI synthesis — reuse macro_packet from Step 2.7 (no duplicate call)
+                synthesis = _safe_run(market_brain.generate_synthesis(
+                    news_data=news_data,
+                    market_status=market_summary,
+                    macro_data=macro_packet,
+                    top_movers={}
+                ))
+                
+                news_summary = {
+                    'total': len(news_data.get('national', [])),
+                    'negative': sum(1 for n in news_data.get('national', []) if n['sentiment'] < -0.1),
+                    'sentiment': news_data.get('sentiment_label', 'mixed'),
+                    'top_headlines': [h['headline'] for h in news_data.get('national', [])][:5],
+                    'synthesis': synthesis
+                }
+                print(f"  ✅ News done in {_time.time()-step_start:.1f}s")
+            except Exception as e:
+                print(f"  ⚠️ News analysis failed ({e}). Report will have limited news section.")
+                news_data = {'national': [], 'overall_sentiment': 'neutral'}
             
-            # AI synthesis for post-market
-            synthesis = _safe_run(market_brain.generate_synthesis(
-                news_data=news_data,
-                market_status=market_summary, # Changed from kse100_summary to market_summary to match original context
-                macro_data=macro_observer.get_full_macro_packet(), # Changed from macro_packet to macro_observer.get_full_macro_packet() to match original context
-                top_movers={} # Changed from {'gainers': top_gainers, 'losers': top_losers} to {} to match original context
-            ))
-            
-            news_summary = {
-                'total': len(news_data.get('national', [])),
-                'negative': sum(1 for n in news_data.get('national', []) if n['sentiment'] < -0.1),
-                'sentiment': news_data.get('sentiment_label', 'mixed'),
-                'top_headlines': [h['headline'] for h in news_data.get('national', [])][:5],
-                'synthesis': synthesis # Pass to template
-            }
-            
-            # Risk assessment
+            # ── Compile remaining report data ────────────────────────
             risk_assessment = {
                 'market_risk': 'low' if (kse100.get('change_percent', 0) or 0) > 0 else 'medium',
                 'currency_risk': 'medium',
@@ -456,9 +584,8 @@ class ScheduleOrchestrator:
                 'key_warning': None
             }
             
-            # Tomorrow's outlook
-            bias = 'bullish' if news_data.get('overall_sentiment') == 'bullish' and (kse100.get('change_percent', 0) or 0) > 0 else (
-                'bearish' if news_data.get('overall_sentiment') == 'bearish' else 'neutral'
+            bias = 'bullish' if news_summary.get('sentiment') == 'bullish' and (kse100.get('change_percent', 0) or 0) > 0 else (
+                'bearish' if news_summary.get('sentiment') == 'bearish' else 'neutral'
             )
             
             tomorrow_outlook = {
@@ -469,7 +596,6 @@ class ScheduleOrchestrator:
                 'narrative': f"Market expected to {'continue positive momentum' if bias == 'bullish' else 'face some pressure' if bias == 'bearish' else 'consolidate'}."
             }
             
-            # Action items
             action_items = []
             for stock in scores[:3]:
                 if stock['rating'] == 'STRONG BUY':
@@ -488,9 +614,7 @@ class ScheduleOrchestrator:
                 val_score = comp.get('valuation', {}).get('score', 0)
                 fin_score = comp.get('financial', {}).get('score', 0)
                 
-                # Logic: Good Valuation (>15/25) + Good Financials (>20/35) + Total > 65
                 if val_score >= 15 and fin_score >= 20 and s['total_score'] >= 65:
-                    # Extract details for display
                     try:
                         pe_str = comp['valuation']['details'].get('pe_valuation', 'N/A').split('P/E: ')[-1].replace(')', '')
                         growth_str = comp['financial']['details'].get('earnings_quality', 'N/A').split('growth: ')[-1].replace('%)', '')
@@ -506,7 +630,8 @@ class ScheduleOrchestrator:
                         'reason': 'Undervalued High Growth'
                     })
 
-            # Generate report
+            # ── Generate report HTML ─────────────────────────────────
+            print("\n📝 Generating report...")
             html = generate_postmarket_report(
                 market_summary=market_summary,
                 top_stocks=top_stocks,
@@ -520,32 +645,49 @@ class ScheduleOrchestrator:
                 cognitive_decisions=cognitive_decisions
             )
             
-            # Generate comprehensive CSV reports
+            # ── Generate CSV reports ─────────────────────────────────
             print("[8.5/8] Generating comprehensive CSV reports...")
-            from report.csv_generator import report_generator
-            csv_reports = report_generator.generate_all_reports()
+            csv_reports = {}
+            attachments = []
+            try:
+                from report.csv_generator import report_generator
+                csv_reports = report_generator.generate_all_reports()
+                ai_csv_path = report_generator.generate_ai_decisions_csv(cognitive_decisions)
+                csv_reports['ai_cognitive_decisions'] = ai_csv_path
+                attachments = list(csv_reports.values())
+                print(f"  → Generated {len(attachments)} CSV reports for attachment")
+            except Exception as e:
+                print(f"  ⚠️ CSV generation failed ({e}). Sending email without attachments.")
             
-            # Ensure the specific AI CSV includes today's real-time decisions
-            ai_csv_path = report_generator.generate_ai_decisions_csv(cognitive_decisions)
-            csv_reports['ai_cognitive_decisions'] = ai_csv_path
-            
-            attachments = list(csv_reports.values())
-            print(f"  → Generated {len(attachments)} CSV reports for attachment")
-            
-            # Send email with attachments
-            from report.email_sender import send_email
-            send_email(
-                subject=f"📊 PSX Post-Market Analysis - {datetime.now().strftime('%B %d, %Y')} | KSE-100: {market_summary['close_value']:,.0f}",
-                html_content=html,
-                attachments=attachments
-            )
+            # ── Send email ───────────────────────────────────────────
+            try:
+                from report.email_sender import send_email
+                send_email(
+                    subject=f"📊 PSX Post-Market Analysis - {datetime.now().strftime('%B %d, %Y')} | KSE-100: {market_summary['close_value']:,.0f}",
+                    html_content=html,
+                    attachments=attachments
+                )
+            except Exception as e:
+                print(f"  ⚠️ Email sending failed ({e}). Saving report locally.")
+                # Save locally as fallback
+                try:
+                    report_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                                               'reports', f"postmarket_{datetime.now().strftime('%Y%m%d_%H%M')}.html")
+                    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+                    with open(report_path, 'w', encoding='utf-8') as f:
+                        f.write(html)
+                    print(f"  📄 Report saved to {report_path}")
+                except:
+                    pass
             
             db.save_report_history('post_market')
             self.last_run['post_market'] = datetime.now()
             
-            print("\n✅ Post-market analysis complete with CSV attachments!")
+            elapsed = _time.time() - overall_start
+            print(f"\n✅ Post-market analysis complete in {elapsed:.0f}s ({elapsed/60:.1f} min)!")
             
-            return {'status': 'success', 'report_type': 'post_market', 'csv_reports': csv_reports}
+            return {'status': 'success', 'report_type': 'post_market', 'csv_reports': csv_reports,
+                    'elapsed_seconds': round(elapsed, 1)}
             
         except Exception as e:
             print(f"\n❌ Post-market analysis failed: {e}")
