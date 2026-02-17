@@ -28,10 +28,11 @@ async def fetch_company_page_async(session: aiohttp.ClientSession, symbol: str) 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
+    fast_timeout = aiohttp.ClientTimeout(total=10)  # 10s instead of 30s
     
-    for attempt in range(MAX_RETRIES):
+    for attempt in range(2):  # 2 retries max (down from 3)
         try:
-            async with session.get(url, headers=headers, timeout=REQUEST_TIMEOUT) as response:
+            async with session.get(url, headers=headers, timeout=fast_timeout) as response:
                 if response.status == 200:
                     return await response.text()
                 elif response.status == 429:
@@ -137,7 +138,7 @@ async def process_ticker_announcements(session: aiohttp.ClientSession, symbol: s
                 new_count += 1
         return new_count
 
-async def scrape_all_announcements_async(symbols: List[str], concurrency: int = 10, show_progress: bool = True, overall_timeout: int = 120) -> Dict:
+async def scrape_all_announcements_async(symbols: List[str], concurrency: int = 20, show_progress: bool = True, overall_timeout: int = 120) -> Dict:
     """
     Scrape announcements for all symbols concurrently.
     
