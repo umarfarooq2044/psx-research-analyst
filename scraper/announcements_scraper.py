@@ -137,23 +137,43 @@ async def process_ticker_announcements(session: aiohttp.ClientSession, symbol: s
                 new_count += 1
         return new_count
 
-async def scrape_all_announcements_async(symbols: List[str], concurrency: int = 10, show_progress: bool = True) -> Dict:
+async def scrape_all_announcements_async(symbols: List[str], concurrency: int = 10, show_progress: bool = True, overall_timeout: int = 120) -> Dict:
     """
     Scrape announcements for all symbols concurrently.
+    
+    Args:
+        overall_timeout: Max seconds to spend on the entire batch (default 120s).
+                         Prevents hanging on slow/rate-limited connections (e.g. CI/cloud).
     """
     semaphore = asyncio.Semaphore(concurrency)
-    async with aiohttp.ClientSession() as session:
-        tasks = [process_ticker_announcements(session, symbol, semaphore) for symbol in symbols]
+    completed = 0
+    total_new = 0
+    
+    async def _process_with_count(session, symbol):
+        nonlocal completed, total_new
+        result = await process_ticker_announcements(session, symbol, semaphore)
+        completed += 1
+        total_new += result
+        return result
+    
+    try:
+        async def _run_all():
+            async with aiohttp.ClientSession() as session:
+                tasks = [_process_with_count(session, symbol) for symbol in symbols]
+                if show_progress:
+                    await tqdm.gather(*tasks, desc="Scraping announcements")
+                else:
+                    await asyncio.gather(*tasks)
         
-        if show_progress:
-            results = await tqdm.gather(*tasks, desc="Scraping announcements")
-        else:
-            results = await asyncio.gather(*tasks)
-            
-    total_new = sum(results)
-    print(f"✅ Processed {len(symbols)} tickers, found {total_new} new announcements")
+        await asyncio.wait_for(_run_all(), timeout=overall_timeout)
+    except asyncio.TimeoutError:
+        print(f"\n  ⏰ Announcements timeout ({overall_timeout}s). Processed {completed}/{len(symbols)} tickers.")
+    except Exception as e:
+        print(f"\n  ⚠️ Announcements error: {e}. Processed {completed}/{len(symbols)} tickers.")
+    
+    print(f"✅ Processed {completed}/{len(symbols)} tickers, found {total_new} new announcements")
     return {
-        'processed': len(symbols),
+        'processed': completed,
         'new_announcements': total_new
     }
 

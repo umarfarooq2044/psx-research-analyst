@@ -99,19 +99,25 @@ class AsyncPriceScraper:
         return result
 
     async def fetch_all_prices_async(self, symbols: List[str]) -> List[Dict]:
-        """Fetch all prices concurrently"""
+        """Fetch all prices concurrently (with overall timeout for CI safety)"""
         start_time = time.time()
         print(f"🚀 Starting async scrape for {len(symbols)} tickers...")
         
         results = []
-        async with aiohttp.ClientSession() as session:
-            tasks = [self.fetch_intraday_data(session, symbol) for symbol in symbols]
+        try:
+            async def _fetch_all():
+                nonlocal results
+                async with aiohttp.ClientSession() as session:
+                    tasks = [self.fetch_intraday_data(session, symbol) for symbol in symbols]
+                    processed_data = await tqdm.gather(*tasks, desc="Fetching Prices")
+                    results = [r for r in processed_data if r is not None]
             
-            # Use tqdm for progress bar
-            processed_data = await tqdm.gather(*tasks, desc="Fetching Prices")
-            
-            # Filter None results
-            results = [r for r in processed_data if r is not None]
+            # 5 minute overall timeout — prevents CI hangs on rate-limited connections
+            await asyncio.wait_for(_fetch_all(), timeout=300)
+        except asyncio.TimeoutError:
+            print(f"\n  ⏰ Price fetch timeout (300s). Got {len(results)}/{len(symbols)} prices.")
+        except Exception as e:
+            print(f"\n  ⚠️ Price fetch error: {e}. Got {len(results)}/{len(symbols)} prices.")
         
         duration = time.time() - start_time
         print(f"✅ Scraped {len(results)}/{len(symbols)} stocks in {duration:.2f} seconds!")
