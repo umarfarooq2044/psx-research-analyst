@@ -417,6 +417,16 @@ class ScheduleOrchestrator:
             except Exception as e:
                 print(f"  ⚠️ Announcements failed ({e}). Using cached data.")
             
+            # ── Step 3.5: Extract financial report PDFs (incremental) ──
+            print("[3.5/8] Extracting financial report PDFs...")
+            try:
+                step_start = _time.time()
+                from scraper.financial_report_scraper import process_unprocessed_reports
+                pdf_result = process_unprocessed_reports(batch_size=30, overall_timeout=120)
+                print(f"  ✅ PDF extraction done in {_time.time()-step_start:.1f}s")
+            except Exception as e:
+                print(f"  ⚠️ PDF extraction failed ({e}). Skipping.")
+            
             # ── Step 4: Get KSE-100 data + Sovereign Yields ──────────
             print("[4/8] Getting KSE-100 data & Sovereign Context...")
             kse100 = {'close_value': 0, 'change_percent': 0, 'volume': 0, 
