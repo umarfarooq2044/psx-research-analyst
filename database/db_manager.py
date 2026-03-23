@@ -324,6 +324,27 @@ class DBManager:
                 )
                 session.add(analysis)
 
+    @staticmethod
+    def _sanitize_for_json(obj):
+        """Recursively convert numpy/pandas types to native Python types for JSON serialization."""
+        try:
+            import numpy as np
+            if isinstance(obj, (np.integer,)):
+                return int(obj)
+            if isinstance(obj, (np.floating,)):
+                return float(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            if isinstance(obj, np.bool_):
+                return bool(obj)
+        except ImportError:
+            pass
+        if isinstance(obj, dict):
+            return {k: DBManager._sanitize_for_json(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [DBManager._sanitize_for_json(i) for i in obj]
+        return obj
+
     def save_stock_score(self, symbol: str, scores: Dict):
         """Save 100-point stock score"""
         with get_db_session() as session:
@@ -332,9 +353,9 @@ class DBManager:
             score = session.query(StockScore).filter_by(symbol=symbol, date=today).first()
             
             total = sum([
-                scores.get('financial', 0), scores.get('valuation', 0),
-                scores.get('technical', 0), scores.get('sector_macro', 0),
-                scores.get('news', 0)
+                float(scores.get('financial', 0)), float(scores.get('valuation', 0)),
+                float(scores.get('technical', 0)), float(scores.get('sector_macro', 0)),
+                float(scores.get('news', 0))
             ])
             
             if total >= 85: rating = "STRONG BUY"
@@ -343,7 +364,9 @@ class DBManager:
             elif total >= 40: rating = "REDUCE"
             else: rating = "SELL/AVOID"
             
-            details = json.dumps(scores.get('details', {}))
+            # Sanitize details to remove numpy types before JSON serialization
+            clean_details = self._sanitize_for_json(scores.get('details', {}))
+            details = json.dumps(clean_details)
             
             if score:
                 score.financial_score = scores.get('financial', 0)

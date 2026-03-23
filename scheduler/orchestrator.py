@@ -28,15 +28,19 @@ def _safe_run(coro):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             
-        # Ensure we always run inside a Task context for timeout stability
         if loop.is_running():
-            task = loop.create_task(coro)
-            return loop.run_until_complete(task)
+            # If loop is already running, we can't call run_until_complete 
+            # unless nest_asyncio is perfectly applied. 
+            # We return a future that can be waited on or just run it via create_task.
+            import nest_asyncio
+            nest_asyncio.apply(loop)
+            return loop.run_until_complete(coro)
         else:
             return loop.run_until_complete(coro)
     except Exception as e:
-        print(f"  ⚠️ _safe_run fallback: {e}")
+        print(f"  ⚠️ _safe_run error: {e}")
         try:
+            # Last resort
             return asyncio.run(coro)
         except:
             return None
@@ -418,14 +422,14 @@ class ScheduleOrchestrator:
                 print(f"  ⚠️ Announcements failed ({e}). Using cached data.")
             
             # ── Step 3.5: Extract financial report PDFs (incremental) ──
-            print("[3.5/8] Extracting financial report PDFs...")
-            try:
-                step_start = _time.time()
-                from scraper.financial_report_scraper import process_unprocessed_reports
-                pdf_result = process_unprocessed_reports(batch_size=30, overall_timeout=120)
-                print(f"  ✅ PDF extraction done in {_time.time()-step_start:.1f}s")
-            except Exception as e:
-                print(f"  ⚠️ PDF extraction failed ({e}). Skipping.")
+            # print("[3.5/8] Extracting financial report PDFs...")
+            # try:
+            #     step_start = _time.time()
+            #     from scraper.financial_report_scraper import process_unprocessed_reports
+            #     pdf_result = process_unprocessed_reports(batch_size=30, overall_timeout=120)
+            #     print(f"  ✅ PDF extraction done in {_time.time()-step_start:.1f}s")
+            # except Exception as e:
+            #     print(f"  ⚠️ PDF extraction failed ({e}). Skipping.")
             
             # ── Step 4: Get KSE-100 data + Sovereign Yields ──────────
             print("[4/8] Getting KSE-100 data & Sovereign Context...")

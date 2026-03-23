@@ -166,9 +166,8 @@ async def scrape_all_announcements_async(symbols: List[str], concurrency: int = 
                 else:
                     await asyncio.gather(*tasks)
         
-        await asyncio.wait_for(_run_all(), timeout=overall_timeout)
-    except asyncio.TimeoutError:
-        print(f"\n  ⏰ Announcements timeout ({overall_timeout}s). Processed {completed}/{len(symbols)} tickers.")
+        # direct fetch - avoid asyncio.wait_for as it conflicts with nest_asyncio in orchestrator
+        await _run_all()
     except Exception as e:
         print(f"\n  ⚠️ Announcements error: {e}. Processed {completed}/{len(symbols)} tickers.")
     

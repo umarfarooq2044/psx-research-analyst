@@ -112,10 +112,8 @@ class AsyncPriceScraper:
                     processed_data = await tqdm.gather(*tasks, desc="Fetching Prices")
                     results = [r for r in processed_data if r is not None]
             
-            # 5 minute overall timeout — prevents CI hangs on rate-limited connections
-            await asyncio.wait_for(_fetch_all(), timeout=300)
-        except asyncio.TimeoutError:
-            print(f"\n  ⏰ Price fetch timeout (300s). Got {len(results)}/{len(symbols)} prices.")
+            # direct fetch - avoid asyncio.wait_for as it conflicts with nest_asyncio in orchestrator
+            await _fetch_all()
         except Exception as e:
             print(f"\n  ⚠️ Price fetch error: {e}. Got {len(results)}/{len(symbols)} prices.")
         

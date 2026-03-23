@@ -8,7 +8,7 @@ import os
 import sys
 from tqdm import tqdm
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))https://github.com/umarfarooq2044/psx-research-analyst/commit/81b85c4e8b30609fb353935653f71d7e84659563
 from database.db_manager import db
 from database.models import get_connection
 from config import WATCHLIST
